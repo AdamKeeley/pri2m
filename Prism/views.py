@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.apps import apps
 import pyodbc
+import pandas as pd
 
 def connection():
     s = 'adam-playground.database.windows.net'
@@ -13,10 +14,15 @@ def connection():
 
 def projects(request):
     projects = []
+    qry = "SELECT top (5) pID, ProjectNumber, ProjectName, Stage, PI, Faculty FROM dbo.tblProject where ValidTo is null"
     conn = connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT top (5) pID, ProjectNumber, ProjectName, Stage, PI, Faculty FROM dbo.tblProject where ValidTo is null")
-    for row in cursor.fetchall():
-        projects.append({"pID": row[0], "ProjectNumber": row[1], "ProjectName": row[2], "Stage": row[3], "PI": row[4], "Faculty": row[5]})
+
+    projects = pd.read_sql(qry, conn)
+    projects = projects.to_html(index=False)
+
+    # cursor = conn.cursor()
+    # cursor.execute(qry)
+    # for row in cursor.fetchall():
+    #     projects.append({"pID": row[0], "ProjectNumber": row[1], "ProjectName": row[2], "Stage": row[3], "PI": row[4], "Faculty": row[5]})
     conn.close()
     return render(request, 'projects.html', {'projects':projects})
