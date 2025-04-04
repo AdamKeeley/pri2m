@@ -5,6 +5,9 @@ nav_order: 1
 has_children: false
 ---
 
+# Useful resources
+[https://absolutecodeworks.com/python-django-crud-sample-with-sql-server](https://absolutecodeworks.com/python-django-crud-sample-with-sql-server)
+
 # First steps!
 
 Create a conda env and installed pyodbc and django, generate a requirements.txt. Will need other packages I'm sure.
