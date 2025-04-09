@@ -11,7 +11,7 @@ def projects(request):
             , "projectnumber"
             , "projectname"
             , "stage__pstagedescription"
-            , "pi"
+            , "pi__lastname"
             , "faculty__facultydescription"
         ).order_by("projectnumber")
     return render(request, 'projects.html', {'projects':projects})

@@ -135,4 +135,4 @@ def projects(request):
     return render(request, 'projects.html', {'projects':projects})
 ```
 
-Currently unsure how to present values from keys for which no foreign key is possible, eg `pi`. 
+To define relationships between models for which no foreign key on the database is possible, eg `pi`, simply need to define the field as a `ForeignKey` in the model and use the `db_constraint=False` flag.  
