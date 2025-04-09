@@ -105,4 +105,6 @@ python manage.py migrate --fake-initial
 ```  
 The `--fake-initial` flag lets Django skip migrations where the table already exists. 
 
+The Django user needs permissions to create the django_migrations table on first run.  
+
 Now we should be running as if Django was managing the database from the start...
