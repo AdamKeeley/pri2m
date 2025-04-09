@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from .config import DATABASE
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,19 +80,7 @@ WSGI_APPLICATION = 'LASER.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-DATABASES = {
-    'default': {
-        'ENGINE': 'mssql',
-        'NAME': 'playground',
-        'USER': 'django',
-        'PASSWORD': 'SuperSecurePassword321',
-        'HOST': 'adam-playground.database.windows.net',
-        'PORT': '',
-        'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server',
-        }
-    }
-}
+DATABASES = DATABASE
 
 
 # Password validation
