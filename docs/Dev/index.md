@@ -6,7 +6,11 @@ has_children: false
 ---
 
 # Useful resources
+Getting started:
 [https://absolutecodeworks.com/python-django-crud-sample-with-sql-server](https://absolutecodeworks.com/python-django-crud-sample-with-sql-server)
+
+Database connectivity:
+[https://djangoadventures.com/how-to-integrate-django-with-existing-database/](https://djangoadventures.com/how-to-integrate-django-with-existing-database/)
 
 # First steps!
 
@@ -57,3 +61,48 @@ urlpatterns = [
     path('', include('Prism.urls'))
 ]
 ```
+
+# Connect to existing database and create models
+
+Need to install `mssql-django` package to connect to Azure SQL Database, Django built-in database backends only include postgresql, mysql, sqlite3 & oracle.
+
+Edit Project settings.py and set DATABASES to point to existing database:  
+```python
+DATABASES = {
+    'default': {
+        'ENGINE': 'mssql',
+        'NAME': <db_name>,
+        'USER': <user_name>,
+        'PASSWORD': <password>,
+        'HOST': <server_name>'.database.windows.net',
+        'PORT': '',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 18 for SQL Server',
+        }
+    }
+}
+```
+
+Automagically create Django models for all tables in existing database:  
+```python 
+python manage.py inspectdb > models.py
+```
+
+Once gernerated need to check to ensure foriegn key 'on_delete' behaviour is proper. It wasn't for me, so changed all `DO_NOTHING` to `PROTECT` (which is Django equivalent of SQL `RESTRICT`).  
+
+For Django to manage table schema automatically, need to remove the `managed` attribute from each generated model. I don't want to do this just yet, if ever...
+
+Place the `models.py` file in the App directory. 
+
+Django automagically creates the migrations scripts:  
+```python
+python manage.py makemigrations
+```
+
+To apply the scripts run:
+```python
+python manage.py migrate --fake-initial
+```  
+The `--fake-initial` flag lets Django skip migrations where the table already exists. 
+
+Now we should be running as if Django was managing the database from the start...
