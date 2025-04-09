@@ -1,9 +1,17 @@
 from django.shortcuts import render
 from django.apps import apps
-import pyodbc
 from .models import Tblproject
 
 
 def projects(request):
-    projects = Tblproject.objects.values("pid", "projectnumber", "projectname", "stage", "pi", "faculty")
+    projects = Tblproject.objects.filter(
+            validto__isnull=True
+        ).values(
+            "pid"
+            , "projectnumber"
+            , "projectname"
+            , "stage__pstagedescription"
+            , "pi"
+            , "faculty__facultydescription"
+        ).order_by("projectnumber")
     return render(request, 'projects.html', {'projects':projects})
