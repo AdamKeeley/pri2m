@@ -24,7 +24,7 @@
         <tbody>
             {% for project in projects %}
                 <tr>
-                    <td>{{ project.projectnumber }}</td>
+                    <td><a href='project/{{ project.projectnumber }}'>{{ project.projectnumber }}</a></td>
                     <td>{{ project.projectname }}</td>
                     <td>{{ project.stage__pstagedescription }}</td>
                     <td>{{ project.pi_fullname }}</td>

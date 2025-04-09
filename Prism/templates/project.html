@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <title>Pri2m : {{ project.projectnumber }}</title>
+    <link rel="stylesheet" crossorigin="anonymous"
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" >
+    <script crossorigin="anonymous"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" >
+    </script>
+</head>
+
+<body>
+    <h2>{{ project.projectnumber }} - {{ project.projectname }}</h2>
+    
+    <form action="" method = "POST">{% csrf_token %}
+
+        <label for="projectnumber">Project Number</label>
+        <input type="text" class="form-control" name="projectnumber" id="projectnumber" value="{{project.projectnumber}}">
+        
+        <label for="projectname">Project Name</label>
+        <input type="text" class="form-control" name="projectname" id="projectname" value="{{project.projectname}}">
+
+        <label for="stage">Stage</label>
+        <select name="stage" id="stage">
+            {% for stage in stages %}
+                {% if stage.pstagedescription == project.stage__pstagedescription %}
+                    <option value="{{ stage.stageid }}" selected>{{ stage.pstagedescription }}</option>
+                {% else %}
+                    <option value="{{ stage.stageid }}">{{ stage.pstagedescription }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>  
+
+        <label for="classification">Classification</label>
+        <select name="classification" id="classification">
+            {% for classification in classifications %}
+                {% if classification.classificationdescription == project.classification__classificationdescription %}
+                    <option value="{{ classification.classificationid }}" selected>{{ classification.classificationdescription }}</option>
+                {% else %}
+                    <option value="{{ classification.classificationid }}">{{ classification.classificationdescription }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>  
+        
+        <label for="projectedstartdate">Projected Start Date</label>
+        <input type="date" class="form-control" name="projectedstartdate" id="projectedstartdate" value="{{project.projectedstartdate|date:'Y-m-d' }}">
+        
+        <label for="projectedenddate">Projected End Date</label>
+        <input type="date" class="form-control" name="projectedenddate" id="projectedenddate" value="{{project.projectedenddate|date:'Y-m-d' }}">
+        
+        <label for="startdate">Start Date</label>
+        <input type="date" class="form-control" name="startdate" id="startdate" value="{{project.startdate|date:'Y-m-d' }}">
+        
+        <label for="enddate">End Date</label>
+        <input type="date" class="form-control" name="enddate" id="enddate" value="{{project.enddate|date:'Y-m-d' }}">
+
+        <label for="faculty">Faculty</label>
+        <select name="faculty" id="faculty">
+            {% for faculty in faculties %}
+                {% if faculty.facultydescription == project.faculty__facultydescription %}
+                    <option value="{{ faculty.facultyid }}" selected>{{ faculty.facultydescription }}</option>
+                {% else %}
+                    <option value="{{ faculty.facultyid }}">{{ faculty.facultydescription }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>  
+
+        <input type="checkbox" id="lida" name="lida" value="{{project.lida}}" {% if project.lida %}checked{% endif %}>
+        <label for="lida">LIDA</label>
+
+        <input type="checkbox" id="internship" name="internship" value="{{project.internship}}" {% if project.internship %}checked{% endif %}>
+        <label for="internship">DSDP</label>
+                
+        <input type="checkbox" id="dspt" name="dspt" value="{{project.dspt}}" {% if project.dspt %}checked{% endif %}>
+        <label for="dspt">DSPT</label>
+        
+        <input type="checkbox" name="iso27001" id="iso27001" value="{{project.iso27001}}" {% if project.iso27001 %}checked{% endif %}>
+        <label for="iso27001">ISO27001</label>
+
+        <input type="checkbox" name="laser" id="laser" value="{{project.laser}}" {% if project.laser %}checked{% endif %}>
+        <label for="laser">LASER</label>
+        
+        <input type="checkbox" name="irc" id="irc" value="{{project.irc}}" {% if project.irc %}checked{% endif %}>
+        <label for="irc">IRC</label>
+        
+        <input type="checkbox" name="seed" id="seed" value="{{project.seed}}" {% if project.seed %}checked{% endif %}>
+        <label for="seed">SEED</label>
+        
+        <button type="btnAdd" class="btn btn-primary">Submit</button>
+        <a href="/" class="btn btn-primary">Cancel</a>
+      </form>
+
+</body>
