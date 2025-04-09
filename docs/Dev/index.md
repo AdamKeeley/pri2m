@@ -136,3 +136,13 @@ def projects(request):
 ```
 
 To define relationships between models for which no foreign key on the database is possible, eg `pi`, simply need to define the field as a `ForeignKey` in the model and use the `db_constraint=False` flag.  
+
+Use `.annotate()` to add fields to query resultsets in view. For example can create `fullname` field from `firstname` & `lastname`. Don't even need to include `firstname` & `lastname` in teh returned resultset.  
+```python
+from django.db.models import Value
+from django.db.models.functions import Concat
+...
+.annotate(
+            pi_fullname = Concat('pi__firstname', Value(' '), 'pi__lastname')
+        )
+```
