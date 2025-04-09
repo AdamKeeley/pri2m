@@ -62,6 +62,11 @@ urlpatterns = [
 ]
 ```
 
+Start the server with: 
+```python
+python manage.py runserver
+```
+
 # Connect to existing database and create models
 
 Need to install `mssql-django` package to connect to Azure SQL Database, Django built-in database backends only include postgresql, mysql, sqlite3 & oracle.
@@ -108,3 +113,26 @@ The `--fake-initial` flag lets Django skip migrations where the table already ex
 The Django user needs permissions to create the django_migrations table on first run.  
 
 Now we should be running as if Django was managing the database from the start...
+
+# Models & Views
+
+Because we're now using Django models to define the SQL tables, we can leverage foreign keys to present values instead of keys.  
+
+To do this, when querying the model from the view, append `__lookupTableFieldName` to the fact table field name. for example,  
+
+```python
+def projects(request):
+    projects = Tblproject.objects.filter(
+            validto__isnull=True
+        ).values(
+            "pid"
+            , "projectnumber"
+            , "projectname"
+            , "stage__pstagedescription"
+            , "pi"
+            , "faculty__facultydescription"
+        ).order_by("projectnumber")
+    return render(request, 'projects.html', {'projects':projects})
+```
+
+Currently unsure how to present values from keys for which no foreign key is possible, eg `pi`. 
