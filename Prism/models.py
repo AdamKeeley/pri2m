@@ -185,6 +185,9 @@ class Tlkclassification(models.Model):
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.classificationdescription
+
     class Meta:
         managed = False
         db_table = 'tlkClassification'
@@ -197,6 +200,9 @@ class Tlkcostingtype(models.Model):
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
     createdby = models.CharField(db_column='CreatedBy', max_length=12, blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.costingtypedescription
+
     class Meta:
         managed = False
         db_table = 'tlkCostingType'
@@ -208,6 +214,9 @@ class Tlkdocuments(models.Model):
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.documentdescription
+    
     class Meta:
         managed = False
         db_table = 'tlkDocuments'
@@ -219,6 +228,9 @@ class Tlkfaculty(models.Model):
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.facultydescription
+
     class Meta:
         managed = False
         db_table = 'tlkFaculty'
@@ -229,6 +241,9 @@ class Tlkplatforminfo(models.Model):
     platforminfodescription = models.CharField(db_column='PlatformInfoDescription', max_length=50, blank=True, null=True)  # Field name made lowercase.
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
+
+    def __str__(self):
+        return self.platforminfodescription
 
     class Meta:
         managed = False
@@ -242,6 +257,9 @@ class Tlkstage(models.Model):
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.pstagedescription
+
     class Meta:
         managed = False
         db_table = 'tlkStage'
@@ -253,6 +271,9 @@ class Tlktitle(models.Model):
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.titledescription
+
     class Meta:
         managed = False
         db_table = 'tlkTitle'
@@ -263,6 +284,9 @@ class Tlkuserstatus(models.Model):
     statusdescription = models.CharField(db_column='StatusDescription', max_length=25, blank=True, null=True)  # Field name made lowercase.
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
+
+    def __str__(self):
+        return self.statusdescription
 
     class Meta:
         managed = False

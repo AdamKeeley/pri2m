@@ -33,26 +33,6 @@ def project(request, projectnumber):
             validto__isnull=True
             , projectnumber=projectnumber
         ).values(
-            "pid"
-            , "projectnumber"
-            , "projectname"
-            , "stage__pstagedescription"
-            , "classification__classificationdescription"
-            , "projectedstartdate"
-            , "projectedenddate"
-            , "startdate"
-            , "enddate"
-            , "faculty__facultydescription"
-            , "lida"
-            , "internship"
-            , "dspt"
-            , "iso27001"
-            , "laser"
-            , "irc"
-            , "seed"
-            , "validfrom"
-            , "validto"
-            , "createdby"
         ).annotate(
             pi_fullname = Concat('pi__firstname', Value(' '), 'pi__lastname')
             ,leadapplicant_fullname = Concat('leadapplicant__firstname', Value(' '), 'leadapplicant__lastname')
