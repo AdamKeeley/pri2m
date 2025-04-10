@@ -5,6 +5,9 @@ nav_order: 1
 has_children: false
 ---
 
+- TOC
+{:toc}
+
 # Useful resources
 Getting started:
 [https://absolutecodeworks.com/python-django-crud-sample-with-sql-server](https://absolutecodeworks.com/python-django-crud-sample-with-sql-server)
@@ -146,3 +149,53 @@ from django.db.models.functions import Concat
             pi_fullname = Concat('pi__firstname', Value(' '), 'pi__lastname')
         )
 ```
+
+# Forms
+
+`ModelChoiceField` takes actual model objects, do not use `.values` or `values_list`.  
+It uses the primary keys of the model objects for key values and their string representation as their label values.  
+In order to not have keys for label we need to override the string representations in the model:
+```python
+class Tlkstage(models.Model):
+    stageid = models.IntegerField(db_column='StageID', primary_key=True) 
+    stagedescription = models.CharField(db_column='pStageDescription', max_length=25)
+
+    def __str__(self):
+        return self.stagedescription
+```
+
+`DateField` seems to default to text when rendered to html!  
+To render as actual date pickers we can override their widgets in `__init__`, after creating a `DateInput` class:
+```python
+class DateInput(forms.DateInput):
+    input_type = "date"
+    def __init__(self, **kwargs):
+        kwargs["format"] = "%Y-%m-%d"
+        super().__init__(**kwargs)
+
+class MyForm(forms.Form):
+    ...
+    def __init__(self, *args, **kwargs):
+        self.fields["datefield"].widget = DateInput()
+```
+
+Form fields can be prepopulated with details from a queryset using the `initial` argument when instantiating the form in the view.  
+```python
+form = MyForm(initial=queryset)
+```
+
+Some form fields seem to struggle with this when the field value comes from a `ForeignKey` field in the model, noticeably `ModelChoiceField`. This can be overcome by overriding the `initial` arguments in the `__init__` of the form:
+```python
+class MyForm(forms.Form):
+    ...
+    def __init__(self, *args, **kwargs):
+        initial_arguments = kwargs.get('initial', None)
+        updated_initial = initial_arguments
+        if initial_arguments:
+            formfield = initial_arguments.get('formfield_id',None)
+            if formfield:
+                    updated_initial['formfield'] = formfield
+        kwargs.update(initial=updated_initial)
+        super(ProjectForm, self).__init__(*args, **kwargs)
+```
+
