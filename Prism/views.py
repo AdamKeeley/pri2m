@@ -1,9 +1,12 @@
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Value
 from django.db.models.functions import Concat
+from django.urls import reverse
 from .models import Tblproject
 from .forms import ProjectForm
+from .helper import delete_record
 
 
 def projects(request):
@@ -40,3 +43,17 @@ def project(request, projectnumber):
         form = ProjectForm(initial=project)
         return render(request, 'project.html', {'project':project
                                                 , 'form':form})
+    
+def projectdelete(request, projectnumber):
+    project = Tblproject.objects.filter(
+            validto__isnull=True
+            , projectnumber = projectnumber
+        ).values(
+            "pid"
+        ).get()
+    tbl_name = "dbo.tblProject"
+    pk_field = "pID"
+    pk_value = project["pid"]
+    delete_record(tbl_name, pk_field, pk_value)
+    return redirect(projects)
+ 
