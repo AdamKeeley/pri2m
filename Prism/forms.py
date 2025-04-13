@@ -1,5 +1,5 @@
 from django import forms
-from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty
+from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser
 
 class DateInput(forms.DateInput):
     input_type = "date"
@@ -8,15 +8,20 @@ class DateInput(forms.DateInput):
         super().__init__(**kwargs)
 
 class ProjectForm(forms.Form):
-    projectnumber= forms.CharField(max_length=5)
+    pid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    projectnumber= forms.CharField(disabled=True, max_length=5, required=False)
     projectname= forms.CharField(max_length=500)
+    portfolionumber = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=255)
     stage= forms.ModelChoiceField(queryset=Tlkstage.objects.filter(validto__isnull=True).order_by("stagenumber"))
     classification= forms.ModelChoiceField(queryset=Tlkclassification.objects.filter(validto__isnull=True).order_by("classificationdescription"))
+    datrag = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     projectedstartdate= forms.DateField()
     projectedenddate= forms.DateField()
     startdate= forms.DateField(required=False)
     enddate= forms.DateField(required=False)
+    pi= forms.IntegerField( required=False, widget = forms.HiddenInput())
     pi_fullname= forms.CharField(max_length=50)
+    leadapplicant= forms.IntegerField(widget = forms.HiddenInput(), required=False)
     leadapplicant_fullname= forms.CharField(max_length=50)
     faculty= forms.ModelChoiceField(queryset=Tlkfaculty.objects.filter(validto__isnull=True).order_by("facultydescription"))
     lida= forms.BooleanField(label="LIDA", required=False)
@@ -26,6 +31,9 @@ class ProjectForm(forms.Form):
     laser= forms.BooleanField(label="LASER", required=False)
     irc= forms.BooleanField(label="IRC", required=False)
     seed= forms.BooleanField(label="SEED", required=False)
+    validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
+    validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
 
     '''
     https://www.webforefront.com/django/formprocessing.html
@@ -45,6 +53,13 @@ class ProjectForm(forms.Form):
             faculty = initial_arguments.get('faculty_id',None)
             if faculty:
                     updated_initial['faculty'] = faculty
+            pi = initial_arguments.get('pi_id',None)
+            if pi:
+                    updated_initial['pi'] = pi
+            leadapplicant = initial_arguments.get('leadapplicant_id',None)
+            if leadapplicant:
+                    updated_initial['leadapplicant'] = leadapplicant
+            
         kwargs.update(initial=updated_initial)
         
         super(ProjectForm, self).__init__(*args, **kwargs)

@@ -9,7 +9,7 @@ from django.db import models
 
 
 class Tblproject(models.Model):
-    pid = models.IntegerField(db_column='pID', primary_key=True)  # Field name made lowercase.
+    pid = models.AutoField(db_column='pID', primary_key=True, editable=False)  # Field name made lowercase.
     projectnumber = models.CharField(db_column='ProjectNumber', max_length=5, blank=True, null=True)  # Field name made lowercase.
     projectname = models.CharField(db_column='ProjectName', max_length=500, blank=True, null=True)  # Field name made lowercase.
     portfolionumber = models.CharField(db_column='PortfolioNumber', max_length=255, blank=True, null=True)  # Field name made lowercase.
@@ -174,6 +174,9 @@ class Tbluser(models.Model):
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
     createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
 
+    # def __str__(self):
+    #     return Concat('firstname', Value(' '), 'lastname')
+    
     class Meta:
         managed = False
         db_table = 'tblUser'
