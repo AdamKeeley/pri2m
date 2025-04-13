@@ -19,7 +19,6 @@
             <th scope="col">Stage</th>
             <th scope="col">PI</th>
             <th scope="col">Faculty</th>
-            <th scope="col">Delete</th>
             </tr>
         </thead>
         <tbody>
@@ -30,7 +29,6 @@
                     <td>{{ project.stage__pstagedescription }}</td>
                     <td>{{ project.pi_fullname }}</td>
                     <td>{{ project.faculty__facultydescription }}</td>
-                    <td><a href='project/delete/{{ project.projectnumber }}'>Delete</a></td>
                 </tr>
             {% endfor %}
         </tbody>
