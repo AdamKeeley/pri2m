@@ -46,19 +46,25 @@ class ProjectForm(forms.Form):
         if initial_arguments:
             stage = initial_arguments.get('stage_id',None)
             if stage:
-                    updated_initial['stage'] = stage
+                updated_initial['stage'] = stage
             classification = initial_arguments.get('classification_id',None)
             if classification:
-                    updated_initial['classification'] = classification
+                updated_initial['classification'] = classification
             faculty = initial_arguments.get('faculty_id',None)
             if faculty:
-                    updated_initial['faculty'] = faculty
-            pi = initial_arguments.get('pi_id',None)
+                updated_initial['faculty'] = faculty
+            
+            pi = initial_arguments.get('pi',None)
+            pi_fullname = initial_arguments.get('pi_fullname',None)
             if pi:
-                    updated_initial['pi'] = pi
-            leadapplicant = initial_arguments.get('leadapplicant_id',None)
+                updated_initial['pi'] = pi
+                updated_initial['pi_fullname'] = pi_fullname
+            
+            leadapplicant = initial_arguments.get('leadapplicant',None)
+            leadapplicant_fullname = initial_arguments.get('leadapplicant_fullname',None)
             if leadapplicant:
-                    updated_initial['leadapplicant'] = leadapplicant
+                updated_initial['leadapplicant'] = leadapplicant
+                updated_initial['leadapplicant_fullname'] = leadapplicant_fullname
             
         kwargs.update(initial=updated_initial)
         

@@ -20,8 +20,8 @@ class Tblproject(models.Model):
     projectedenddate = models.DateTimeField(db_column='ProjectedEndDate', blank=True, null=True)  # Field name made lowercase.
     startdate = models.DateTimeField(db_column='StartDate', blank=True, null=True)  # Field name made lowercase.
     enddate = models.DateTimeField(db_column='EndDate', blank=True, null=True)  # Field name made lowercase.
-    pi = models.ForeignKey("Tbluser", models.PROTECT, db_column='PI', db_constraint=False, related_name='pi_user', blank=True, null=True)  # Field name made lowercase.
-    leadapplicant = models.ForeignKey("Tbluser", models.PROTECT, db_column='LeadApplicant', db_constraint=False, related_name='leadapplicant_user', blank=True, null=True)  # Field name made lowercase.
+    pi = models.IntegerField(db_column='PI', blank=True, null=True)  # Field name made lowercase.
+    leadapplicant = models.IntegerField(db_column='LeadApplicant', blank=True, null=True)  # Field name made lowercase.
     faculty = models.ForeignKey('Tlkfaculty', models.PROTECT, db_column='Faculty', blank=True, null=True)  # Field name made lowercase.
     lida = models.BooleanField(db_column='LIDA', blank=True, null=True)  # Field name made lowercase.
     internship = models.BooleanField(db_column='Internship', blank=True, null=True)  # Field name made lowercase.

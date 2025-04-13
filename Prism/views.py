@@ -1,10 +1,9 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.apps import apps
-from django.db.models import Value
+from django.db.models import Value, F
 from django.db.models.functions import Concat
-from django.urls import reverse
-from .models import Tblproject
+from .models import Tblproject, Tbluser
 from .forms import ProjectForm
 from datetime import datetime
 
@@ -18,8 +17,8 @@ def projects(request):
             , "projectname"
             , "stage__pstagedescription"
             , "faculty__facultydescription"
-        ).annotate(
-            pi_fullname = Concat('pi__firstname', Value(' '), 'pi__lastname')
+        # ).annotate(
+        #     pi_fullname = Concat('pi__firstname', Value(' '), 'pi__lastname')
         ).order_by("projectnumber")
     return render(request, 'projects.html', {'projects':projects})
 
@@ -71,10 +70,35 @@ def project(request, projectnumber):
             validto__isnull=True
             , projectnumber=projectnumber
         ).values(
-        ).annotate(
-            pi_fullname = Concat('pi__firstname', Value(' '), 'pi__lastname')
-            ,leadapplicant_fullname = Concat('leadapplicant__firstname', Value(' '), 'leadapplicant__lastname')
         ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
+        
+        pi_user = Tbluser.objects.filter(
+            validto__isnull=True
+            , usernumber=project['pi']
+        ).values(
+            'usernumber'
+        ).annotate(
+            pi_fullname = Concat('firstname', Value(' '), 'lastname')
+            , pi_usernumber = F('usernumber')
+            , pi_firstname = F('firstname')
+            , pi_lastname = F('lastname')
+        ).get()
+
+        leadapplicant_user = Tbluser.objects.filter(
+            validto__isnull=True
+            , usernumber=project['leadapplicant']
+        ).values(
+            'usernumber'
+        ).annotate(
+            leadapplicant_fullname = Concat('firstname', Value(' '), 'lastname')
+            , leadapplicant_usernumber = F('usernumber')
+            , leadapplicant_firstname = F('firstname')
+            , leadapplicant_lastname = F('lastname')
+        ).get()
+        
+        project.update(pi_user)
+        project.update(leadapplicant_user)
+
         form = ProjectForm(initial=project)
         return render(request, 'project.html', {'project':project
                                                 , 'form':form})
