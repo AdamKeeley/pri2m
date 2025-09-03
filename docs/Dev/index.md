@@ -121,7 +121,7 @@ Now we should be running as if Django was managing the database from the start..
 
 Because we're now using Django models to define the SQL tables, we can leverage foreign keys to present values instead of keys.  
 
-To do this, when querying the model from the view, append `__lookupTableFieldName` to the fact table field name. for example,  
+To do this, when querying the model from the view, append `__lookupTableFieldName` to the fact table field name. For example,  
 
 ```python
 def projects(request):
@@ -138,17 +138,29 @@ def projects(request):
     return render(request, 'projects.html', {'projects':projects})
 ```
 
-To define relationships between models for which no foreign key on the database is possible, eg `pi`, simply need to define the field as a `ForeignKey` in the model and use the `db_constraint=False` flag.  
-
-Use `.annotate()` to add fields to query resultsets in view. For example can create `fullname` field from `firstname` & `lastname`. Don't even need to include `firstname` & `lastname` in teh returned resultset.  
+It's possible to use `.annotate()` to add fields to query resultsets in view. For example can create `fullname` field from `firstname` & `lastname`. Don't even need to include `firstname` & `lastname` in the returned resultset. This only works if the fields you're using already exist in the database.  
 ```python
 from django.db.models import Value
 from django.db.models.functions import Concat
 ...
-.annotate(
-            pi_fullname = Concat('pi__firstname', Value(' '), 'pi__lastname')
-        )
+pi_user = Tbluser.objects.filter(
+        validto__isnull=True
+        , usernumber=project['pi']
+    ).values(
+        'usernumber'
+    ).annotate(
+        pi_fullname = Concat('firstname', Value(' '), 'lastname')
+    ).get()
 ```
+
+## Django relations and Type 2 SCD  
+I've not found a way to define relationships between `Tbluser` model and user fields in the `Tblproject` model (eg `pi` and `leadapplicant`) whilst maintaining the desired Type 2 SCD behaviour of the database. The issue is that the primary key of `Tbluser` isn't used to identify an individual user; Type 2 SCD demands that we implement a surrogate key `usernumber` that's only unique when `validto` is null.  
+
+I've tried defining the user fields of `Tblproject` as `ForeignKey` or `ManyToManyField` with a `db_constraint=False` flag but that just straight up didn't work. 
+I've tried using a proxy table with custom methods to make data from `Tbluser` model available from an instance of `Tblproject` model in the View. That worked but the way Django functions it was necessary to iterate over every record in the view to populate and it seemed to make a database call every single time. The performance tanked and while it may be feasible for a single project, when listing many/all of them it was untenable.  
+
+In the end I went with a single call to the model with the related data and converted it to a pandas DataFrame, using that to iterate over and update each record (eg replacing the `usernumber` value stored in `Tblproject.pi` with a concatenated full name in the `projects` view that lists all projects).  
+
 
 # Forms
 
