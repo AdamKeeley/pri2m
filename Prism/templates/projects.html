@@ -27,8 +27,7 @@
                     <td><a href='project/{{ project.projectnumber }}'>{{ project.projectnumber }}</a></td>
                     <td>{{ project.projectname }}</td>
                     <td>{{ project.stage__pstagedescription }}</td>
-                    <!--<td>{{ project.pi_fullname }}</td>-->
-                    <td>pi_fullname</td>
+                    <td>{{ project.pi|default_if_none:"" }}</td>
                     <td>{{ project.faculty__facultydescription }}</td>
                 </tr>
             {% endfor %}
