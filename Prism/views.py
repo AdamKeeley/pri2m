@@ -6,6 +6,7 @@ from django.db.models.functions import Concat
 from .models import Tblproject, Tbluser
 from .forms import ProjectForm
 from datetime import datetime
+import pandas as pd
 
 
 def projects(request):
@@ -16,11 +17,24 @@ def projects(request):
             , "projectnumber"
             , "projectname"
             , "stage__pstagedescription"
+            , "pi"
             , "faculty__facultydescription"
-        # ).annotate(
-        #     pi_fullname = Concat('pi__firstname', Value(' '), 'pi__lastname')
         ).order_by("projectnumber")
+
+    users = Tbluser.objects.filter(
+            validto__isnull=True
+            ).values()
+    
+    df = pd.DataFrame(users)
+
+    for project in projects:
+        if project['pi'] is not None:
+            pi_index = df.index[df['usernumber'] == project['pi']].tolist()
+            pi_name = f"{df.at[pi_index[0],'firstname']} {df.at[pi_index[0],'lastname']}"
+            project.update(pi=pi_name)
+
     return render(request, 'projects.html', {'projects':projects})
+
 
 def project(request, projectnumber):
     if request.method == "POST":
@@ -72,29 +86,35 @@ def project(request, projectnumber):
         ).values(
         ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
         
-        pi_user = Tbluser.objects.filter(
-            validto__isnull=True
-            , usernumber=project['pi']
-        ).values(
-            'usernumber'
-        ).annotate(
-            pi_fullname = Concat('firstname', Value(' '), 'lastname')
-            , pi_usernumber = F('usernumber')
-            , pi_firstname = F('firstname')
-            , pi_lastname = F('lastname')
-        ).get()
+        if project['pi'] is not None:
+            pi_user = Tbluser.objects.filter(
+                validto__isnull=True
+                , usernumber=project['pi']
+            ).values(
+                'usernumber'
+            ).annotate(
+                pi_fullname = Concat('firstname', Value(' '), 'lastname')
+                , pi_usernumber = F('usernumber')
+                , pi_firstname = F('firstname')
+                , pi_lastname = F('lastname')
+            ).get()
+        else:
+            pi_user = ''
 
-        leadapplicant_user = Tbluser.objects.filter(
-            validto__isnull=True
-            , usernumber=project['leadapplicant']
-        ).values(
-            'usernumber'
-        ).annotate(
-            leadapplicant_fullname = Concat('firstname', Value(' '), 'lastname')
-            , leadapplicant_usernumber = F('usernumber')
-            , leadapplicant_firstname = F('firstname')
-            , leadapplicant_lastname = F('lastname')
-        ).get()
+        if project['leadapplicant'] is not None:
+            leadapplicant_user = Tbluser.objects.filter(
+                validto__isnull=True
+                , usernumber=project['leadapplicant']
+            ).values(
+                'usernumber'
+            ).annotate(
+                leadapplicant_fullname = Concat('firstname', Value(' '), 'lastname')
+                , leadapplicant_usernumber = F('usernumber')
+                , leadapplicant_firstname = F('firstname')
+                , leadapplicant_lastname = F('lastname')
+            ).get()
+        else:
+            leadapplicant_user = ''
         
         project.update(pi_user)
         project.update(leadapplicant_user)
