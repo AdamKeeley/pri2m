@@ -174,6 +174,11 @@ class Tbluser(models.Model):
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
     createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
 
+    @property
+    def full_name(self):
+        "Returns the user's full name."
+        return f"{self.firstname} {self.lastname}"
+
     # def __str__(self):
     #     return Concat('firstname', Value(' '), 'lastname')
     
