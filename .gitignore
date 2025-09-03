@@ -175,3 +175,5 @@ cython_debug/
 
 # Adam's shonky config file
 config.py
+
+.vscode/
