@@ -20,7 +20,7 @@ class ProjectForm(forms.Form):
     projectedenddate= forms.DateField()
     startdate= forms.DateField(required=False)
     enddate= forms.DateField(required=False)
-    pi = forms.ModelChoiceField(queryset=Tbluser.objects.filter(validto__isnull=True).order_by("usernumber"), to_field_name="usernumber")
+    pi = forms.ModelChoiceField(queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber")
     leadapplicant= forms.IntegerField(widget = forms.HiddenInput(), required=False)
     leadapplicant_fullname= forms.CharField(max_length=50)
     faculty= forms.ModelChoiceField(queryset=Tlkfaculty.objects.filter(validto__isnull=True).order_by("facultydescription"))
