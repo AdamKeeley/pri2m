@@ -63,11 +63,11 @@ def project(request, projectnumber):
                 ,laser = form.cleaned_data['laser']
                 ,irc = form.cleaned_data['irc']
                 ,seed = form.cleaned_data['seed']
-                ,validfrom = form.cleaned_data['validfrom']
-                ,validto = form.cleaned_data['validto']
+                ,validfrom = datetime.now()
+                ,validto = None
                 ,createdby = request.user
             )
-            insert.save(force_insert=True)
+            insert.save(force_insert=True, )
 
             delete = Tblproject(
                 pid = pID
