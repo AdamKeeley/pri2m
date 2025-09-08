@@ -46,16 +46,16 @@ def project(request, projectnumber):
                 projectnumber = projectnumber
                 ,projectname = form.cleaned_data['projectname']
                 ,portfolionumber = form.cleaned_data['portfolionumber']
-                ,stage = form.cleaned_data['stage']
-                ,classification = form.cleaned_data['classification']
+                ,stage = form.cleaned_data['stage_id']
+                ,classification = form.cleaned_data['classification_id']
                 ,datrag = form.cleaned_data['datrag']
                 ,projectedstartdate = form.cleaned_data['projectedstartdate']
                 ,projectedenddate = form.cleaned_data['projectedenddate']
                 ,startdate = form.cleaned_data['startdate']
                 ,enddate = form.cleaned_data['enddate']
                 ,pi = form.cleaned_data['pi'].usernumber
-                ,leadapplicant = form.cleaned_data['leadapplicant']
-                ,faculty = form.cleaned_data['faculty']
+                ,leadapplicant = form.cleaned_data['leadapplicant'].usernumber
+                ,faculty = form.cleaned_data['faculty_id']
                 ,lida = form.cleaned_data['lida']
                 ,internship = form.cleaned_data['internship']
                 ,dspt = form.cleaned_data['dspt']
@@ -85,23 +85,6 @@ def project(request, projectnumber):
             , projectnumber=projectnumber
         ).values(
         ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
-        
-        if project['leadapplicant'] is not None:
-            leadapplicant_user = Tbluser.objects.filter(
-                validto__isnull=True
-                , usernumber=project['leadapplicant']
-            ).values(
-                'usernumber'
-            ).annotate(
-                leadapplicant_fullname = Concat('firstname', Value(' '), 'lastname')
-                , leadapplicant_usernumber = F('usernumber')
-                , leadapplicant_firstname = F('firstname')
-                , leadapplicant_lastname = F('lastname')
-            ).get()
-        else:
-            leadapplicant_user = ''
-        
-        project.update(leadapplicant_user)
 
         form = ProjectForm(initial=project)
         return render(request, 'project.html', {'project':project
