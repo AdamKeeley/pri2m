@@ -179,8 +179,8 @@ class Tbluser(models.Model):
         "Returns the user's full name."
         return f"{self.firstname} {self.lastname}"
 
-    # def __str__(self):
-    #     return Concat('firstname', Value(' '), 'lastname')
+    def __str__(self):
+        return f"{self.firstname} {self.lastname}"
     
     class Meta:
         managed = False

@@ -7,6 +7,7 @@ class DateInput(forms.DateInput):
         kwargs["format"] = "%Y-%m-%d"
         super().__init__(**kwargs)
 
+
 class ProjectForm(forms.Form):
     pid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     projectnumber= forms.CharField(disabled=True, max_length=5, required=False)
@@ -19,8 +20,7 @@ class ProjectForm(forms.Form):
     projectedenddate= forms.DateField()
     startdate= forms.DateField(required=False)
     enddate= forms.DateField(required=False)
-    pi= forms.IntegerField( required=False, widget = forms.HiddenInput())
-    pi_fullname= forms.CharField(max_length=50)
+    pi = forms.ModelChoiceField(queryset=Tbluser.objects.filter(validto__isnull=True).order_by("usernumber"), to_field_name="usernumber")
     leadapplicant= forms.IntegerField(widget = forms.HiddenInput(), required=False)
     leadapplicant_fullname= forms.CharField(max_length=50)
     faculty= forms.ModelChoiceField(queryset=Tlkfaculty.objects.filter(validto__isnull=True).order_by("facultydescription"))
@@ -53,12 +53,6 @@ class ProjectForm(forms.Form):
             faculty = initial_arguments.get('faculty_id',None)
             if faculty:
                 updated_initial['faculty'] = faculty
-            
-            pi = initial_arguments.get('pi',None)
-            pi_fullname = initial_arguments.get('pi_fullname',None)
-            if pi:
-                updated_initial['pi'] = pi
-                updated_initial['pi_fullname'] = pi_fullname
             
             leadapplicant = initial_arguments.get('leadapplicant',None)
             leadapplicant_fullname = initial_arguments.get('leadapplicant_fullname',None)

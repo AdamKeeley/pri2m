@@ -53,7 +53,7 @@ def project(request, projectnumber):
                 ,projectedenddate = form.cleaned_data['projectedenddate']
                 ,startdate = form.cleaned_data['startdate']
                 ,enddate = form.cleaned_data['enddate']
-                ,pi = form.cleaned_data['pi']
+                ,pi = form.cleaned_data['pi'].usernumber
                 ,leadapplicant = form.cleaned_data['leadapplicant']
                 ,faculty = form.cleaned_data['faculty']
                 ,lida = form.cleaned_data['lida']
@@ -86,21 +86,6 @@ def project(request, projectnumber):
         ).values(
         ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
         
-        if project['pi'] is not None:
-            pi_user = Tbluser.objects.filter(
-                validto__isnull=True
-                , usernumber=project['pi']
-            ).values(
-                'usernumber'
-            ).annotate(
-                pi_fullname = Concat('firstname', Value(' '), 'lastname')
-                , pi_usernumber = F('usernumber')
-                , pi_firstname = F('firstname')
-                , pi_lastname = F('lastname')
-            ).get()
-        else:
-            pi_user = ''
-
         if project['leadapplicant'] is not None:
             leadapplicant_user = Tbluser.objects.filter(
                 validto__isnull=True
@@ -116,7 +101,6 @@ def project(request, projectnumber):
         else:
             leadapplicant_user = ''
         
-        project.update(pi_user)
         project.update(leadapplicant_user)
 
         form = ProjectForm(initial=project)
