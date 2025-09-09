@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.apps import apps
-from django.db.models import Value, F
+from django.db.models import Value, F, Max
 from django.db.models.functions import Concat
 from .models import Tblproject, Tbluser
 from .forms import ProjectForm
@@ -67,7 +67,7 @@ def project(request, projectnumber):
                 ,validto = None
                 ,createdby = request.user
             )
-            insert.save(force_insert=True, )
+            insert.save(force_insert=True)
 
             delete = Tblproject(
                 pid = pID
@@ -90,4 +90,50 @@ def project(request, projectnumber):
         return render(request, 'project.html', {'project':project
                                                 , 'form':form})
 
- 
+def projectcreate(request):
+    if request.method == "POST":
+        form = ProjectForm(request.POST)
+        if form.is_valid():
+
+            # Get latest ProjectNumber from database model and iterate up by one for new ProjectNumber
+            max_projectnumber = Tblproject.objects.filter(
+                validto__isnull=True
+                ,projectnumber__startswith='P'
+            ).aggregate(Max("projectnumber"))
+            new_projectnumber = 'P' + str('0000' + str(int(max_projectnumber['projectnumber__max'][-4:]) +1))[-4:]
+            
+            insert = Tblproject(
+                projectnumber = new_projectnumber
+                ,projectname = form.cleaned_data['projectname']
+                ,portfolionumber = form.cleaned_data['portfolionumber']
+                ,stage = form.cleaned_data['stage_id']
+                ,classification = form.cleaned_data['classification_id']
+                ,datrag = form.cleaned_data['datrag']
+                ,projectedstartdate = form.cleaned_data['projectedstartdate']
+                ,projectedenddate = form.cleaned_data['projectedenddate']
+                ,startdate = form.cleaned_data['startdate']
+                ,enddate = form.cleaned_data['enddate']
+                ,pi = form.cleaned_data['pi'].usernumber
+                ,leadapplicant = form.cleaned_data['leadapplicant'].usernumber
+                ,faculty = form.cleaned_data['faculty_id']
+                ,lida = form.cleaned_data['lida']
+                ,internship = form.cleaned_data['internship']
+                ,dspt = form.cleaned_data['dspt']
+                ,iso27001 = form.cleaned_data['iso27001']
+                ,laser = form.cleaned_data['laser']
+                ,irc = form.cleaned_data['irc']
+                ,seed = form.cleaned_data['seed']
+                ,validfrom = datetime.now()
+                ,validto = None
+                ,createdby = request.user
+            )
+            insert.save(force_insert=True)
+
+            return HttpResponseRedirect(f"/project/{new_projectnumber}")
+        else:
+            return render(request, 'project.html', {'form':form})   
+
+    if request.method == 'GET':
+        form = ProjectForm()
+        return render(request, 'project.html', {'form':form})
+    
