@@ -12,7 +12,7 @@ Well, everything really! But first thoughts:
 - ~~Drill down into single project details~~
 - Get some more basic CRUD actions working on basic project details  
     - Insert new record only when change made to current record  
-    [ ] CREATE  
+    [x] CREATE  
     [x] READ  
     [x] UPDATE  
     [x] DELETE  
