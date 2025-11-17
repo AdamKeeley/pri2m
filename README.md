@@ -11,7 +11,8 @@ Well, everything really! But first thoughts:
 - ~~Let's see if we can't establish a connection to test database and present a list of projects~~
 - ~~Drill down into single project details~~
 - Get some more basic CRUD actions working on basic project details  
-    [] CREATE  
+    - Insert new record only when change made to current record  
+    [x] CREATE  
     [x] READ  
     [x] UPDATE  
     [x] DELETE  
