@@ -5,8 +5,9 @@ from django.db.models import Value, F, Max
 from django.db.models.functions import Concat
 from .models import Tblproject, Tbluser
 from .forms import ProjectForm
-from datetime import datetime
+from datetime import datetime, date
 import pandas as pd
+from django.utils import timezone
 
 
 def projects(request):
@@ -63,17 +64,35 @@ def project(request, projectnumber):
                 ,laser = form.cleaned_data['laser']
                 ,irc = form.cleaned_data['irc']
                 ,seed = form.cleaned_data['seed']
-                ,validfrom = datetime.now()
+                ,validfrom = timezone.now()
                 ,validto = None
                 ,createdby = request.user
             )
-            insert.save(force_insert=True)
+            
+            # Fetch existing project record
+            existing_project = Tblproject.objects.filter(
+                validto__isnull=True
+                , projectnumber=projectnumber
+            ).values(
+            ).get() 
 
-            delete = Tblproject(
-                pid = pID
-                ,validto = datetime.now()
-            )
-            delete.save(update_fields=["validto"])
+            # Compare existing record to form values
+            requires_save = False
+            for field in existing_project:
+                if insert._meta.get_field(field).primary_key or field == 'validfrom' or field == 'validto' or field == 'createdby':
+                    requires_save = requires_save
+                elif existing_project[field] != getattr(insert, field):
+                    requires_save = True
+
+            # Only save record if fields have changed
+            if requires_save == True:
+                insert.save(force_insert=True)
+
+                delete = Tblproject(
+                    pid = pID
+                    ,validto = timezone.now()
+                )
+                delete.save(update_fields=["validto"])
 
             return HttpResponseRedirect(f"/project/{projectnumber}")
         else:
@@ -123,7 +142,7 @@ def projectcreate(request):
                 ,laser = form.cleaned_data['laser']
                 ,irc = form.cleaned_data['irc']
                 ,seed = form.cleaned_data['seed']
-                ,validfrom = datetime.now()
+                ,validfrom = timezone.now()
                 ,validto = None
                 ,createdby = request.user
             )
