@@ -1,11 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
-from django.db.models import Value, F, Max
-from django.db.models.functions import Concat
+from django.db.models import Max
 from .models import Tblproject, Tbluser
 from .forms import ProjectForm
-from datetime import datetime, date
 import pandas as pd
 from django.utils import timezone
 
@@ -76,16 +74,8 @@ def project(request, projectnumber):
             ).values(
             ).get() 
 
-            # Compare existing record to form values
-            requires_save = False
-            for field in existing_project:
-                if insert._meta.get_field(field).primary_key or field == 'validfrom' or field == 'validto' or field == 'createdby':
-                    requires_save = requires_save
-                elif existing_project[field] != getattr(insert, field):
-                    requires_save = True
-
             # Only save record if fields have changed
-            if requires_save == True:
+            if recordchanged(existing_record=existing_project, form_set=insert):
                 insert.save(force_insert=True)
 
                 delete = Tblproject(
@@ -156,3 +146,12 @@ def projectcreate(request):
         form = ProjectForm()
         return render(request, 'project.html', {'form':form})
     
+def recordchanged(existing_record, form_set):
+    # Compare existing record to form values
+    record_changed = False
+    for field in existing_record:
+        if form_set._meta.get_field(field).primary_key or field == 'validfrom' or field == 'validto' or field == 'createdby':
+            record_changed = record_changed
+        elif existing_record[field] != getattr(form_set, field):
+            record_changed = True
+    return record_changed
