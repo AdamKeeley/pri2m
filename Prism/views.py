@@ -32,7 +32,7 @@ def projects(request):
             pi_name = f"{df.at[pi_index[0],'firstname']} {df.at[pi_index[0],'lastname']}"
             project.update(pi=pi_name)
 
-    return render(request, 'projects.html', {'projects':projects})
+    return render(request, 'Prism/projects.html', {'projects':projects})
 
 
 def project(request, projectnumber):
@@ -86,7 +86,7 @@ def project(request, projectnumber):
 
             return HttpResponseRedirect(f"/project/{projectnumber}")
         else:
-            return render(request, 'project.html', {'form':form})
+            return render(request, 'Prism/project.html', {'form':form})
     
     if request.method == 'GET':
         project = Tblproject.objects.filter(
@@ -96,7 +96,7 @@ def project(request, projectnumber):
         ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
 
         form = ProjectForm(initial=project)
-        return render(request, 'project.html', {'project':project
+        return render(request, 'Prism/project.html', {'project':project
                                                 , 'form':form})
 
 def projectcreate(request):
@@ -140,11 +140,11 @@ def projectcreate(request):
 
             return HttpResponseRedirect(f"/project/{new_projectnumber}")
         else:
-            return render(request, 'project.html', {'form':form})   
+            return render(request, 'Prism/project.html', {'form':form})   
 
     if request.method == 'GET':
         form = ProjectForm()
-        return render(request, 'project.html', {'form':form})
+        return render(request, 'Prism/project.html', {'form':form})
     
 def recordchanged(existing_record, form_set):
     # Compare existing record to form values
