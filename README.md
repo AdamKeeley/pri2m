@@ -10,13 +10,13 @@ Well, everything really! But first thoughts:
 
 - ~~Let's see if we can't establish a connection to test database and present a list of projects~~
 - ~~Drill down into single project details~~
-- Get some more basic CRUD actions working on basic project details  
+- ~~Get some more basic CRUD actions working on basic project details~~  
     - ~~Insert new record only when change made to current record~~  
-    [x] CREATE  
-    [x] READ  
-    [x] UPDATE  
-    [x] DELETE  
-- Look into html template inheritance
+    ~~[x] CREATE~~  
+    ~~[x] READ~~  
+    ~~[x] UPDATE~~  
+    ~~[x] DELETE~~  
+- ~~Look into html template inheritance~~  
 - Get things looking pretty, or at least usable
 - Ability to search for projects 
 - Add non-basic project details

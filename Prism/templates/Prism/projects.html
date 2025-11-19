@@ -1,15 +1,10 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-<head>
-    <title>Projects</title>
-    <link rel="stylesheet" crossorigin="anonymous"
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" >
-    <script crossorigin="anonymous"
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" >
-    </script>
-</head>
+{% extends "Prism/layout.html" %}
 
-<body>
+{% block title %}
+Pri2m: All Projects
+{% endblock %}
+
+{% block content %}
     <h2>Projects</h2>
     <a href='projectcreate'>New Project</a>
     <table class="table">
@@ -34,4 +29,4 @@
             {% endfor %}
         </tbody>
     </table>
-</body>
+{% endblock %}
