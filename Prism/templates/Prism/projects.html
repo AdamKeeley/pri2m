@@ -8,11 +8,13 @@ Pri2m: All Projects
     <h2>Projects</h2>
 
     <form action="/" method="get">
-        <input name="q" type="text" placeholder="Search...">
-        <input type="submit" value="Search">
+        <div class="input-group mb-3">
+            <input name="q" type="text" class="form-control" placeholder="Search..." aria-label="Search for projects" aria-describedby="button-search">
+            <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+        </div>
     </form>
 
-    <table class="table">
+    <table class="table table-hover">
         <thead>
             <tr>
             <th scope="col">ProjectNumber</th>
