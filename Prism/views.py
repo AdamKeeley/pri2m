@@ -6,11 +6,19 @@ from .models import Tblproject, Tbluser
 from .forms import ProjectForm
 import pandas as pd
 from django.utils import timezone
-
+from django.db.models import Q
 
 def projects(request):
+    query = request.GET.get("q")
+
+    filter_query = {}
+    if query is not None and query != '':
+        filter_query['projectname__icontains'] = query
+        filter_query['projectnumber__icontains'] = query
+
     projects = Tblproject.objects.filter(
-            validto__isnull=True
+            Q(**filter_query, _connector=Q.OR)
+            , validto__isnull=True
         ).values(
             "pid"
             , "projectnumber"

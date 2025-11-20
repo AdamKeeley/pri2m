@@ -6,7 +6,12 @@ Pri2m: All Projects
 
 {% block content %}
     <h2>Projects</h2>
-    <a href='projectcreate'>New Project</a>
+
+    <form action="/" method="get">
+        <input name="q" type="text" placeholder="Search...">
+        <input type="submit" value="Search">
+    </form>
+
     <table class="table">
         <thead>
             <tr>
