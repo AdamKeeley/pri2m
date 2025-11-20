@@ -10,7 +10,7 @@ Pri2m : {{ project.projectnumber }}
     <form action="" method = "POST">
         {% csrf_token %}
         
-        <input type="submit" value="Submit">
+        <input class="btn btn-primary" type="submit" value="Submit">
 
         <div class="container-grid">
             <div class="container-div">
@@ -62,6 +62,27 @@ Pri2m : {{ project.projectnumber }}
                         <p>{{ form.seed.as_field_group }}</p>
                     </fieldset>
                 </div>
+            </div>
+            <div class="container-div">
+                    <!--EMPTY CONTAINER-->
+            </div>
+            <div class="container-div">
+                <div class="input-group mb-3">
+                    <legend>Notes</legend>
+                    <input type="text" class="form-control" placeholder="New note...">
+                    <button class="btn btn-primary" type="button" id="button-new_note">Add</button>
+                </div>
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between align-items-right">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-right">
+                        Dapibus ac facilisis in
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-right">
+                        Nullam quis risus eget urna mollis ornare vel eu leo. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nullam id dolor id nibh ultricies vehicula.
+                    </li>
+                </ul>
             </div>
         </div>
         
