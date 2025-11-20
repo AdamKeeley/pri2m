@@ -17,7 +17,7 @@ Well, everything really! But first thoughts:
     ~~[x] UPDATE~~  
     ~~[x] DELETE~~  
 - ~~Look into html template inheritance~~  
-- Get things looking pretty, or at least usable
+- ~~Get things looking pretty, or at least usable~~  
 - Ability to search for projects 
 - Add non-basic project details
     - notes

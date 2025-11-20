@@ -7,7 +7,18 @@
     {% bootstrap_css %}
     {% bootstrap_javascript %}
     {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'Prism/bootstrap_sandstone.css' %}"/>    
+    <link rel="stylesheet" type="text/css" href="{% static 'Prism/bootstrap_sandstone.css' %}"/>   
+    <style>
+      .container-grid {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        padding: 10px;
+      }
+      .container-div {
+        /*border: 1px dashed gray; */
+        padding: 10px; text-align: right; 
+      }
+    </style> 
 </head>
 
 <body>
@@ -30,7 +41,7 @@
                     <div class="dropdown-menu">
                         <a class="dropdown-item" href="/">All Projects</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="projectcreate">New Project</a>
+                        <a class="dropdown-item" href="/projectcreate">New Project</a>
                     </div>
                   </li>
                 </ul>

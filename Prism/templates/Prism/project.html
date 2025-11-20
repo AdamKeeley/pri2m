@@ -9,7 +9,73 @@ Pri2m : {{ project.projectnumber }}
     
     <form action="" method = "POST">
         {% csrf_token %}
-        {{ form }}
+        
         <input type="submit" value="Submit">
+
+        <div class="container-grid">
+            <div class="container-div">
+                <fieldset>
+                    <legend>Project Details</legend>
+                    <p>{{ form.projectnumber.as_field_group }}</p>
+                    <p>{{ form.projectname.as_field_group }}</p>
+                    <p>{{ form.stage_id.as_field_group }}</p>
+                    <p>{{ form.classification_id.as_field_group }}</p>
+                </fieldset>
+            </div>
+            <div class="container-div">
+                <fieldset>
+                    <legend>Key Dates</legend>
+                    <p>{{ form.projectedstartdate.as_field_group }}</p>
+                    <p>{{ form.projectedenddate.as_field_group }}</p>
+                    <p>{{ form.startdate.as_field_group }}</p>
+                    <p>{{ form.enddate.as_field_group }}</p>
+                </fieldset>
+            </div>
+            <div class="container-div">
+                <fieldset>
+                    <legend>Ownership</legend>
+                    <p>{{ form.pi.as_field_group }}</p>
+                    <p>{{ form.leadapplicant.as_field_group }}</p>
+                    <p>{{ form.faculty_id.as_field_group }}</p>
+                </fieldset>
+            </div>
+            <div class="container-grid">
+                <div class="container-div">
+                    <fieldset>
+                        <legend>Type</legend>
+                        <p>{{ form.lida.as_field_group }}</p>
+                        <p>{{ form.internship.as_field_group }}</p>
+                    </fieldset>
+                </div>
+                <div class="container-div">
+                    <fieldset>
+                        <legend>Compliance</legend>
+                        <p>{{ form.dspt.as_field_group }}</p>
+                        <p>{{ form.iso27001.as_field_group }}</p>
+                    </fieldset>
+                </div>
+                <div class="container-div">
+                    <fieldset>
+                        <legend>Platform</legend>
+                        <p>{{ form.laser.as_field_group }}</p>
+                        <p>{{ form.irc.as_field_group }}</p>
+                        <p>{{ form.seed.as_field_group }}</p>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+        
+        <fieldset>
+            {{ form.pid }}
+            {{ form.validfrom }}
+            {{ form.validto }}
+            {{ form.createdby }}
+        </fieldset>
+        
+        <div class="form-row">
+            {{ form.message.errors }}
+            {{ form.message.label_tag }} {{ form.message }}
+        </div>
+
     </form>
 {% endblock %}
