@@ -23,7 +23,7 @@ class ProjectForm(forms.Form):
     pi = forms.ModelChoiceField(label="PI", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber")
     leadapplicant= forms.ModelChoiceField(label="Lead Applicant", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber")
     faculty_id= forms.ModelChoiceField(label="Faculty", queryset=Tlkfaculty.objects.filter(validto__isnull=True).order_by("facultydescription"))
-    lida= forms.BooleanField(label="LIDA", required=False)
+    lida= forms.BooleanField(label="LIDA", required=False, initial=True)
     internship= forms.BooleanField(label="DSDP", required=False)
     dspt= forms.BooleanField(label="NHS DSPT", required=False)
     iso27001= forms.BooleanField(label="ISO27001", required=False)
