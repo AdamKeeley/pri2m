@@ -1,5 +1,5 @@
 from django import forms
-from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser
+from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes
 
 class DateInput(forms.DateInput):
     input_type = "date"
@@ -36,3 +36,14 @@ class ProjectForm(forms.Form):
 
     class Meta:
         model = Tblproject
+
+
+class ProjectNotesForm(forms.Form):
+    pnid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    projectnumber = forms.CharField(label="Project Number", disabled=True, max_length=5, required=False)
+    pnote = forms.CharField(label="Project Note", disabled=True, max_length=500)
+    created = forms.DateTimeField(label="Created", disabled=True, required=False)
+    createdby = forms.CharField(label="Created By", disabled=True, max_length=50, required=False)
+
+    class Meta:
+        model = Tblprojectnotes

@@ -2,11 +2,12 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max
-from .models import Tblproject, Tbluser
-from .forms import ProjectForm
+from .models import Tblproject, Tbluser, Tblprojectnotes
+from .forms import ProjectForm, ProjectNotesForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def projects(request):
     query = request.GET.get("q")
@@ -103,9 +104,25 @@ def project(request, projectnumber):
         ).values(
         ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
 
-        form = ProjectForm(initial=project)
+        project_notes = Tblprojectnotes.objects.filter(
+            projectnumber=projectnumber
+        ).values(
+        ).order_by("-created")
+
+        paginator = Paginator(project_notes, 5)  # Show 5 posts per page
+        page_number = request.GET.get('page')
+        try:
+            page_obj = paginator.get_page(page_number)
+        except PageNotAnInteger:
+            page_obj = paginator.page(1)
+        except EmptyPage:
+            page_obj = paginator.page(paginator.num_pages)
+
+        project_form = ProjectForm(initial=project)
+
         return render(request, 'Prism/project.html', {'project':project
-                                                , 'form':form})
+                                                , 'form':project_form
+                                                , 'notes':page_obj})
 
 def projectcreate(request):
     if request.method == "POST":
