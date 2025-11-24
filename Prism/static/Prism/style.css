@@ -1,6 +1,6 @@
 .container-grid {
         display: grid;
-        grid-template-columns: auto auto auto;
+        grid-template-columns: auto auto auto auto;
         padding: 10px;
     }
 .container-div {
@@ -11,3 +11,9 @@
         flex-direction: column;
         align-items: center;
     }
+.col-md-auto {
+    text-align: right; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}

@@ -12,49 +12,49 @@ Pri2m : {{ project.projectnumber }}
         
         <input class="btn btn-primary" type="submit" value="Submit">
 
-        <div class="container-grid">
-            <div class="container-div">
-                <fieldset>
-                    <legend>Project Details</legend>
-                    <p>{{ form.projectnumber.as_field_group }}</p>
-                    <p>{{ form.projectname.as_field_group }}</p>
-                    <p>{{ form.stage_id.as_field_group }}</p>
-                    <p>{{ form.classification_id.as_field_group }}</p>
-                </fieldset>
-            </div>
-            <div class="container-div">
-                <fieldset>
-                    <legend>Key Dates</legend>
-                    <p>{{ form.projectedstartdate.as_field_group }}</p>
-                    <p>{{ form.projectedenddate.as_field_group }}</p>
-                    <p>{{ form.startdate.as_field_group }}</p>
-                    <p>{{ form.enddate.as_field_group }}</p>
-                </fieldset>
-            </div>
-            <div class="container-div">
-                <fieldset>
-                    <legend>Ownership</legend>
-                    <p>{{ form.pi.as_field_group }}</p>
-                    <p>{{ form.leadapplicant.as_field_group }}</p>
-                    <p>{{ form.faculty_id.as_field_group }}</p>
-                </fieldset>
-            </div>
-            <div class="container-grid">
-                <div class="container-div">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-auto">
+                    <fieldset>
+                        <legend>Project Details</legend>
+                        <p>{{ form.projectnumber.as_field_group }}</p>
+                        <p>{{ form.projectname.as_field_group }}</p>
+                        <p>{{ form.stage_id.as_field_group }}</p>
+                        <p>{{ form.classification_id.as_field_group }}</p>
+                    </fieldset>
+                </div>
+                <div class="col-md-auto">
+                    <fieldset>
+                        <legend>Key Dates</legend>
+                        <p>{{ form.projectedstartdate.as_field_group }}</p>
+                        <p>{{ form.projectedenddate.as_field_group }}</p>
+                        <p>{{ form.startdate.as_field_group }}</p>
+                        <p>{{ form.enddate.as_field_group }}</p>
+                    </fieldset>
+                </div>
+                <div class="col-md-auto">
+                    <fieldset>
+                        <legend>Ownership</legend>
+                        <p>{{ form.pi.as_field_group }}</p>
+                        <p>{{ form.leadapplicant.as_field_group }}</p>
+                        <p>{{ form.faculty_id.as_field_group }}</p>
+                    </fieldset>
+                </div>
+                <div class="col-md-auto">
                     <fieldset>
                         <legend>Type</legend>
                         <p>{{ form.lida.as_field_group }}</p>
                         <p>{{ form.internship.as_field_group }}</p>
                     </fieldset>
                 </div>
-                <div class="container-div">
+                <div class="col-md-auto">
                     <fieldset>
                         <legend>Compliance</legend>
                         <p>{{ form.dspt.as_field_group }}</p>
                         <p>{{ form.iso27001.as_field_group }}</p>
-                    </fieldset>
+                    </fieldset>                                
                 </div>
-                <div class="container-div">
+                <div class="col-md-auto">
                     <fieldset>
                         <legend>Platform</legend>
                         <p>{{ form.laser.as_field_group }}</p>
@@ -63,67 +63,66 @@ Pri2m : {{ project.projectnumber }}
                     </fieldset>
                 </div>
             </div>
-            <div class="container-div">
-                    <!--EMPTY CONTAINER-->
-            </div>
-            <div class="container-div">
-                <legend>Notes</legend>
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="New note...">
-                    <button class="btn btn-primary" type="button" id="button-new_note">Add</button>
-                </div>
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                        <th scope="col">Note</th>
-                        <th scope="col">Created By</th>
-                        <th scope="col">Created</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for note in notes.object_list %}
+            <div class="row">
+                <div class="col-md-auto">
+                    <legend>Notes</legend>
+                    <div class="input-group">
+                        <textarea class="form-control" rows="1" id="text-new_note" placeholder="New note..."></textarea>
+                        <button class="btn btn-primary" type="button" id="button-new_note">Add</button>
+                    </div>
+                    <table class="table table-hover">
+                        <thead>
                             <tr>
-                                <td>{{ note.pnote }}</td>
-                                <td>{{ note.created | date:"Y-M-d" }}</td>
-                                <td>{{ note.createdby }}</td>
+                            <th scope="col">Note</th>
+                            <th scope="col">Created By</th>
+                            <th scope="col">Created</th>
                             </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="pagination">
-                    <ul class="pagination pagination-sm">
-                    {% if notes.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ notes.previous_page_number }}">&laquo;</a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">&laquo;</a>
-                        </li>
-                    {% endif %}
-
-                    {% for num in notes.paginator.page_range %}
-                        {% if notes.number == num %}
-                            <li class="page-item active">
-                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </thead>
+                        <tbody>
+                            {% for note in notes.object_list %}
+                                <tr>
+                                    <td>{{ note.pnote }}</td>
+                                    <td>{{ note.created | date:"Y-m-d" }}</td>
+                                    <td>{{ note.createdby }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <ul class="pagination pagination-sm">
+                        {% if notes.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ notes.previous_page_number }}">&laquo;</a>
                             </li>
                         {% else %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">&laquo;</a>
                             </li>
                         {% endif %}
-                    {% endfor %}
 
-                    {% if notes.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ notes.next_page_number }}">&raquo;</a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">&raquo;</a>
-                        </li>
-                    {% endif %}
-                    </ul>
+                        {% for num in notes.paginator.page_range %}
+                            {% if notes.number == num %}
+                                <li class="page-item active">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if notes.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ notes.next_page_number }}">&raquo;</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#">&raquo;</a>
+                            </li>
+                        {% endif %}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
