@@ -6,23 +6,9 @@
     {% load bootstrap5 %}
     {% bootstrap_css %}
     {% bootstrap_javascript %}
-    <!--{% load static %}-->
-    <!--<link rel="stylesheet" type="text/css" href="{% static 'Prism/bootstrap_sandstone.css' %}"/>   -->
-    <style>
-      .container-grid {
-        display: grid;
-        grid-template-columns: auto auto auto;
-        padding: 10px;
-      }
-      .container-div {
-        /*border: 1px dashed gray; */
-        padding: 10px; 
-        text-align: right; 
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-    </style> 
+    {% load static %}
+    <link rel ="icon" href="{% static 'Prism/prism.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" type="text/css" href="{% static 'Prism/style.css' %}"/>   
 </head>
 
 <body>

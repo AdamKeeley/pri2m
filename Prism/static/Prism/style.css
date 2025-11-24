@@ -1,0 +1,13 @@
+.container-grid {
+        display: grid;
+        grid-template-columns: auto auto auto;
+        padding: 10px;
+    }
+.container-div {
+        /*border: 1px dashed gray; */
+        padding: 10px; 
+        text-align: right; 
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
