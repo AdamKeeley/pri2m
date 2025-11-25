@@ -8,6 +8,7 @@ import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib import messages
 
 def projects(request):
     query = request.GET.get("q")
@@ -46,56 +47,68 @@ def projects(request):
 
 def project(request, projectnumber):
     if request.method == "POST":
-        form = ProjectForm(request.POST)
-        if form.is_valid():
-            pID = form.cleaned_data['pid']
-
-            insert = Tblproject(
-                projectnumber = projectnumber
-                ,projectname = form.cleaned_data['projectname']
-                ,portfolionumber = form.cleaned_data['portfolionumber']
-                ,stage = form.cleaned_data['stage_id']
-                ,classification = form.cleaned_data['classification_id']
-                ,datrag = form.cleaned_data['datrag']
-                ,projectedstartdate = form.cleaned_data['projectedstartdate']
-                ,projectedenddate = form.cleaned_data['projectedenddate']
-                ,startdate = form.cleaned_data['startdate']
-                ,enddate = form.cleaned_data['enddate']
-                ,pi = form.cleaned_data['pi'].usernumber
-                ,leadapplicant = form.cleaned_data['leadapplicant'].usernumber
-                ,faculty = form.cleaned_data['faculty_id']
-                ,lida = form.cleaned_data['lida']
-                ,internship = form.cleaned_data['internship']
-                ,dspt = form.cleaned_data['dspt']
-                ,iso27001 = form.cleaned_data['iso27001']
-                ,laser = form.cleaned_data['laser']
-                ,irc = form.cleaned_data['irc']
-                ,seed = form.cleaned_data['seed']
-                ,validfrom = timezone.now()
-                ,validto = None
-                ,createdby = request.user
-            )
-            
-            # Fetch existing project record
-            existing_project = Tblproject.objects.filter(
-                validto__isnull=True
-                , projectnumber=projectnumber
-            ).values(
-            ).get() 
-
-            # Only save record if fields have changed
-            if recordchanged(existing_record=existing_project, form_set=insert):
-                insert.save(force_insert=True)
-
-                delete = Tblproject(
-                    pid = pID
-                    ,validto = timezone.now()
+        if 'project-pid' in request.POST:
+            project_form = ProjectForm(request.POST, prefix='project')
+            if project_form.is_valid():
+                pID = project_form.cleaned_data['pid']
+                insert = Tblproject(
+                    projectnumber = projectnumber
+                    ,projectname = project_form.cleaned_data['projectname']
+                    ,portfolionumber = project_form.cleaned_data['portfolionumber']
+                    ,stage = project_form.cleaned_data['stage_id']
+                    ,classification = project_form.cleaned_data['classification_id']
+                    ,datrag = project_form.cleaned_data['datrag']
+                    ,projectedstartdate = project_form.cleaned_data['projectedstartdate']
+                    ,projectedenddate = project_form.cleaned_data['projectedenddate']
+                    ,startdate = project_form.cleaned_data['startdate']
+                    ,enddate = project_form.cleaned_data['enddate']
+                    ,pi = project_form.cleaned_data['pi'].usernumber
+                    ,leadapplicant = project_form.cleaned_data['leadapplicant'].usernumber
+                    ,faculty = project_form.cleaned_data['faculty_id']
+                    ,lida = project_form.cleaned_data['lida']
+                    ,internship = project_form.cleaned_data['internship']
+                    ,dspt = project_form.cleaned_data['dspt']
+                    ,iso27001 = project_form.cleaned_data['iso27001']
+                    ,laser = project_form.cleaned_data['laser']
+                    ,irc = project_form.cleaned_data['irc']
+                    ,seed = project_form.cleaned_data['seed']
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,createdby = request.user
                 )
-                delete.save(update_fields=["validto"])
+                
+                # Fetch existing project record
+                existing_project = Tblproject.objects.filter(
+                    validto__isnull=True
+                    , projectnumber=projectnumber
+                ).values(
+                ).get() 
 
-            return HttpResponseRedirect(f"/project/{projectnumber}")
-        else:
-            return render(request, 'Prism/project.html', {'form':form})
+                # Only save record if fields have changed
+                if recordchanged(existing_record=existing_project, form_set=insert):
+                    insert.save(force_insert=True)
+
+                    delete = Tblproject(
+                        pid = pID
+                        ,validto = timezone.now()
+                    )
+                    delete.save(update_fields=["validto"])
+                
+                    messages.success(request, 'Project updated successfully.')
+                return HttpResponseRedirect(f"/project/{projectnumber}")
+        
+        elif 'p_note-pnote' in request.POST:
+            p_notes_form = ProjectNotesForm(request.POST, prefix='p_note')
+            if p_notes_form.is_valid():
+                insert_note = Tblprojectnotes(
+                    projectnumber = projectnumber
+                    ,pnote = p_notes_form.cleaned_data['pnote']
+                    ,created = timezone.now()
+                    ,createdby = request.user
+                )
+                insert_note.save(force_insert=True)
+                messages.success(request, 'Project note added successfully.')
+                return HttpResponseRedirect(f"/project/{projectnumber}")
     
     if request.method == 'GET':
         project = Tblproject.objects.filter(
@@ -118,10 +131,12 @@ def project(request, projectnumber):
         except EmptyPage:
             page_obj = paginator.page(paginator.num_pages)
 
-        project_form = ProjectForm(initial=project)
+        project_form = ProjectForm(initial=project, prefix='project')
+        p_notes_form = ProjectNotesForm(prefix='p_note')
 
         return render(request, 'Prism/project.html', {'project':project
                                                 , 'form':project_form
+                                                , 'new_note': p_notes_form
                                                 , 'notes':page_obj})
 
 def projectcreate(request):
