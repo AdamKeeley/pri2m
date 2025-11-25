@@ -252,3 +252,48 @@ From the docs: [https://docs.djangoproject.com/en/5.1/ref/models/instances/](htt
 
 So when `POST`ing project updates the pID primary key field is omitted from the model object that is then used for the .save() action, and when logically deleting the previous record it is just one of the two fields used (`pID` & `ValidTo`).  
 
+
+# Template inheritance  
+Django lets us adhere to DRY principles in html templating through inheritance.  
+
+By creating a top level html template that sets out styling and navigation, that all other templates inherit, consistency can be maintained. In this project the top level template is called `layout.html` and is saved with all the other html templates in `templates/Prism`.  
+
+The `layout.html` template defines blocks that can be referenced in other html templates that inherit from it. In this way item positions and styles can be maintained across the site through the use of `{% block name %}{% endblock %}` tags. All templates know to insert the content of these blocks into the corresponding block of the inherited template, as long as `{% extends "Prism/layout.html" %}` is included at the top of the template.  
+
+`layout.html` has been used to define the navigation bar at the top of the page. Because every page of the site inherits this template, every page of the site has the same nav bar and any changes to it need only be made once.  
+
+
+# Static files  
+A css style sheet has been created and is referenced in the parent template `layout.html` so all pages that inherit will be subject to the same styling choices. `style.css` has been saved to `static/Prism` along with a `prism.ico` favicon.  
+
+Static files need to be loaded explicitly with `{% load static %}`, but as this is done in the parent template it need only be done once here. When out of dev (ie when `DEBUG=False` in `settings.py`) there will be a need to load a third party library such as **WhiteNoise** to load static files.  
+
+
+# Bootstrap 5
+By installing `django-bootstrap-v5` to the python env we have access to bootstrap 5 styling.  
+
+I've found this especially useful for laying out the controls using a grid (`col-md-auto` FTW), but I'm hoping it will come into it's own with comboboxes for named individuals on a project. The drop down boxes are kinda hard to use when dealing with so many options; we really need some form of autocomplete drop down.  
+
+
+# Project Notes
+We've had to establish multiple forms in a single view so that we can display and update project details and project notes on the same page.  
+
+To do this we're instantiating forms `ProjectForm` and `ProjectNotesForm` with prefixes (`'project'` and `'p_note'` respectively). this prefixes all field names in the form with those values, so `ProjectForm.projectnumber` becomes `ProjectForm.project-projectnumber` for example. We can then use `if` statements on prefixed field names to conditionally split the workflow depending on which form is being submitted, eg:
+
+```python
+if request.method == "POST":
+        if 'project-pid' in request.POST:
+            # 
+            # do project details stuff here
+            # 
+        elif 'p_note-pnote' in request.POST:
+            # 
+            # do project note stuff here
+            # 
+```
+
+Make sure each form gets it's own `{% csrf_token %}` to avoid Cross Site Request Forgery.  
+
+The Notes form only has a single input control with a submit button all to itself. The notes themselves are displayed using an html table, iterating over an instance of the `Tblprojectnotes` model to populate.  
+
+Pagination is a handy way to keep things readable and not clutter the screen; it is handled in the view.  

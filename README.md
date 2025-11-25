@@ -20,7 +20,7 @@ Well, everything really! But first thoughts:
 - ~~Get things looking pretty, or at least usable~~  
 - ~~Ability to search for projects~~  
 - Add non-basic project details
-    - notes
+    - ~~notes~~  
     - documents
     - platform
     - cost estimates/support commitments
