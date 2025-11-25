@@ -40,10 +40,10 @@ class ProjectForm(forms.Form):
 
 class ProjectNotesForm(forms.Form):
     pnid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
-    projectnumber = forms.CharField(label="Project Number", disabled=True, max_length=5, required=False)
-    pnote = forms.CharField(label="Project Note", disabled=True, max_length=500)
-    created = forms.DateTimeField(label="Created", disabled=True, required=False)
-    createdby = forms.CharField(label="Created By", disabled=True, max_length=50, required=False)
+    projectnumber = forms.CharField(widget = forms.HiddenInput(), label="Project Number", disabled=True, max_length=5, required=False)
+    pnote = forms.CharField(label="Project Note", max_length=500)
+    created = forms.DateTimeField(widget = forms.HiddenInput(), label="Created", disabled=True, required=False)
+    createdby = forms.CharField(widget = forms.HiddenInput(), label="Created By", disabled=True, max_length=50, required=False)
 
     class Meta:
         model = Tblprojectnotes
