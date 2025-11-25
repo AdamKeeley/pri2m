@@ -79,10 +79,12 @@ Pri2m : {{ project.projectnumber }}
                     <legend>Notes</legend> 
                     <form action="" method="POST">
                         {% csrf_token %}
+                        <fieldset>
                         <div class="input-group">
                             {{ new_note.pnote }}
-                            <button class="btn btn-primary" type="submit" id="button-new_note">Add note</button>
+                            <input class="btn btn-primary" type="submit" value="Add note">
                         </div>
+                        </fieldset>
                         <fieldset>
                             {{ new_note.pnid }}
                             {{ new_note.projectnumber }}
@@ -94,8 +96,8 @@ Pri2m : {{ project.projectnumber }}
                         <thead>
                             <tr>
                             <th scope="col">Note</th>
-                            <th scope="col">Created By</th>
                             <th scope="col">Created</th>
+                            <th scope="col">Created By</th>
                             </tr>
                         </thead>
                         <tbody>
