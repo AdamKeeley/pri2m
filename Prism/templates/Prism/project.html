@@ -6,70 +6,90 @@ Pri2m : {{ project.projectnumber }}
 
 {% block content %}
     <h2>{{ project.projectnumber }} - {{ project.projectname }}</h2>
-    
-    <form action="" method = "POST">
-        {% csrf_token %}
-        
-        <input class="btn btn-primary" type="submit" value="Submit">
 
+        <div class="container-fluid">
+            <form action="" method = "POST">
+                {% csrf_token %}
+                <input class="btn btn-primary" type="submit" value="Submit">
+                <div class="row">
+                    <div class="col-md-auto">
+                        <fieldset>
+                            <legend>Project Details</legend>
+                            <p>{{ form.projectnumber.as_field_group }}</p>
+                            <p>{{ form.projectname.as_field_group }}</p>
+                            <p>{{ form.stage_id.as_field_group }}</p>
+                            <p>{{ form.classification_id.as_field_group }}</p>
+                        </fieldset>
+                    </div>
+                    <div class="col-md-auto">
+                        <fieldset>
+                            <legend>Key Dates</legend>
+                            <p>{{ form.projectedstartdate.as_field_group }}</p>
+                            <p>{{ form.projectedenddate.as_field_group }}</p>
+                            <p>{{ form.startdate.as_field_group }}</p>
+                            <p>{{ form.enddate.as_field_group }}</p>
+                        </fieldset>
+                    </div>
+                    <div class="col-md-auto">
+                        <fieldset>
+                            <legend>Ownership</legend>
+                            <p>{{ form.pi.as_field_group }}</p>
+                            <p>{{ form.leadapplicant.as_field_group }}</p>
+                            <p>{{ form.faculty_id.as_field_group }}</p>
+                        </fieldset>
+                    </div>
+                    <div class="col-md-auto">
+                        <fieldset>
+                            <legend>Type</legend>
+                            <p>{{ form.lida.as_field_group }}</p>
+                            <p>{{ form.internship.as_field_group }}</p>
+                        </fieldset>
+                    </div>
+                    <div class="col-md-auto">
+                        <fieldset>
+                            <legend>Compliance</legend>
+                            <p>{{ form.dspt.as_field_group }}</p>
+                            <p>{{ form.iso27001.as_field_group }}</p>
+                        </fieldset>                                
+                    </div>
+                    <div class="col-md-auto">
+                        <fieldset>
+                            <legend>Platform</legend>
+                            <p>{{ form.laser.as_field_group }}</p>
+                            <p>{{ form.irc.as_field_group }}</p>
+                            <p>{{ form.seed.as_field_group }}</p>
+                        </fieldset>
+                    </div>
+                </div>
+                <fieldset>
+                    {{ form.pid }}
+                    {{ form.validfrom }}
+                    {{ form.validto }}
+                    {{ form.createdby }}
+                </fieldset>
+                <div class="form-row">
+                    {{ form.message.errors }}
+                    {{ form.message.label_tag }} {{ form.message }}
+                </div>
+            </form>
+        </div>
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-auto">
-                    <fieldset>
-                        <legend>Project Details</legend>
-                        <p>{{ form.projectnumber.as_field_group }}</p>
-                        <p>{{ form.projectname.as_field_group }}</p>
-                        <p>{{ form.stage_id.as_field_group }}</p>
-                        <p>{{ form.classification_id.as_field_group }}</p>
-                    </fieldset>
-                </div>
-                <div class="col-md-auto">
-                    <fieldset>
-                        <legend>Key Dates</legend>
-                        <p>{{ form.projectedstartdate.as_field_group }}</p>
-                        <p>{{ form.projectedenddate.as_field_group }}</p>
-                        <p>{{ form.startdate.as_field_group }}</p>
-                        <p>{{ form.enddate.as_field_group }}</p>
-                    </fieldset>
-                </div>
-                <div class="col-md-auto">
-                    <fieldset>
-                        <legend>Ownership</legend>
-                        <p>{{ form.pi.as_field_group }}</p>
-                        <p>{{ form.leadapplicant.as_field_group }}</p>
-                        <p>{{ form.faculty_id.as_field_group }}</p>
-                    </fieldset>
-                </div>
-                <div class="col-md-auto">
-                    <fieldset>
-                        <legend>Type</legend>
-                        <p>{{ form.lida.as_field_group }}</p>
-                        <p>{{ form.internship.as_field_group }}</p>
-                    </fieldset>
-                </div>
-                <div class="col-md-auto">
-                    <fieldset>
-                        <legend>Compliance</legend>
-                        <p>{{ form.dspt.as_field_group }}</p>
-                        <p>{{ form.iso27001.as_field_group }}</p>
-                    </fieldset>                                
-                </div>
-                <div class="col-md-auto">
-                    <fieldset>
-                        <legend>Platform</legend>
-                        <p>{{ form.laser.as_field_group }}</p>
-                        <p>{{ form.irc.as_field_group }}</p>
-                        <p>{{ form.seed.as_field_group }}</p>
-                    </fieldset>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-auto">
-                    <legend>Notes</legend>
-                    <div class="input-group">
-                        <textarea class="form-control" rows="1" id="text-new_note" placeholder="New note..."></textarea>
-                        <button class="btn btn-primary" type="button" id="button-new_note">Add</button>
-                    </div>
+                    <legend>Notes</legend> 
+                    <form action="" method="POST">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            {{ new_note.pnote }}
+                            <button class="btn btn-primary" type="submit" id="button-new_note">Add note</button>
+                        </div>
+                        <fieldset>
+                            {{ new_note.pnid }}
+                            {{ new_note.projectnumber }}
+                            {{ new_note.created }}
+                            {{ new_note.createdby }}
+                        </fieldset>
+                    </form>
                     <table class="table table-hover">
                         <thead>
                             <tr>
@@ -127,17 +147,5 @@ Pri2m : {{ project.projectnumber }}
             </div>
         </div>
         
-        <fieldset>
-            {{ form.pid }}
-            {{ form.validfrom }}
-            {{ form.validto }}
-            {{ form.createdby }}
-        </fieldset>
         
-        <div class="form-row">
-            {{ form.message.errors }}
-            {{ form.message.label_tag }} {{ form.message }}
-        </div>
-
-    </form>
 {% endblock %}
