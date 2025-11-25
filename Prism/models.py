@@ -119,7 +119,7 @@ class Tblprojectkristal(models.Model):
 
 
 class Tblprojectnotes(models.Model):
-    pnid = models.IntegerField(db_column='pnID', primary_key=True)  # Field name made lowercase.
+    pnid = models.AutoField(db_column='pnID', primary_key=True, editable=False)
     projectnumber = models.CharField(db_column='ProjectNumber', max_length=5, blank=True, null=True)  # Field name made lowercase.
     pnote = models.TextField(db_column='pNote', blank=True, null=True)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created', blank=True, null=True)  # Field name made lowercase.
