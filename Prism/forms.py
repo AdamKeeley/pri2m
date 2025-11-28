@@ -41,7 +41,7 @@ class ProjectForm(forms.Form):
 class ProjectNotesForm(forms.Form):
     pnid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     projectnumber = forms.CharField(widget = forms.HiddenInput(), label="Project Number", disabled=True, max_length=5, required=False)
-    pnote = forms.CharField(widget=forms.Textarea(attrs={"rows":1}), label="Project Note", max_length=500)
+    pnote = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "New note..."}), label="Project Note", max_length=500)
     created = forms.DateTimeField(widget = forms.HiddenInput(), label="Created", disabled=True, required=False)
     createdby = forms.CharField(widget = forms.HiddenInput(), label="Created By", disabled=True, max_length=50, required=False)
 
