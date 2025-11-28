@@ -90,7 +90,7 @@ class Tblprojectdattime(models.Model):
 
 
 class Tblprojectdocument(models.Model):
-    pdid = models.IntegerField(db_column='pdID', primary_key=True)  # Field name made lowercase.
+    pdid = models.AutoField(db_column='pdID', primary_key=True, editable=False)  # Field name made lowercase.
     projectnumber = models.CharField(db_column='ProjectNumber', max_length=5, blank=True, null=True)  # Field name made lowercase.
     documenttype = models.ForeignKey('Tlkdocuments', models.PROTECT, db_column='DocumentType', blank=True, null=True)  # Field name made lowercase.
     versionnumber = models.DecimalField(db_column='VersionNumber', max_digits=5, decimal_places=2, blank=True, null=True)  # Field name made lowercase.

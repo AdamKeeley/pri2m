@@ -60,6 +60,27 @@ Pri2m : {{ project.projectnumber }}
                             <p>{{ form.seed.as_field_group }}</p>
                         </fieldset>
                     </div>
+                    
+                    <div class="col-md-auto">
+                    <legend>Project Documents</legend> 
+                        <div class="align-self-end ml-auto">
+                            <div class="btn-group-vertical">
+                                {% if p_docs.proposal == "accepted" %}
+                                    <button type="button" class="btn btn-success">Proposal</button>
+                                {% elif p_docs.proposal == "present" %}
+                                    <button type="button" class="btn btn-warning">Proposal</button>
+                                {% else %}
+                                    <button type="button" class="btn btn-danger">Proposal</button>
+                                {% endif %}
+                                <button type="button" class="btn btn-primary">DMP</button>
+                                <button type="button" class="btn btn-primary">Risk Assessment</button>
+                                <button type="button" class="btn btn-secondary">User Docs</button>
+                                <button type="button" class="btn btn-secondary">Project Docs</button>
+
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
                 <fieldset>
                     {{ form.pid }}

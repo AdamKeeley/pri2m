@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max
-from .models import Tblproject, Tbluser, Tblprojectnotes
+from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument
 from .forms import ProjectForm, ProjectNotesForm
 import pandas as pd
 from django.utils import timezone
@@ -122,6 +122,26 @@ def project(request, projectnumber):
         ).values(
         ).order_by("-created")
 
+        project_docs = Tblprojectdocument.objects.filter(
+            validto__isnull=True
+            , projectnumber=projectnumber
+        ).values(            
+        ).order_by("documenttype", "versionnumber")
+
+        p_docs={
+            "proposal":''
+            ,"dmp":''
+            ,"ra":''
+        }
+        if project_docs.filter(documenttype__documentdescription="Project Proposal"
+                               , accepted__isnull=False).exists():
+            p_docs["proposal"] = "accepted"
+        elif project_docs.filter(documenttype__documentdescription="Project Proposal"
+                               , accepted__isnull=True).exists():
+            p_docs["proposal"] = "present"
+        else: 
+            p_docs["proposal"] = "absent"
+
         paginator = Paginator(project_notes, 5)  # Show 5 posts per page
         page_number = request.GET.get('page')
         try:
@@ -137,7 +157,8 @@ def project(request, projectnumber):
         return render(request, 'Prism/project.html', {'project':project
                                                 , 'form':project_form
                                                 , 'new_note': p_notes_form
-                                                , 'notes':page_obj})
+                                                , 'notes':page_obj
+                                                , 'p_docs': p_docs})
 
 def projectcreate(request):
     if request.method == "POST":
