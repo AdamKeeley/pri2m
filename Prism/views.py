@@ -128,19 +128,21 @@ def project(request, projectnumber):
         ).values(            
         ).order_by("documenttype", "versionnumber")
 
+        # Important that these key names match the values of [DocumentDescription] stored in the database table [tlkDocuments]
         p_docs={
-            "proposal":''
-            ,"dmp":''
-            ,"ra":''
+            "Project Proposal":''
+            ,"Data Management Plan":''
+            ,"Risk Assessment":''
         }
-        if project_docs.filter(documenttype__documentdescription="Project Proposal"
-                               , accepted__isnull=False).exists():
-            p_docs["proposal"] = "accepted"
-        elif project_docs.filter(documenttype__documentdescription="Project Proposal"
-                               , accepted__isnull=True).exists():
-            p_docs["proposal"] = "present"
-        else: 
-            p_docs["proposal"] = "absent"
+        for doc in p_docs:
+            if project_docs.filter(documenttype__documentdescription=doc
+                                , accepted__isnull=False).exists():
+                p_docs[doc] = "accepted"
+            elif project_docs.filter(documenttype__documentdescription=doc
+                                , accepted__isnull=True).exists():
+                p_docs[doc] = "present"
+            else: 
+                p_docs[doc] = "absent"
 
         paginator = Paginator(project_notes, 5)  # Show 5 posts per page
         page_number = request.GET.get('page')
