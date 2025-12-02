@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument
-from .forms import ProjectForm, ProjectNotesForm
+from .forms import ProjectForm, ProjectNotesForm, ProjectDocumentsForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -128,21 +128,21 @@ def project(request, projectnumber):
         ).values(            
         ).order_by("documenttype", "versionnumber")
 
-        # Important that these key names match the values of [DocumentDescription] stored in the database table [tlkDocuments]
+        # Important that these top level key names match the values of [DocumentDescription] stored in the database table [tlkDocuments]
         p_docs={
-            "Project Proposal":''
-            ,"Data Management Plan":''
-            ,"Risk Assessment":''
+            "Project Proposal":{'url':'proposal', 'status':''}
+            ,"Data Management Plan":{'url':'plan', 'status':''}
+            ,"Risk Assessment":{'url':'risk', 'status':''}
         }
         for doc in p_docs:
             if project_docs.filter(documenttype__documentdescription=doc
                                 , accepted__isnull=False).exists():
-                p_docs[doc] = "accepted"
+                p_docs[doc]["status"] = "accepted"
             elif project_docs.filter(documenttype__documentdescription=doc
                                 , accepted__isnull=True).exists():
-                p_docs[doc] = "present"
+                p_docs[doc]["status"] = "present"
             else: 
-                p_docs[doc] = "absent"
+                p_docs[doc]["status"] = "absent"
 
         paginator = Paginator(project_notes, 5)  # Show 5 posts per page
         page_number = request.GET.get('page')
@@ -218,3 +218,35 @@ def recordchanged(existing_record, form_set):
         elif existing_record[field] != getattr(form_set, field):
             record_changed = True
     return record_changed
+
+def projectdocs(request, projectnumber, doctype=None):
+    #if request.method == "POST":
+
+    if request.method == "GET":
+        filter_query = {}
+        doctype_dict = {None:None
+                        , 'proposal': 'Project Proposal'
+                        , 'plan': 'Data Management Plan'
+                        , 'risk': 'Risk Assessment'}
+        if doctype is not None:
+            filter_query['documenttype__documentdescription'] = doctype_dict[doctype]
+
+        project_docs = Tblprojectdocument.objects.filter(
+                Q(**filter_query, _connector=Q.OR)
+                , validto__isnull=True
+                , projectnumber=projectnumber
+            ).values(
+                'pdid'
+                ,'projectnumber'
+                ,'documenttype__documentdescription'
+                ,'versionnumber'
+                ,'submitted'
+                ,'accepted'
+            ).order_by("documenttype", "versionnumber")
+
+        project_docs_form=ProjectDocumentsForm()
+
+        return render(request, 'Prism/docs.html', {'project_docs':project_docs
+                                                   , 'project_docs_form': project_docs_form
+                                                   , 'projectnumber':projectnumber
+                                                   , 'doctype':doctype_dict[doctype]})

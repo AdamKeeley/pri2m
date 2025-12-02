@@ -66,17 +66,17 @@ Pri2m : {{ project.projectnumber }}
                         <div class="align-self-end ml-auto">
                             <div class="btn-group-vertical">
                                 
-                                {% for doc, status in p_docs.items %}
-                                    {% if status == "accepted" %}
-                                        <button type="button" class="btn btn-success" onclick=location.href="/project/{{ project.projectnumber }}/docs">{{ doc }}</button>
-                                    {% elif status == "present" %}
-                                        <button type="button" class="btn btn-warning" onclick=location.href="/project/{{ project.projectnumber }}/docs">{{ doc }}</button>
+                                {% for doc, detail in p_docs.items %}
+                                    {% if detail.status == "accepted" %}
+                                        <button type="button" class="btn btn-success" onclick=location.href="/project/{{ project.projectnumber }}/docs/{{ detail.url }}">{{ doc }}</button>
+                                    {% elif detail.status == "present" %}
+                                        <button type="button" class="btn btn-warning" onclick=location.href="/project/{{ project.projectnumber }}/docs/{{ detail.url }}">{{ doc }}</button>
                                     {% else %}
-                                        <button type="button" class="btn btn-danger" onclick=location.href="/project/{{ project.projectnumber }}/docs">{{ doc }}</button>
+                                        <button type="button" class="btn btn-danger" onclick=location.href="/project/{{ project.projectnumber }}/docs/{{ detail.url }}">{{ doc }}</button>
                                     {% endif %}
                                 {% endfor %}
                                 <button type="button" class="btn btn-secondary">User Docs</button>
-                                <button type="button" class="btn btn-secondary">Project Docs</button>
+                                <button type="button" class="btn btn-secondary" onclick=location.href="/project/{{ project.projectnumber }}/docs">Project Docs</button>
 
                             </div>
                         </div>

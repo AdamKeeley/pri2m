@@ -1,0 +1,59 @@
+{% extends "Prism/layout.html" %}
+
+{% block title %}
+Pri2m : {{ projectnumber }} Project Docs
+{% endblock %}
+
+{% block content %}
+{% if doctype %}
+<h2><a href='/project/{{ projectnumber }}'>{{ projectnumber }}</a> - {{ doctype }}</h2>
+{% else %}
+<h2><a href='/project/{{ projectnumber }}'>{{ projectnumber }}</a> - Project Documentation</h2>
+{% endif %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-auto">
+            <form action="" method = "POST">
+                {% csrf_token %}
+                <div class="input-group">
+                    <fieldset>
+                        {{ project_docs_form.documenttype.as_field_group }}
+                        <!--{{ project_docs_form.versionnumber.as_field_group }}-->
+                        {{ project_docs_form.submitted.as_field_group }}
+                        {{ project_docs_form.accepted.as_field_group }}
+                        <input class="btn btn-primary" type="submit" value="Submit">
+                    </fieldset>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+        <th scope="col">Document Type</th>
+        <th scope="col">Version</th>
+        <th scope="col">Submitted</th>
+        <th scope="col">Accepted</th>
+        <th scope="col">Accept/Withdraw</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for doc in project_docs %}
+            <tr>
+                <td>{{ doc.documenttype__documentdescription }}</td>
+                <td>{{ doc.versionnumber }}</td>
+                <td>{{ doc.submitted | date:"Y-m-d" }}</td>
+                <td>{{ doc.accepted | date:"Y-m-d" }}</td>
+                {% if doc.accepted %}
+                    <td><a href='URL_to_Withdraw'>Withdraw</td>
+                {% else %}
+                    <td><a href='URL_to_Accept'>Accept</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

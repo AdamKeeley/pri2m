@@ -1,5 +1,6 @@
 from django import forms
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments
+from django.utils import timezone
 
 class DateInput(forms.DateInput):
     input_type = "date"
@@ -52,8 +53,8 @@ class ProjectDocumentsForm(forms.Form):
     pdid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     projectnumber = forms.CharField(widget = forms.HiddenInput(), label="Project Number", disabled=True, max_length=5, required=False)
     documenttype = forms.ModelChoiceField(label="Document Type", queryset=Tlkdocuments.objects.filter(validto__isnull=True).order_by("documentid"))
-    versionnumber = forms.DecimalField(label="Version Number", widget=forms.NumberInput(attrs={'step': 1}))
-    submitted = forms.DateTimeField(label="Submitted Date", widget = DateInput())
+    versionnumber = forms.DecimalField(label="Version Number", widget= forms.HiddenInput() ) #forms.NumberInput(attrs={'step': 1}))
+    submitted = forms.DateTimeField(label="Submitted Date", widget = DateInput(), initial=timezone.now())
     accepted = forms.DateTimeField(label="Accepted Date", widget = DateInput())
     validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
