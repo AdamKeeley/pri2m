@@ -131,8 +131,8 @@ def project(request, projectnumber):
         # Important that these top level key names match the values of [DocumentDescription] stored in the database table [tlkDocuments]
         p_docs={
             "Project Proposal":{'url':'proposal', 'status':''}
-            ,"Data Management Plan":{'url':'plan', 'status':''}
-            ,"Risk Assessment":{'url':'risk', 'status':''}
+            ,"Data Management Plan":{'url':'dmp', 'status':''}
+            ,"Risk Assessment":{'url':'ra', 'status':''}
         }
         for doc in p_docs:
             if project_docs.filter(documenttype__documentdescription=doc
@@ -257,8 +257,8 @@ def projectdocs(request, projectnumber, doctype=None):
         # Important that these values match the values of [DocumentDescription] stored in the database table [tlkDocuments]
         doctype_dict = {None:None
                         , 'proposal': 'Project Proposal'
-                        , 'plan': 'Data Management Plan'
-                        , 'risk': 'Risk Assessment'}
+                        , 'dmp': 'Data Management Plan'
+                        , 'ra': 'Risk Assessment'}
         if doctype is not None:
             filter_query['documenttype__documentdescription'] = doctype_dict[doctype]
 
@@ -291,7 +291,8 @@ def projectdocs(request, projectnumber, doctype=None):
         return render(request, 'Prism/docs.html', {'project_docs':project_docs
                                                    , 'project_docs_form': project_docs_form
                                                    , 'projectnumber':projectnumber
-                                                   , 'doctype':doctype_dict[doctype]})
+                                                   , 'doctype':doctype_dict[doctype]
+                                                   , 'doctypeurl':doctype})
     
 def projectdocs_acceptwithdraw(request, projectnumber, doctype, action, pdid):
     update_record=Tblprojectdocument.objects.filter(
@@ -305,11 +306,6 @@ def projectdocs_acceptwithdraw(request, projectnumber, doctype, action, pdid):
         update_record.update(accepted = None)
     
     if doctype and doctype != 'None':
-        # Important that these values match the values of [DocumentDescription] stored in the database table [tlkDocuments]
-        doctype_dict = {None:None
-                        , 'Project Proposal': 'proposal'
-                        , 'Data Management Plan': 'plan'
-                        , 'Risk Assessment': 'risk'}
-        return HttpResponseRedirect(f"/project/{projectnumber}/docs/{doctype_dict[doctype]}")
+        return HttpResponseRedirect(f"/project/{projectnumber}/docs/{doctype}")
     else:
         return HttpResponseRedirect(f"/project/{projectnumber}/docs")
