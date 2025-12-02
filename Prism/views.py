@@ -220,7 +220,34 @@ def recordchanged(existing_record, form_set):
     return record_changed
 
 def projectdocs(request, projectnumber, doctype=None):
-    #if request.method == "POST":
+    if request.method == "POST":
+        project_docs_form=ProjectDocumentsForm(request.POST)
+        if project_docs_form.is_valid():
+            
+            # Get latest VersionNumber from database model and iterate up by one for new VersionNumber
+            max_versionnumber = Tblprojectdocument.objects.filter(
+                validto__isnull=True
+                ,projectnumber=projectnumber
+                ,documenttype=project_docs_form.cleaned_data['documenttype']
+            ).aggregate(Max("versionnumber"))
+            if max_versionnumber['versionnumber__max'] is not None:
+                new_versionnumber = int(max_versionnumber['versionnumber__max']) +1
+            else:
+                new_versionnumber = 1
+            
+            insert = Tblprojectdocument(
+                projectnumber=projectnumber
+                , documenttype=project_docs_form.cleaned_data['documenttype']
+                , versionnumber=new_versionnumber
+                , submitted=project_docs_form.cleaned_data['submitted']
+                , accepted=project_docs_form.cleaned_data['accepted']
+                , validfrom=timezone.now()
+                , validto=None
+                , createdby=request.user
+                )
+            insert.save(force_insert=True)
+
+            return HttpResponseRedirect(f"/project/{projectnumber}/docs")
 
     if request.method == "GET":
         filter_query = {}
