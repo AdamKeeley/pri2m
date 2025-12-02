@@ -292,3 +292,24 @@ def projectdocs(request, projectnumber, doctype=None):
                                                    , 'project_docs_form': project_docs_form
                                                    , 'projectnumber':projectnumber
                                                    , 'doctype':doctype_dict[doctype]})
+    
+def projectdocs_acceptwithdraw(request, projectnumber, doctype, action, pdid):
+    update_record=Tblprojectdocument.objects.filter(
+        pdid=pdid
+        , projectnumber=projectnumber
+    ).values()
+
+    if action == 'accept':
+        update_record.update(accepted = timezone.now())
+    elif action == 'withdraw':
+        update_record.update(accepted = None)
+    
+    if doctype and doctype != 'None':
+        # Important that these values match the values of [DocumentDescription] stored in the database table [tlkDocuments]
+        doctype_dict = {None:None
+                        , 'Project Proposal': 'proposal'
+                        , 'Data Management Plan': 'plan'
+                        , 'Risk Assessment': 'risk'}
+        return HttpResponseRedirect(f"/project/{projectnumber}/docs/{doctype_dict[doctype]}")
+    else:
+        return HttpResponseRedirect(f"/project/{projectnumber}/docs")

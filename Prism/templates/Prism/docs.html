@@ -48,9 +48,9 @@ Pri2m : {{ projectnumber }} Project Docs
                 <td>{{ doc.submitted | date:"Y-m-d" }}</td>
                 <td>{{ doc.accepted | date:"Y-m-d" }}</td>
                 {% if doc.accepted %}
-                    <td><a href='URL_to_Withdraw'>Withdraw</td>
+                    <td><a href='/project/{{ projectnumber }}/docs/{{ doctype }}/withdraw/{{ doc.pdid }}'>Withdraw</td>
                 {% else %}
-                    <td><a href='URL_to_Accept'>Accept</td>
+                    <td><a href='/project/{{ projectnumber }}/docs/{{ doctype }}/accept/{{ doc.pdid }}'>Accept</td>
                 {% endif %}
             </tr>
         {% endfor %}

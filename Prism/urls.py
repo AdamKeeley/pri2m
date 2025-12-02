@@ -6,5 +6,6 @@ urlpatterns = [
     path('project/<str:projectnumber>', views.project, name = 'project'),
     path('projectcreate', views.projectcreate, name = 'projectcreate'),
     path('project/<str:projectnumber>/docs', views.projectdocs, name = 'projectdocs'),
-    path('project/<str:projectnumber>/docs/<str:doctype>', views.projectdocs, name = 'projectdocs')
+    path('project/<str:projectnumber>/docs/<str:doctype>', views.projectdocs, name = 'projectdocs'),
+    path('project/<str:projectnumber>/docs/<str:doctype>/<str:action>/<int:pdid>', views.projectdocs_acceptwithdraw, name = 'projectdocs_acceptwithdraw')
 ]
