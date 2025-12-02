@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max
-from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument
+from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments
 from .forms import ProjectForm, ProjectNotesForm, ProjectDocumentsForm
 import pandas as pd
 from django.utils import timezone
@@ -247,10 +247,14 @@ def projectdocs(request, projectnumber, doctype=None):
                 )
             insert.save(force_insert=True)
 
-            return HttpResponseRedirect(f"/project/{projectnumber}/docs")
+            if doctype:
+                return HttpResponseRedirect(f"/project/{projectnumber}/docs/{doctype}")
+            else:
+                return HttpResponseRedirect(f"/project/{projectnumber}/docs")
 
     if request.method == "GET":
         filter_query = {}
+        # Important that these values match the values of [DocumentDescription] stored in the database table [tlkDocuments]
         doctype_dict = {None:None
                         , 'proposal': 'Project Proposal'
                         , 'plan': 'Data Management Plan'
@@ -271,7 +275,18 @@ def projectdocs(request, projectnumber, doctype=None):
                 ,'accepted'
             ).order_by("documenttype", "versionnumber")
 
-        project_docs_form=ProjectDocumentsForm()
+        # Initialise and disable documenttype input if looking at single doctype
+        if doctype is not None:
+            doc_id = Tlkdocuments.objects.filter(
+                validto__isnull=True
+                ,documentdescription=doctype_dict[doctype]
+            ).values(
+                'documentid'
+            ).get()
+            project_docs_form=ProjectDocumentsForm(initial={'documenttype':doc_id['documentid']})
+            project_docs_form.fields['documenttype'].disabled=True
+        else:
+            project_docs_form=ProjectDocumentsForm()
 
         return render(request, 'Prism/docs.html', {'project_docs':project_docs
                                                    , 'project_docs_form': project_docs_form
