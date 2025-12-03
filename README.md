@@ -21,7 +21,7 @@ Well, everything really! But first thoughts:
 - ~~Ability to search for projects~~  
 - Add non-basic project details
     - ~~notes~~  
-    - documents
+    - ~~documents~~  
     - platform
     - cost estimates/support commitments
     - kristal references
