@@ -221,6 +221,7 @@ def recordchanged(existing_record, form_set):
 
 def projectdocs(request, projectnumber, doctype=None):
     if request.method == "POST":
+        
         project_docs_form=ProjectDocumentsForm(request.POST)
         if project_docs_form.is_valid():
             
@@ -275,7 +276,7 @@ def projectdocs(request, projectnumber, doctype=None):
                 ,'accepted'
             ).order_by("documenttype", "versionnumber")
 
-        # Initialise and disable documenttype input if looking at single doctype
+        # Initialise documenttype input if looking at single doctype
         if doctype is not None:
             doc_id = Tlkdocuments.objects.filter(
                 validto__isnull=True
@@ -284,7 +285,6 @@ def projectdocs(request, projectnumber, doctype=None):
                 'documentid'
             ).get()
             project_docs_form=ProjectDocumentsForm(initial={'documenttype':doc_id['documentid']})
-            project_docs_form.fields['documenttype'].disabled=True
         else:
             project_docs_form=ProjectDocumentsForm()
 
