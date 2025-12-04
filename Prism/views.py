@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max
-from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments
-from .forms import ProjectForm, ProjectNotesForm, ProjectDocumentsForm
+from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo
+from .forms import ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -109,6 +109,21 @@ def project(request, projectnumber):
                 insert_note.save(force_insert=True)
                 messages.success(request, 'Project note added successfully.')
                 return HttpResponseRedirect(f"/project/{projectnumber}")
+            
+        elif 'p_platform-platforminfoid' in request.POST:
+            p_platform_info_form = ProjectPlatformInfoForm(request.POST, prefix='p_platform')
+            if p_platform_info_form.is_valid():
+                insert_platform_info = Tblprojectplatforminfo(
+                    projectnumber = projectnumber
+                    ,platforminfoid = p_platform_info_form.cleaned_data['platforminfoid']
+                    ,projectplatforminfo = p_platform_info_form.cleaned_data['projectplatforminfo']
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,createdby = request.user
+                )
+                insert_platform_info.save(force_insert=True)
+                messages.success(request, 'Project platform info added successfully.')
+                return HttpResponseRedirect(f"/project/{projectnumber}")
     
     if request.method == 'GET':
         project = Tblproject.objects.filter(
@@ -127,6 +142,12 @@ def project(request, projectnumber):
             , projectnumber=projectnumber
         ).values(            
         ).order_by("documenttype", "versionnumber")
+
+        project_platform_info = Tblprojectplatforminfo.objects.filter(
+            validto__isnull=True
+            , projectnumber=projectnumber
+        ).values("projectplatforminfoid", "platforminfoid__platforminfodescription", "projectplatforminfo"
+        ).order_by("platforminfoid", "projectplatforminfo")
 
         # Important that these top level key names match the values of [DocumentDescription] stored in the database table [tlkDocuments]
         p_docs={
@@ -155,12 +176,15 @@ def project(request, projectnumber):
 
         project_form = ProjectForm(initial=project, prefix='project')
         p_notes_form = ProjectNotesForm(prefix='p_note')
+        p_platform_info_form = ProjectPlatformInfoForm(prefix='p_platform')
 
         return render(request, 'Prism/project.html', {'project':project
                                                 , 'form':project_form
                                                 , 'new_note': p_notes_form
                                                 , 'notes':page_obj
-                                                , 'p_docs': p_docs})
+                                                , 'p_docs': p_docs
+                                                , 'platforminfo': project_platform_info
+                                                , 'platform_form': p_platform_info_form})
 
 def projectcreate(request):
     if request.method == "POST":
@@ -309,3 +333,13 @@ def projectdocs_acceptwithdraw(request, projectnumber, doctype, action, pdid):
         return HttpResponseRedirect(f"/project/{projectnumber}/docs/{doctype}")
     else:
         return HttpResponseRedirect(f"/project/{projectnumber}/docs")
+
+
+def projectplatforminfo_remove(request, projectnumber, projectplatforminfoid):
+    update_record=Tblprojectplatforminfo.objects.filter(
+        projectplatforminfoid=projectplatforminfoid
+        , projectnumber=projectnumber
+    ).values()
+    update_record.update(validto = timezone.now())
+    
+    return HttpResponseRedirect(f"/project/{projectnumber}")

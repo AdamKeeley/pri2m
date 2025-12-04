@@ -131,7 +131,7 @@ class Tblprojectnotes(models.Model):
 
 
 class Tblprojectplatforminfo(models.Model):
-    projectplatforminfoid = models.IntegerField(db_column='ProjectPlatformInfoID', primary_key=True)  # Field name made lowercase.
+    projectplatforminfoid = models.AutoField(db_column='ProjectPlatformInfoID', primary_key=True)  # Field name made lowercase.
     projectnumber = models.CharField(db_column='ProjectNumber', max_length=5, blank=True, null=True)  # Field name made lowercase.
     platforminfoid = models.ForeignKey('Tlkplatforminfo', models.PROTECT, db_column='PlatformInfoID', blank=True, null=True)  # Field name made lowercase.
     projectplatforminfo = models.CharField(db_column='ProjectPlatformInfo', max_length=255, blank=True, null=True)  # Field name made lowercase.

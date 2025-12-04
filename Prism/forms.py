@@ -1,5 +1,5 @@
 from django import forms
-from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments
+from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo
 from django.utils import timezone
 
 class DateInput(forms.DateInput):
@@ -60,5 +60,18 @@ class ProjectDocumentsForm(forms.Form):
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
 
-    class met:
+    class meta:
         model=Tblprojectdocument
+
+class ProjectPlatformInfoForm(forms.Form):
+    projectplatforminfoid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    projectnumber = forms.CharField(widget = forms.HiddenInput(), label="Project Number", disabled=True, max_length=5, required=False)
+    platforminfoid = forms.ModelChoiceField(label="Platform Item", queryset=Tlkplatforminfo.objects.filter(validto__isnull=True).order_by("platforminfoid"))
+    projectplatforminfo = forms.CharField(label="Platform Info", max_length=255)
+    validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+    platforminfodescription = forms.CharField(label="Platform Info Description", max_length=25, required=False)
+
+    class Meta:
+        model=Tblprojectplatforminfo
