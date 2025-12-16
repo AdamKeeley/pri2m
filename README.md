@@ -22,9 +22,10 @@ Well, everything really! But first thoughts:
 - Add non-basic project details
     - ~~notes~~  
     - ~~documents~~  
-    - platform
+    - ~~platform~~  
     - cost estimates/support commitments
     - kristal references
+    - data flow diagrams  
 - Users and all that entails
 - Transfer logging and asset register
 - DSAs 

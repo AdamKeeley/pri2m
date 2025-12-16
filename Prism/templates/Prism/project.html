@@ -6,13 +6,18 @@ Pri2m : {{ project.projectnumber }}
 
 {% block content %}
     <h2>{{ project.projectnumber }} - {{ project.projectname }}</h2>
+    
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                
+                <form action="" method = "POST">
+                    {% csrf_token %}
+                    <input class="btn btn-primary" type="submit" value="Submit">
 
-        <div class="container-fluid">
-            <form action="" method = "POST">
-                {% csrf_token %}
-                <input class="btn btn-primary" type="submit" value="Submit">
                 <div class="row">
-                    <div class="col-md-auto">
+                    <div class="col-md-2">
+                        
                         <fieldset>
                             <legend>Project Details</legend>
                             <p>{{ form.projectnumber.as_field_group }}</p>
@@ -20,8 +25,10 @@ Pri2m : {{ project.projectnumber }}
                             <p>{{ form.stage_id.as_field_group }}</p>
                             <p>{{ form.classification_id.as_field_group }}</p>
                         </fieldset>
+                        
                     </div>
-                    <div class="col-md-auto">
+                    <div class="col-md-2">
+                        
                         <fieldset>
                             <legend>Key Dates</legend>
                             <p>{{ form.projectedstartdate.as_field_group }}</p>
@@ -29,41 +36,56 @@ Pri2m : {{ project.projectnumber }}
                             <p>{{ form.startdate.as_field_group }}</p>
                             <p>{{ form.enddate.as_field_group }}</p>
                         </fieldset>
+
                     </div>
-                    <div class="col-md-auto">
-                        <fieldset>
-                            <legend>Ownership</legend>
-                            <p>{{ form.pi.as_field_group }}</p>
-                            <p>{{ form.leadapplicant.as_field_group }}</p>
-                            <p>{{ form.faculty_id.as_field_group }}</p>
-                        </fieldset>
+                    <div class="col-md-3">
+                        <div class="row">
+                            <div class="col-md-auto">
+                                
+                                <fieldset>
+                                    <legend>Ownership</legend>
+                                    <p>{{ form.pi.as_field_group }}</p>
+                                    <p>{{ form.leadapplicant.as_field_group }}</p>
+                                    <p>{{ form.faculty_id.as_field_group }}</p>
+                                </fieldset>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-auto">
+                                
+                                <fieldset>
+                                    <legend>Type</legend>
+                                    <p>{{ form.lida.as_field_group }}</p>
+                                    <p>{{ form.internship.as_field_group }}</p>
+                                </fieldset>
+
+                            </div>
+                            <div class="col-md-auto">
+                                
+                                <fieldset>
+                                    <legend>Compliance</legend>
+                                    <p>{{ form.dspt.as_field_group }}</p>
+                                    <p>{{ form.iso27001.as_field_group }}</p>
+                                </fieldset>        
+
+                            </div>
+                            <div class="col-md-auto">
+                                
+                                <fieldset>
+                                    <legend>Platform</legend>
+                                    <p>{{ form.laser.as_field_group }}</p>
+                                    <p>{{ form.irc.as_field_group }}</p>
+                                    <p>{{ form.seed.as_field_group }}</p>
+                                </fieldset>
+
+                            </div>
+                        </div>
                     </div>
-                    <div class="col-md-auto">
-                        <fieldset>
-                            <legend>Type</legend>
-                            <p>{{ form.lida.as_field_group }}</p>
-                            <p>{{ form.internship.as_field_group }}</p>
-                        </fieldset>
-                    </div>
-                    <div class="col-md-auto">
-                        <fieldset>
-                            <legend>Compliance</legend>
-                            <p>{{ form.dspt.as_field_group }}</p>
-                            <p>{{ form.iso27001.as_field_group }}</p>
-                        </fieldset>                                
-                    </div>
-                    <div class="col-md-auto">
-                        <fieldset>
-                            <legend>Platform</legend>
-                            <p>{{ form.laser.as_field_group }}</p>
-                            <p>{{ form.irc.as_field_group }}</p>
-                            <p>{{ form.seed.as_field_group }}</p>
-                        </fieldset>
-                    </div>
-                    
-                    <div class="col-md-auto">
-                    <legend>Project Documents</legend> 
-                        <div class="align-self-end ml-auto">
+                    <div class="col-md-2">
+                        
+                        <legend>Project Documents</legend> 
+                        <div class="ml-auto">
                             <div class="btn-group-vertical">
                                 
                                 {% for doc, detail in p_docs.items %}
@@ -80,127 +102,180 @@ Pri2m : {{ project.projectnumber }}
 
                             </div>
                         </div>
+
+                        <fieldset>
+                            {{ form.pid }}
+                            {{ form.validfrom }}
+                            {{ form.validto }}
+                            {{ form.createdby }}
+                        </fieldset>
+                    </form>
+                    
+                    </div>
+
+                    <div class="col-md-3">
+                        <h3>DAT Commitment</h3>
                     </div>
 
                 </div>
-                <fieldset>
-                    {{ form.pid }}
-                    {{ form.validfrom }}
-                    {{ form.validto }}
-                    {{ form.createdby }}
-                </fieldset>
-                <div class="form-row">
-                    {{ form.message.errors }}
-                    {{ form.message.label_tag }} {{ form.message }}
-                </div>
-            </form>
-        </div>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-4">
-                    <legend>Platform Details</legend> 
-                    <form action="" method="POST">
-                        {% csrf_token %}
-                        <fieldset>
-                        <div class="input-group">
-                            {{ platform_form.platforminfoid }}
-                            {{ platform_form.projectplatforminfo }}
-                            <input class="btn btn-primary" type="submit" value="Add Platform Item">
-                        </div>
-                        </fieldset>
-                    </form>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                            <th scope="col">Item</th>
-                            <th scope="col">Description</th>
-                            <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in platforminfo %}
+                <div class="row">
+                    <div class="col-md-4">
+                        
+                        <legend>Platform Details</legend> 
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <fieldset>
+                            <div class="input-group">
+                                {{ platform_form.platforminfoid }}
+                                {{ platform_form.projectplatforminfo }}
+                                <input class="btn btn-primary" type="submit" value="Add Platform Item">
+                            </div>
+                            </fieldset>
+                        </form>
+                        <table class="table table-hover">
+                            <thead>
                                 <tr>
-                                    <td>{{ item.platforminfoid__platforminfodescription }}</td>
-                                    <td>{{ item.projectplatforminfo }}</td>
-                                    <td><a href='/project/{{ project.projectnumber }}/remove/{{ item.projectplatforminfoid }}'>remove</td>
+                                <th scope="col">Item</th>
+                                <th scope="col">Description</th>
+                                <th scope="col"></th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="col-md-8">
-                    <legend>Notes</legend> 
-                    <form action="" method="POST">
-                        {% csrf_token %}
-                        <fieldset>
-                        <div class="input-group">
-                            {{ new_note.pnote }}
-                            <input class="btn btn-primary" type="submit" value="Add note">
-                        </div>
-                        </fieldset>
-                        <fieldset>
-                            {{ new_note.pnid }}
-                            {{ new_note.projectnumber }}
-                            {{ new_note.created }}
-                            {{ new_note.createdby }}
-                        </fieldset>
-                    </form>
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                            <th scope="col">Note</th>
-                            <th scope="col">Created</th>
-                            <th scope="col">Created By</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for note in notes.object_list %}
-                                <tr>
-                                    <td>{{ note.pnote }}</td>
-                                    <td>{{ note.created | date:"Y-m-d" }}</td>
-                                    <td>{{ note.createdby }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <div class="pagination">
-                        <ul class="pagination pagination-sm">
-                        {% if notes.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ notes.previous_page_number }}">&laquo;</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#">&laquo;</a>
-                            </li>
-                        {% endif %}
+                            </thead>
+                            <tbody>
+                                {% for item in platforminfo %}
+                                    <tr>
+                                        <td>{{ item.platforminfoid__platforminfodescription }}</td>
+                                        <td>{{ item.projectplatforminfo }}</td>
+                                        <td><a href='/project/{{ project.projectnumber }}/remove/{{ item.projectplatforminfoid }}'>remove</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
 
-                        {% for num in notes.paginator.page_range %}
-                            {% if notes.number == num %}
-                                <li class="page-item active">
-                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </div>
+                    <div class="col-md-8">
+                        
+                        <legend>Notes</legend> 
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <fieldset>
+                            <div class="input-group">
+                                {{ new_note.pnote }}
+                                <input class="btn btn-primary" type="submit" value="Add note">
+                            </div>
+                            </fieldset>
+                            <fieldset>
+                                {{ new_note.pnid }}
+                                {{ new_note.projectnumber }}
+                                {{ new_note.created }}
+                                {{ new_note.createdby }}
+                            </fieldset>
+                        </form>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                <th scope="col">Note</th>
+                                <th scope="col">Created</th>
+                                <th scope="col">Created By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for note in notes.object_list %}
+                                    <tr>
+                                        <td>{{ note.pnote }}</td>
+                                        <td>{{ note.created | date:"Y-m-d" }}</td>
+                                        <td>{{ note.createdby }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        <div class="pagination">
+                            <ul class="pagination pagination-sm">
+                            {% if notes.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ notes.previous_page_number }}">&laquo;</a>
                                 </li>
                             {% else %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">&laquo;</a>
                                 </li>
                             {% endif %}
-                        {% endfor %}
+    
+                            {% for num in notes.paginator.page_range %}
+                                {% if notes.number == num %}
+                                    <li class="page-item active">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+    
+                            {% if notes.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ notes.next_page_number }}">&raquo;</a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">&raquo;</a>
+                                </li>
+                            {% endif %}
+                            </ul>
+                        </div>
 
-                        {% if notes.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ notes.next_page_number }}">&raquo;</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item disabled">
-                                <a class="page-link" href="#">&raquo;</a>
-                            </li>
-                        {% endif %}
-                        </ul>
                     </div>
                 </div>
             </div>
         </div>
-        
-        
+    </div>        
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>Submit</h3>
+                <div class="row">
+                    <div class="col-md-2">
+                        <h3>Project Details</h3>
+                    </div>
+                    <div class="col-md-2">
+                        <h3>Key Dates</h3>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="row">
+                            <div class="col-md-auto">
+                                <h3>Ownership</h3>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-auto">
+                                <h3>Type</h3>
+                            </div>
+                            <div class="col-md-auto">
+                                <h3>Compliance</h3>
+                            </div>
+                            <div class="col-md-auto">
+                                <h3>Platform</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <h3>Project Documernts</h3>
+                    </div>
+                    <div class="col-md-3">
+                        <h3>DAT Commitment</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <h3>Platform Details</h3>
+                    </div>
+                    <div class="col-md-8">
+                        <h3>Notes</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
