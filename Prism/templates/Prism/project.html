@@ -174,16 +174,16 @@ Pri2m : {{ project.projectnumber }}
                             <thead>
                                 <tr>
                                 <th scope="col">Note</th>
-                                <th scope="col">Created</th>
-                                <th scope="col">Created By</th>
+                                <th style="white-space: nowrap;" scope="col">Created</th>
+                                <th style="white-space: nowrap;" scope="col">Created By</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for note in notes.object_list %}
                                     <tr>
                                         <td>{{ note.pnote }}</td>
-                                        <td>{{ note.created | date:"Y-m-d" }}</td>
-                                        <td>{{ note.createdby }}</td>
+                                        <td style="white-space: nowrap;">{{ note.created | date:"Y-m-d" }}</td>
+                                        <td style="white-space: nowrap;">{{ note.createdby }}</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
