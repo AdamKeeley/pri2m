@@ -126,14 +126,21 @@ def project(request, projectnumber):
                 return HttpResponseRedirect(f"/project/{projectnumber}")
     
     if request.method == 'GET':
+
         project = Tblproject.objects.filter(
             validto__isnull=True
             , projectnumber=projectnumber
         ).values(
         ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
 
+        query = request.GET.get("search_notes")
+        filter_query = {}
+        if query is not None and query != '':
+            filter_query['pnote__icontains'] = query
+        
         project_notes = Tblprojectnotes.objects.filter(
-            projectnumber=projectnumber
+            Q(**filter_query, _connector=Q.OR)
+            , projectnumber=projectnumber
         ).values(
         ).order_by("-created")
 

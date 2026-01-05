@@ -114,7 +114,7 @@ Pri2m : {{ project.projectnumber }}
                     </div>
 
                     <div class="col-md-3">
-                        <h3>DAT Commitment</h3>
+                        <legend>DAT Commitment</legend>
                     </div>
 
                 </div>
@@ -155,6 +155,14 @@ Pri2m : {{ project.projectnumber }}
                     <div class="col-md-8">
                         
                         <legend>Notes</legend> 
+
+                        <form action="" method="get">
+                            <div class="input-group">
+                                <input name="search_notes" type="text" class="form-control" placeholder="Search...">
+                                <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+                            </div>
+                        </form>
+
                         <form action="" method="POST">
                             {% csrf_token %}
                             <fieldset>
