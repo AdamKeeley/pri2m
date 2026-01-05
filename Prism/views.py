@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max
-from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo
-from .forms import ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm
+from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tblprojectdatallocation
+from .forms import ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm, ProjectDatAllocationForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -127,34 +127,19 @@ def project(request, projectnumber):
     
     if request.method == 'GET':
 
+        ## PROJECT ##
         project = Tblproject.objects.filter(
             validto__isnull=True
             , projectnumber=projectnumber
         ).values(
         ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
 
-        query = request.GET.get("search_notes")
-        filter_query = {}
-        if query is not None and query != '':
-            filter_query['pnote__icontains'] = query
-        
-        project_notes = Tblprojectnotes.objects.filter(
-            Q(**filter_query, _connector=Q.OR)
-            , projectnumber=projectnumber
-        ).values(
-        ).order_by("-created")
-
+        ## PROJECT DOCS ##
         project_docs = Tblprojectdocument.objects.filter(
             validto__isnull=True
             , projectnumber=projectnumber
         ).values(            
         ).order_by("documenttype", "versionnumber")
-
-        project_platform_info = Tblprojectplatforminfo.objects.filter(
-            validto__isnull=True
-            , projectnumber=projectnumber
-        ).values("projectplatforminfoid", "platforminfoid__platforminfodescription", "projectplatforminfo"
-        ).order_by("platforminfoid", "projectplatforminfo")
 
         # Important that these top level key names match the values of [DocumentDescription] stored in the database table [tlkDocuments]
         p_docs={
@@ -172,6 +157,32 @@ def project(request, projectnumber):
             else: 
                 p_docs[doc]["status"] = "absent"
 
+        ## DAT ALLOCATION ##
+        project_dat_allocation = Tblprojectdatallocation.objects.filter(
+            validto__isnull=True
+            , projectnumber=projectnumber
+        ).values("projectdatallocationid", "fromdate", "todate", "fte"
+        ).order_by("fromdate")
+
+        ## PROJECT PLATFORM DETAILS ##
+        project_platform_info = Tblprojectplatforminfo.objects.filter(
+            validto__isnull=True
+            , projectnumber=projectnumber
+        ).values("projectplatforminfoid", "platforminfoid__platforminfodescription", "projectplatforminfo"
+        ).order_by("platforminfoid", "projectplatforminfo")
+
+        ## PROJECT NOTES ##
+        query = request.GET.get("search_notes")
+        filter_query = {}
+        if query is not None and query != '':
+            filter_query['pnote__icontains'] = query
+        
+        project_notes = Tblprojectnotes.objects.filter(
+            Q(**filter_query, _connector=Q.OR)
+            , projectnumber=projectnumber
+        ).values(
+        ).order_by("-created")
+
         paginator = Paginator(project_notes, 5)  # Show 5 posts per page
         page_number = request.GET.get('page')
         try:
@@ -182,6 +193,7 @@ def project(request, projectnumber):
             page_obj = paginator.page(paginator.num_pages)
 
         project_form = ProjectForm(initial=project, prefix='project')
+        p_dat_allocation_form = ProjectDatAllocationForm(prefix='p_dat_allocation')
         p_notes_form = ProjectNotesForm(prefix='p_note')
         p_platform_info_form = ProjectPlatformInfoForm(prefix='p_platform')
 
@@ -191,6 +203,8 @@ def project(request, projectnumber):
                                                 , 'notes':page_obj
                                                 , 'notes_filter' : query
                                                 , 'p_docs': p_docs
+                                                , 'dat_allocation': project_dat_allocation
+                                                , 'dat_allocation_form': p_dat_allocation_form
                                                 , 'platforminfo': project_platform_info
                                                 , 'platform_form': p_platform_info_form})
 

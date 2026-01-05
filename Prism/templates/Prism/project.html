@@ -109,12 +109,57 @@ Pri2m : {{ project.projectnumber }}
                             {{ form.validto }}
                             {{ form.createdby }}
                         </fieldset>
-                    </form>
-                    
+                </form>
                     </div>
 
                     <div class="col-md-3">
                         <legend>DAT Commitment</legend>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">From</th>
+                                    <th scope="col">To</th>
+                                    <th scope="col">FTE %</th>
+                                    <th scope="col">Account</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in dat_allocation %}
+                                    <tr>
+                                        <td style="white-space: nowrap;">{{ item.fromdate | date:"Y-m-d" }}</td>
+                                        <td style="white-space: nowrap;">{{ item.todate | date:"Y-m-d" }}</td>
+                                        <td>{{ item.fte }}</td>
+                                        <td>rg.geog.123456.07</td>
+                                        <td><a href='DAT_Commitment_Removal_URL/{{item.projectdatallocationid}}'>x</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <form action="" method="POST">
+                            <div class="accordion" id="accordionDatAllocation">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    New DAT Allocation
+                                </button>
+                                </h2>
+                                <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionDatAllocation">
+                                <div class="accordion-body">
+                                    {% csrf_token %}
+                                    {{ dat_allocation_form.as_p }}
+                                    <p>
+                                        <label for="account">Account code</label>
+                                        <input id="account" type="textinput" placeholder="UoL account to charge">
+                                    </p>
+                                    <input class="btn btn-primary" type="submit" value="Add DAT Allocation">
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                        </form>
+
                     </div>
 
                 </div>
@@ -145,7 +190,7 @@ Pri2m : {{ project.projectnumber }}
                                     <tr>
                                         <td>{{ item.platforminfoid__platforminfodescription }}</td>
                                         <td>{{ item.projectplatforminfo }}</td>
-                                        <td><a href='/project/{{ project.projectnumber }}/remove/{{ item.projectplatforminfoid }}'>remove</td>
+                                        <td><a href='/project/{{ project.projectnumber }}/remove/{{ item.projectplatforminfoid }}'>x</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

@@ -1,5 +1,5 @@
 from django import forms
-from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo
+from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation
 from django.utils import timezone
 
 class DateInput(forms.DateInput):
@@ -38,7 +38,6 @@ class ProjectForm(forms.Form):
     class Meta:
         model = Tblproject
 
-
 class ProjectNotesForm(forms.Form):
     pnid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     projectnumber = forms.CharField(widget = forms.HiddenInput(), label="Project Number", disabled=True, max_length=5, required=False)
@@ -67,7 +66,7 @@ class ProjectPlatformInfoForm(forms.Form):
     projectplatforminfoid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     projectnumber = forms.CharField(widget = forms.HiddenInput(), label="Project Number", disabled=True, max_length=5, required=False)
     platforminfoid = forms.ModelChoiceField(label="Platform Item", queryset=Tlkplatforminfo.objects.filter(validto__isnull=True).order_by("platforminfoid"))
-    projectplatforminfo = forms.CharField(label="Platform Info", max_length=255)
+    projectplatforminfo = forms.CharField(label="Platform Info", widget=forms.TextInput(attrs={"placeholder": "Description..."}), max_length=255)
     validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
@@ -75,3 +74,18 @@ class ProjectPlatformInfoForm(forms.Form):
 
     class Meta:
         model=Tblprojectplatforminfo
+
+class ProjectDatAllocationForm(forms.Form):
+    projectdatallocationid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    projectnumber = forms.CharField(widget = forms.HiddenInput(), label="Project Number", disabled=True, max_length=5, required=False)
+    fromdate = forms.DateTimeField(label="From Date", widget = DateInput(attrs={"placeholder": "From Date..."}))
+    todate = forms.DateTimeField(label="To Date", widget = DateInput())
+    duration = forms.DecimalField(label="Duration", widget= forms.HiddenInput() , required=False)
+    durationcomputed = forms.DecimalField(label="Duration Computed", widget= forms.HiddenInput() , required=False)
+    fte = forms.DecimalField(label="FTE", widget=forms.NumberInput(attrs={"placeholder": "FTE (min 2.5%)"}), required=False, min_value=2.5)
+    validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=12)
+
+    class Meta:
+        model=Tblprojectdatallocation
