@@ -189,6 +189,7 @@ def project(request, projectnumber):
                                                 , 'form':project_form
                                                 , 'new_note': p_notes_form
                                                 , 'notes':page_obj
+                                                , 'notes_filter' : query
                                                 , 'p_docs': p_docs
                                                 , 'platforminfo': project_platform_info
                                                 , 'platform_form': p_platform_info_form})
