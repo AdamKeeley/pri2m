@@ -66,7 +66,7 @@ class ProjectPlatformInfoForm(forms.Form):
     projectplatforminfoid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     projectnumber = forms.CharField(widget = forms.HiddenInput(), label="Project Number", disabled=True, max_length=5, required=False)
     platforminfoid = forms.ModelChoiceField(label="Platform Item", queryset=Tlkplatforminfo.objects.filter(validto__isnull=True).order_by("platforminfoid"))
-    projectplatforminfo = forms.CharField(label="Platform Info", widget=forms.TextInput(attrs={"placeholder": "Description..."}), max_length=255)
+    projectplatforminfo = forms.CharField(label="Platform Info", widget=forms.Textarea(attrs={"rows":1, "placeholder": "Description..."}), max_length=255)
     validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
