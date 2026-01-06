@@ -82,10 +82,10 @@ class ProjectDatAllocationForm(forms.Form):
     todate = forms.DateTimeField(label="To Date", widget = DateInput())
     duration = forms.DecimalField(label="Duration", widget= forms.HiddenInput() , required=False)
     durationcomputed = forms.DecimalField(label="Duration Computed", widget= forms.HiddenInput() , required=False)
-    fte = forms.DecimalField(label="FTE", widget=forms.NumberInput(attrs={"placeholder": "FTE (min 2.5%)"}), required=False, min_value=2.5)
+    fte = forms.DecimalField(label="FTE", widget=forms.NumberInput(attrs={"placeholder": "FTE (min 2.5%)"}), required=True, min_value=2.5)
     validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
-    createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=12)
+    createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
 
     class Meta:
         model=Tblprojectdatallocation

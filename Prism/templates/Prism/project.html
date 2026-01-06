@@ -131,7 +131,7 @@ Pri2m : {{ project.projectnumber }}
                                         <td style="white-space: nowrap;">{{ item.todate | date:"Y-m-d" }}</td>
                                         <td>{{ item.fte }}</td>
                                         <td>rg.geog.123456.07</td>
-                                        <td><a href='DAT_Commitment_Removal_URL/{{item.projectdatallocationid}}'>x</td>
+                                        <td><a href='/project/{{ project.projectnumber }}/remove/datallocation/{{item.projectdatallocationid}}'>x</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>
@@ -190,7 +190,7 @@ Pri2m : {{ project.projectnumber }}
                                     <tr>
                                         <td>{{ item.platforminfoid__platforminfodescription }}</td>
                                         <td>{{ item.projectplatforminfo }}</td>
-                                        <td><a href='/project/{{ project.projectnumber }}/remove/{{ item.projectplatforminfoid }}'>x</td>
+                                        <td><a href='/project/{{ project.projectnumber }}/remove/platform/{{ item.projectplatforminfoid }}'>x</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

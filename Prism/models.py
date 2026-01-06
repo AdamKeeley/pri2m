@@ -61,7 +61,7 @@ class Tblprojectcostings(models.Model):
 
 
 class Tblprojectdatallocation(models.Model):
-    projectdatallocationid = models.IntegerField(db_column='ProjectDatAllocationId', primary_key=True)  # Field name made lowercase.
+    projectdatallocationid = models.AutoField(db_column='ProjectDatAllocationId', primary_key=True, editable=False)  # Field name made lowercase.
     projectnumber = models.CharField(db_column='ProjectNumber', max_length=5, blank=True, null=True)  # Field name made lowercase.
     fromdate = models.DateTimeField(db_column='FromDate', blank=True, null=True)  # Field name made lowercase.
     todate = models.DateTimeField(db_column='ToDate', blank=True, null=True)  # Field name made lowercase.
@@ -70,7 +70,7 @@ class Tblprojectdatallocation(models.Model):
     fte = models.DecimalField(db_column='FTE', max_digits=4, decimal_places=1, blank=True, null=True)  # Field name made lowercase.
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
-    createdby = models.CharField(db_column='CreatedBy', max_length=12, blank=True, null=True)  # Field name made lowercase.
+    createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False

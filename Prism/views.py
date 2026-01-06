@@ -97,6 +97,21 @@ def project(request, projectnumber):
                     messages.success(request, 'Project updated successfully.')
                 return HttpResponseRedirect(f"/project/{projectnumber}")
         
+        elif 'p_dat_allocation-projectdatallocationid' in request.POST:
+            p_dat_allocation_form = ProjectDatAllocationForm(request.POST, prefix='p_dat_allocation')
+            if p_dat_allocation_form.is_valid():
+                insert_dat_allocation = Tblprojectdatallocation(
+                    projectnumber = projectnumber
+                    ,fromdate = p_dat_allocation_form.cleaned_data['fromdate']
+                    ,todate = p_dat_allocation_form.cleaned_data['todate']
+                    ,fte = p_dat_allocation_form.cleaned_data['fte']
+                    ,validfrom = timezone.now()
+                    ,createdby = request.user
+                )
+                insert_dat_allocation.save(force_insert=True)
+                messages.success(request, 'DAT Allocation added successfully.')
+            return HttpResponseRedirect(f"/project/{projectnumber}")
+
         elif 'p_note-pnote' in request.POST:
             p_notes_form = ProjectNotesForm(request.POST, prefix='p_note')
             if p_notes_form.is_valid():
@@ -356,10 +371,18 @@ def projectdocs_acceptwithdraw(request, projectnumber, doctype, action, pdid):
     else:
         return HttpResponseRedirect(f"/project/{projectnumber}/docs")
 
-
 def projectplatforminfo_remove(request, projectnumber, projectplatforminfoid):
     update_record=Tblprojectplatforminfo.objects.filter(
         projectplatforminfoid=projectplatforminfoid
+        , projectnumber=projectnumber
+    ).values()
+    update_record.update(validto = timezone.now())
+    
+    return HttpResponseRedirect(f"/project/{projectnumber}")
+
+def projectdatallocation_remove(request, projectnumber, projectdatallocationid):
+    update_record=Tblprojectdatallocation.objects.filter(
+        projectdatallocationid=projectdatallocationid
         , projectnumber=projectnumber
     ).values()
     update_record.update(validto = timezone.now())
