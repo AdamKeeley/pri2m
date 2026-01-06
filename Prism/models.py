@@ -188,6 +188,19 @@ class Tbluser(models.Model):
         db_table = 'tblUser'
 
 
+class Tbluserproject(models.Model):
+    userprojectid = models.AutoField(db_column='UserProjectId', primary_key=True, editable=False)
+    usernumber = models.IntegerField(db_column='UserNumber', blank=True, null=True)
+    projectnumber = models.CharField(db_column='ProjectNumber', max_length=5, blank=True, null=True)
+    validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)
+    validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)
+    createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'tblUserProject'
+
+
 class Tlkclassification(models.Model):
     classificationid = models.IntegerField(db_column='classificationID', primary_key=True)  # Field name made lowercase.
     classificationdescription = models.CharField(db_column='classificationDescription', max_length=25, blank=True, null=True)  # Field name made lowercase.
