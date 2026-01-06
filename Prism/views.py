@@ -105,6 +105,7 @@ def project(request, projectnumber):
                     ,fromdate = p_dat_allocation_form.cleaned_data['fromdate']
                     ,todate = p_dat_allocation_form.cleaned_data['todate']
                     ,fte = p_dat_allocation_form.cleaned_data['fte']
+                    ,account = p_dat_allocation_form.cleaned_data['account']
                     ,validfrom = timezone.now()
                     ,createdby = request.user
                 )
@@ -176,7 +177,7 @@ def project(request, projectnumber):
         project_dat_allocation = Tblprojectdatallocation.objects.filter(
             validto__isnull=True
             , projectnumber=projectnumber
-        ).values("projectdatallocationid", "fromdate", "todate", "fte"
+        ).values("projectdatallocationid", "fromdate", "todate", "fte", "account"
         ).order_by("fromdate")
 
         ## PROJECT PLATFORM DETAILS ##

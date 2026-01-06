@@ -68,6 +68,7 @@ class Tblprojectdatallocation(models.Model):
     duration = models.DecimalField(db_column='Duration', max_digits=4, decimal_places=1, blank=True, null=True)  # Field name made lowercase.
     durationcomputed = models.DecimalField(db_column='DurationComputed', max_digits=4, decimal_places=1, blank=True, null=True)  # Field name made lowercase.
     fte = models.DecimalField(db_column='FTE', max_digits=4, decimal_places=1, blank=True, null=True)  # Field name made lowercase.
+    account = models.CharField(db_column='Account', max_length=25, blank=True, null=True)  # Field name made lowercase.
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
     createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.

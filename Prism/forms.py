@@ -83,6 +83,7 @@ class ProjectDatAllocationForm(forms.Form):
     duration = forms.DecimalField(label="Duration", widget= forms.HiddenInput() , required=False)
     durationcomputed = forms.DecimalField(label="Duration Computed", widget= forms.HiddenInput() , required=False)
     fte = forms.DecimalField(label="FTE", widget=forms.NumberInput(attrs={"placeholder": "FTE (min 2.5%)"}), required=True, min_value=2.5)
+    account = forms.CharField(widget=forms.TextInput(attrs={"placeholder": "UoL account to charge"}), label="Account code", max_length=25, required=False)
     validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)

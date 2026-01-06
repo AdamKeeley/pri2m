@@ -130,7 +130,7 @@ Pri2m : {{ project.projectnumber }}
                                         <td style="white-space: nowrap;">{{ item.fromdate | date:"Y-m-d" }}</td>
                                         <td style="white-space: nowrap;">{{ item.todate | date:"Y-m-d" }}</td>
                                         <td>{{ item.fte }}</td>
-                                        <td>rg.geog.123456.07</td>
+                                        <td>{{ item.account }}</td>
                                         <td><a href='/project/{{ project.projectnumber }}/remove/datallocation/{{item.projectdatallocationid}}'>x</td>
                                     </tr>
                                 {% endfor %}
@@ -149,10 +149,10 @@ Pri2m : {{ project.projectnumber }}
                                 <div class="accordion-body">
                                     {% csrf_token %}
                                     {{ dat_allocation_form.as_p }}
-                                    <p>
+                                    <!-- <p>
                                         <label for="account">Account code</label>
                                         <input id="account" type="textinput" placeholder="UoL account to charge">
-                                    </p>
+                                    </p> -->
                                     <input class="btn btn-primary" type="submit" value="Add DAT Allocation">
                                 </div>
                                 </div>
