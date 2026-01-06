@@ -23,7 +23,8 @@ Well, everything really! But first thoughts:
     - ~~notes~~  
     - ~~documents~~  
     - ~~platform~~  
-    - cost estimates/support commitments
+    - ~~cost estimates/support commitments~~  *Need to add [Account] column to [tblProjectDatAllocation]
+    - ~~project membership~~ *Need to add [UserProjectId] pk field to [tblUserProject]
     - kristal references
     - data flow diagrams  
 - Users and all that entails
