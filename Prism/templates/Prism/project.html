@@ -10,145 +10,147 @@ Pri2m : {{ project.projectnumber }}
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
-            
             <form action="" method = "POST">
                 {% csrf_token %}
                 <input class="btn btn-primary" type="submit" value="Submit">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            
+                            <fieldset>
+                                <legend>Project Details</legend>
+                                <p>{{ form.projectnumber.as_field_group }}</p>
+                                <p>{{ form.projectname.as_field_group }}</p>
+                                <p>{{ form.stage_id.as_field_group }}</p>
+                                <p>{{ form.classification_id.as_field_group }}</p>
+                            </fieldset>
+                            
+                        </div>
+                        <div class="col-md-auto">
+                            
+                            <fieldset>
+                                <legend>Key Dates</legend>
+                                <p>{{ form.projectedstartdate.as_field_group }}</p>
+                                <p>{{ form.projectedenddate.as_field_group }}</p>
+                                <p>{{ form.startdate.as_field_group }}</p>
+                                <p>{{ form.enddate.as_field_group }}</p>
+                            </fieldset>
 
-                <div class="row">
-                    <div class="col-md-2">
-                        
-                        <fieldset>
-                            <legend>Project Details</legend>
-                            <p>{{ form.projectnumber.as_field_group }}</p>
-                            <p>{{ form.projectname.as_field_group }}</p>
-                            <p>{{ form.stage_id.as_field_group }}</p>
-                            <p>{{ form.classification_id.as_field_group }}</p>
-                        </fieldset>
-                        
-                    </div>
-                    <div class="col-md-2">
-                        
-                        <fieldset>
-                            <legend>Key Dates</legend>
-                            <p>{{ form.projectedstartdate.as_field_group }}</p>
-                            <p>{{ form.projectedenddate.as_field_group }}</p>
-                            <p>{{ form.startdate.as_field_group }}</p>
-                            <p>{{ form.enddate.as_field_group }}</p>
-                        </fieldset>
+                        </div>
+                        <div class="col-md-auto">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-auto">
+                                        
+                                        <fieldset>
+                                            <legend>Ownership</legend>
+                                            <p>{{ form.pi.as_field_group }}</p>
+                                            <p>{{ form.leadapplicant.as_field_group }}</p>
+                                            <p>{{ form.faculty_id.as_field_group }}</p>
+                                        </fieldset>
 
-                    </div>
-                    <div class="col-md-3">
-                        <div class="row">
-                            <div class="col-md-auto">
-                                
-                                <fieldset>
-                                    <legend>Ownership</legend>
-                                    <p>{{ form.pi.as_field_group }}</p>
-                                    <p>{{ form.leadapplicant.as_field_group }}</p>
-                                    <p>{{ form.faculty_id.as_field_group }}</p>
-                                </fieldset>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-auto">
+                                        
+                                        <fieldset>
+                                            <legend>Type</legend>
+                                            <p>{{ form.lida.as_field_group }}</p>
+                                            <p>{{ form.internship.as_field_group }}</p>
+                                        </fieldset>
 
+                                    </div>
+                                    <div class="col-md-auto">
+                                        
+                                        <fieldset>
+                                            <legend>Compliance</legend>
+                                            <p>{{ form.dspt.as_field_group }}</p>
+                                            <p>{{ form.iso27001.as_field_group }}</p>
+                                        </fieldset>        
+
+                                    </div>
+                                    <div class="col-md-auto">
+                                        
+                                        <fieldset>
+                                            <legend>Platform</legend>
+                                            <p>{{ form.laser.as_field_group }}</p>
+                                            <p>{{ form.irc.as_field_group }}</p>
+                                            <p>{{ form.seed.as_field_group }}</p>
+                                        </fieldset>
+
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-auto">
-                                
-                                <fieldset>
-                                    <legend>Type</legend>
-                                    <p>{{ form.lida.as_field_group }}</p>
-                                    <p>{{ form.internship.as_field_group }}</p>
-                                </fieldset>
+                        <div class="col-md-auto">
+                            <legend>Project Documents</legend> 
+                            <div class="ml-auto">
+                                <div class="btn-group-vertical">
+                                    
+                                    {% for doc, detail in p_docs.items %}
+                                        {% if detail.status == "accepted" %}
+                                            <button type="button" class="btn btn-success" onclick=location.href="/project/{{ project.projectnumber }}/docs/{{ detail.url }}">{{ doc }}</button>
+                                        {% elif detail.status == "present" %}
+                                            <button type="button" class="btn btn-warning" onclick=location.href="/project/{{ project.projectnumber }}/docs/{{ detail.url }}">{{ doc }}</button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-danger" onclick=location.href="/project/{{ project.projectnumber }}/docs/{{ detail.url }}">{{ doc }}</button>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <button type="button" class="btn btn-secondary">User Docs</button>
+                                    <button type="button" class="btn btn-secondary" onclick=location.href="/project/{{ project.projectnumber }}/docs">Project Docs</button>
 
+                                </div>
                             </div>
-                            <div class="col-md-auto">
-                                
-                                <fieldset>
-                                    <legend>Compliance</legend>
-                                    <p>{{ form.dspt.as_field_group }}</p>
-                                    <p>{{ form.iso27001.as_field_group }}</p>
-                                </fieldset>        
 
-                            </div>
-                            <div class="col-md-auto">
-                                
-                                <fieldset>
-                                    <legend>Platform</legend>
-                                    <p>{{ form.laser.as_field_group }}</p>
-                                    <p>{{ form.irc.as_field_group }}</p>
-                                    <p>{{ form.seed.as_field_group }}</p>
-                                </fieldset>
-
-                            </div>
+                            <fieldset>
+                                {{ form.pid }}
+                                {{ form.validfrom }}
+                                {{ form.validto }}
+                                {{ form.createdby }}
+                            </fieldset>
                         </div>
-                    </div>
-                    <div class="col-md-2">
-                        <legend>Project Documents</legend> 
-                        <div class="ml-auto">
-                            <div class="btn-group-vertical">
-                                
-                                {% for doc, detail in p_docs.items %}
-                                    {% if detail.status == "accepted" %}
-                                        <button type="button" class="btn btn-success" onclick=location.href="/project/{{ project.projectnumber }}/docs/{{ detail.url }}">{{ doc }}</button>
-                                    {% elif detail.status == "present" %}
-                                        <button type="button" class="btn btn-warning" onclick=location.href="/project/{{ project.projectnumber }}/docs/{{ detail.url }}">{{ doc }}</button>
-                                    {% else %}
-                                        <button type="button" class="btn btn-danger" onclick=location.href="/project/{{ project.projectnumber }}/docs/{{ detail.url }}">{{ doc }}</button>
-                                    {% endif %}
-                                {% endfor %}
-                                <button type="button" class="btn btn-secondary">User Docs</button>
-                                <button type="button" class="btn btn-secondary" onclick=location.href="/project/{{ project.projectnumber }}/docs">Project Docs</button>
-
-                            </div>
-                        </div>
-
-                        <fieldset>
-                            {{ form.pid }}
-                            {{ form.validfrom }}
-                            {{ form.validto }}
-                            {{ form.createdby }}
-                        </fieldset>
-                    </div>
             </form>
-                    <div class="col-md-3">
-                        <legend>DAT Allocation</legend>
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col">From</th>
-                                    <th scope="col">To</th>
-                                    <th scope="col">FTE %</th>
-                                    <th scope="col">Account</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in dat_allocation %}
+                        <div class="col-md-auto">
+                            <legend>DAT Allocation</legend>
+                            <table class="table table-hover">
+                                <thead>
                                     <tr>
-                                        <td style="white-space: nowrap;">{{ item.fromdate | date:"Y-m-d" }}</td>
-                                        <td style="white-space: nowrap;">{{ item.todate | date:"Y-m-d" }}</td>
-                                        <td>{{ item.fte }}</td>
-                                        <td>{{ item.account }}</td>
-                                        <td><a href='/project/{{ project.projectnumber }}/remove/datallocation/{{item.projectdatallocationid}}'>x</td>
+                                        <th scope="col">From</th>
+                                        <th scope="col">To</th>
+                                        <th scope="col">FTE %</th>
+                                        <th scope="col">Account</th>
+                                        <th scope="col"></th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {% for item in dat_allocation %}
+                                        <tr>
+                                            <td style="white-space: nowrap;">{{ item.fromdate | date:"Y-m-d" }}</td>
+                                            <td style="white-space: nowrap;">{{ item.todate | date:"Y-m-d" }}</td>
+                                            <td>{{ item.fte }}</td>
+                                            <td>{{ item.account }}</td>
+                                            <td><a href='/project/{{ project.projectnumber }}/remove/datallocation/{{item.projectdatallocationid}}'>x</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
 
-                        <div class="accordion" id="accordionDatAllocation">
-                            <div class="accordion-item">
-                                <h2 class="accordion-header" id="headingDatAllocation">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDatAllocation" aria-expanded="false" aria-controls="collapseDatAllocation">
-                                        New DAT Allocation
-                                    </button>
-                                </h2>
-                                <div id="collapseDatAllocation" class="accordion-collapse collapse" aria-labelledby="headingDatAllocation" data-bs-parent="#accordionDatAllocation">
-                                    <div class="accordion-body">
-                                        <form action="" method="POST">
-                                            {% csrf_token %}
-                                            {{ dat_allocation_form.as_p }}
-                                            <input class="btn btn-primary" type="submit" value="Add DAT Allocation">
-                                        </form>
+                            <div class="accordion" id="accordionDatAllocation">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingDatAllocation">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDatAllocation" aria-expanded="false" aria-controls="collapseDatAllocation">
+                                            New DAT Allocation
+                                        </button>
+                                    </h2>
+                                    <div id="collapseDatAllocation" class="accordion-collapse collapse" aria-labelledby="headingDatAllocation" data-bs-parent="#accordionDatAllocation">
+                                        <div class="accordion-body">
+                                            <form action="" method="POST">
+                                                {% csrf_token %}
+                                                {{ dat_allocation_form.as_p }}
+                                                <input class="btn btn-primary" type="submit" value="Add DAT Allocation">
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

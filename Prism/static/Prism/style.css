@@ -5,6 +5,13 @@
     align-items: end;
     overflow-x: auto;
 }
+.col-md-12 {
+    text-align: left; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: auto;
+}
 table {
     align-self: start;
 }
