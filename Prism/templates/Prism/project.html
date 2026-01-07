@@ -111,7 +111,7 @@ Pri2m : {{ project.projectnumber }}
                     </div>
             </form>
                     <div class="col-md-3">
-                        <legend>DAT Commitment</legend>
+                        <legend>DAT Allocation</legend>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -155,192 +155,213 @@ Pri2m : {{ project.projectnumber }}
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <legend style="text-align: left;">Platform</legend> 
-                    <div class="accordion" id="accordionPlatform">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingPlatform">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlatform" aria-expanded="false" aria-controls="collapsePlatform">
-                                    Platform Details
-                                </button>
-                            </h2>
-                            <div id="collapsePlatform" class="accordion-collapse collapse" aria-labelledby="headingPlatform" data-bs-parent="#accordionPlatform">
-                                <div class="accordion-body">
-                                    <form action="" method="POST">
-                                        {% csrf_token %}
-                                        <fieldset>
-                                        <div class="input-group">
-                                            {{ platform_form.platforminfoid }}
-                                            {{ platform_form.projectplatforminfo }}
-                                            <input class="btn btn-primary" type="submit" value="Add Platform Item">
-                                        </div>
-                                        </fieldset>
-                                    </form>
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                            <th scope="col">Item</th>
-                                            <th scope="col">Description</th>
-                                            <th scope="col"></th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for item in platforminfo %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <legend style="text-align: left;">Platform</legend> 
+                        <div class="accordion" id="accordionPlatform">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingPlatform">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlatform" aria-expanded="false" aria-controls="collapsePlatform">
+                                        Platform Details
+                                    </button>
+                                </h2>
+                                <div id="collapsePlatform" class="accordion-collapse collapse" aria-labelledby="headingPlatform" data-bs-parent="#accordionPlatform">
+                                    <div class="accordion-body">
+                                        <form action="" method="POST">
+                                            {% csrf_token %}
+                                            <fieldset>
+                                                <div class="input-group">
+                                                    {{ platform_form.platforminfoid }}
+                                                    {{ platform_form.projectplatforminfo }}
+                                                    <input class="btn btn-primary" type="submit" value="Add Platform Item">
+                                                </div>
+                                            </fieldset>
+                                        </form>
+                                        <table class="table table-hover">
+                                            <thead>
                                                 <tr>
-                                                    <td>{{ item.platforminfoid__platforminfodescription }}</td>
-                                                    <td>{{ item.projectplatforminfo }}</td>
-                                                    <td><a href='/project/{{ project.projectnumber }}/remove/platform/{{ item.projectplatforminfoid }}'>x</td>
+                                                    <th scope="col">Item</th>
+                                                    <th scope="col">Description</th>
+                                                    <th scope="col"></th>
                                                 </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <legend style="text-align: left;">Membership</legend> 
-                    <div class="accordion" id="accordionMembership">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingMembership">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMembership" aria-expanded="false" aria-controls="collapseMembership">
-                                    Membership Details
-                                </button>
-                            </h2>
-                            <div id="collapseMembership" class="accordion-collapse collapse" aria-labelledby="headingMembership" data-bs-parent="#accordionMembership">
-                                <div class="accordion-body">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Full name</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% for member in members %}
-                                            <tr>
-                                                <td>{{ member.firstname }} {{ member.lastname }}</td>
-                                            </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                {% for item in platforminfo %}
+                                                    <tr>
+                                                        <td>{{ item.platforminfoid__platforminfodescription }}</td>
+                                                        <td>{{ item.projectplatforminfo }}</td>
+                                                        <td><a href='/project/{{ project.projectnumber }}/remove/platform/{{ item.projectplatforminfoid }}'>x</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    {% if notes_filter %}
-                        <legend>Notes containing "{{ notes_filter }}" (<a href='/project/{{ project.projectnumber }}'>clear</a>)</legend>
-                    {% else %}
-                        <legend>Notes</legend> 
-                    {% endif %}
-                    <div class="row">
-                        <div class="col-md-auto">
-                            <form action="" method="POST">
-                                {% csrf_token %}
-                                <fieldset>
+
+                <div class="row">
+                    <div class="col-md-8">
+
+                        <legend>Membership</legend> 
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Full name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for member in members %}
+                                <tr>
+                                    <td>{{ member.firstname }} {{ member.lastname }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <legend>Kristal</legend> 
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Kristal Ref</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>123456</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+            
+        <div class="col-md-6">
+            <div class="container-fluid">
+                {% if notes_filter %}
+                    <legend>Notes containing "{{ notes_filter }}" (<a href='/project/{{ project.projectnumber }}'>clear</a>)</legend>
+                {% else %}
+                    <legend>Notes</legend> 
+                {% endif %}
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <fieldset>
                                 <div class="input-group">
                                     {{ new_note.pnote }}
                                     <input class="btn btn-primary" type="submit" value="Add note">
                                 </div>
-                                </fieldset>
-                                <fieldset>
-                                    {{ new_note.pnid }}
-                                    {{ new_note.projectnumber }}
-                                    {{ new_note.created }}
-                                    {{ new_note.createdby }}
-                                </fieldset>
-                            </form>
-                        </div>
-
-                        <div class="col-md-auto">
-                            <form action="" method="get">
-                                <div class="input-group">
-                                    <input name="search_notes" type="text" class="form-control" placeholder="Search...">
-                                    <button class="btn btn-primary" type="submit" id="button-search">Search</button>
-                                </div>
-                            </form>
-                        </div>
+                            </fieldset>
+                            <fieldset>
+                                {{ new_note.pnid }}
+                                {{ new_note.projectnumber }}
+                                {{ new_note.created }}
+                                {{ new_note.createdby }}
+                            </fieldset>
+                        </form>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-auto">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                    <th scope="col">Note</th>
-                                    <th style="white-space: nowrap;" scope="col">Created</th>
-                                    <th style="white-space: nowrap;" scope="col">Created By</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for note in notes.object_list %}
-                                        <tr>
-                                            <td>{{ note.pnote }}</td>
-                                            <td style="white-space: nowrap;">{{ note.created | date:"Y-m-d" }}</td>
-                                            <td style="white-space: nowrap;">{{ note.createdby }}</td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-
-                            <div class="pagination">
-                                <ul class="pagination pagination-sm">
-                                {% if notes.has_previous %}
-                                    <li class="page-item">
-                                        {% if notes_filter %}
-                                            <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.previous_page_number }}">&laquo;</a>
-                                        {% else %}
-                                            <a class="page-link" href="?page={{ notes.previous_page_number }}">&laquo;</a>
-                                        {% endif %}
-                                    </li>
-                                {% else %}
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#">&laquo;</a>
-                                    </li>
-                                {% endif %}
-        
-                                {% for num in notes.paginator.page_range %}
-                                    {% if notes.number == num %}
-                                        <li class="page-item active">
-                                            {% if notes_filter %}
-                                                <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
-                                            {% else %}
-                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                                            {% endif %}
-                                        </li>
-                                    {% else %}
-                                        <li class="page-item">
-                                            {% if notes_filter %}
-                                                <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
-                                            {% else %}
-                                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                                            {% endif %}
-                                        </li>
-                                    {% endif %}
-                                {% endfor %}
-
-                                {% if notes.has_next %}
-                                    <li class="page-item">
-                                        {% if notes_filter %}
-                                            <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.next_page_number }}">&raquo;</a>
-                                        {% else %}
-                                            <a class="page-link" href="?page={{ notes.next_page_number }}">&raquo;</a>
-                                        {% endif %}
-                                    </li>
-                                {% else %}
-                                    <li class="page-item disabled">
-                                        <a class="page-link" href="#">&raquo;</a>
-                                    </li>
-                                {% endif %}
-                                </ul>
+                    <div class="col-md-6">
+                        <form action="" method="get">
+                            <div class="input-group">
+                                <input name="search_notes" type="text" class="form-control" placeholder="Search...">
+                                <button class="btn btn-primary" type="submit" id="button-search">Search</button>
                             </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                <th scope="col">Note</th>
+                                <th style="white-space: nowrap;" scope="col">Created</th>
+                                <th style="white-space: nowrap;" scope="col">Created By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for note in notes.object_list %}
+                                    <tr>
+                                        <td>{{ note.pnote }}</td>
+                                        <td style="white-space: nowrap;">{{ note.created | date:"Y-m-d" }}</td>
+                                        <td style="white-space: nowrap;">{{ note.createdby }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                        <div class="pagination">
+                            <ul class="pagination pagination-sm">
+                            {% if notes.has_previous %}
+                                <li class="page-item">
+                                    {% if notes_filter %}
+                                        <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.previous_page_number }}">&laquo;</a>
+                                    {% else %}
+                                        <a class="page-link" href="?page={{ notes.previous_page_number }}">&laquo;</a>
+                                    {% endif %}
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">&laquo;</a>
+                                </li>
+                            {% endif %}
+    
+                            {% for num in notes.paginator.page_range %}
+                                {% if notes.number == num %}
+                                    <li class="page-item active">
+                                        {% if notes_filter %}
+                                            <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
+                                        {% else %}
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        {% endif %}
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        {% if notes_filter %}
+                                            <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
+                                        {% else %}
+                                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                        {% endif %}
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if notes.has_next %}
+                                <li class="page-item">
+                                    {% if notes_filter %}
+                                        <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.next_page_number }}">&raquo;</a>
+                                    {% else %}
+                                        <a class="page-link" href="?page={{ notes.next_page_number }}">&raquo;</a>
+                                    {% endif %}
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#">&raquo;</a>
+                                </li>
+                            {% endif %}
+                            </ul>
                         </div>
                     </div>
                 </div>
+                
             </div>
         </div>
+
     </div>
 </div>
 

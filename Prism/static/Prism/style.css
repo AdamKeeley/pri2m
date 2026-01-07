@@ -5,7 +5,7 @@
     align-items: end;
     overflow-x: auto;
 }
-table, .table-hover {
+table {
     align-self: start;
 }
 .pagination {

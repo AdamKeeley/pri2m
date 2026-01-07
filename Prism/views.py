@@ -188,7 +188,7 @@ def project(request, projectnumber):
             validto__isnull=True
             , projectnumber=projectnumber
         ).values("projectdatallocationid", "fromdate", "todate", "fte", "account"
-        ).order_by("fromdate")
+        ).order_by("-fromdate")
 
         ## PROJECT PLATFORM DETAILS ##
         project_platform_info = Tblprojectplatforminfo.objects.filter(
