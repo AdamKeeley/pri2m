@@ -202,14 +202,14 @@ class Tbluserproject(models.Model):
 
 
 class Tblkristal(models.Model):
-    KristalID = models.AutoField(db_column='KristalID', primary_key=True)
-    KristalNumber = models.IntegerField(db_column='KristalNumber', blank=True, null=True)
-    KristalRef = models.DecimalField(db_column='KristalRef', max_digits=6, decimal_places=0, blank=True, null=True)
-    KristalName = models.CharField(db_column='KristalName', max_length=500, blank=True, null=True)
-    GrantStageID = models.ForeignKey('tlkGrantStage', models.PROTECT, db_column='GrantStageID', blank=True, null=True)
-    PI = models.IntegerField(db_column='PI', blank=True, null=True)
-    Location = models.ForeignKey('Tlklocation', models.PROTECT, db_column='Location', blank=True, null=True)
-    Faculty = models.ForeignKey('Tlkfaculty', models.PROTECT, db_column='Faculty', blank=True, null=True)
+    kristalid = models.AutoField(db_column='KristalID', primary_key=True)
+    kristalnumber = models.IntegerField(db_column='KristalNumber', blank=True, null=True)
+    kristalref = models.DecimalField(db_column='KristalRef', max_digits=6, decimal_places=0, blank=True, null=True)
+    kristalname = models.CharField(db_column='KristalName', max_length=500, blank=True, null=True)
+    grantstageid = models.ForeignKey('tlkGrantStage', models.PROTECT, db_column='GrantStageID', blank=True, null=True)
+    pi = models.IntegerField(db_column='PI', blank=True, null=True)
+    location = models.ForeignKey('Tlklocation', models.PROTECT, db_column='Location', blank=True, null=True)
+    faculty = models.ForeignKey('Tlkfaculty', models.PROTECT, db_column='Faculty', blank=True, null=True)
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)
     createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
