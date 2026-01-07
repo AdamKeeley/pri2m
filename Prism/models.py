@@ -201,6 +201,27 @@ class Tbluserproject(models.Model):
         db_table = 'tblUserProject'
 
 
+class Tblkristal(models.Model):
+    KristalID = models.AutoField(db_column='KristalID', primary_key=True)
+    KristalNumber = models.IntegerField(db_column='KristalNumber', blank=True, null=True)
+    KristalRef = models.DecimalField(db_column='KristalRef', max_digits=6, decimal_places=0, blank=True, null=True)
+    KristalName = models.CharField(db_column='KristalName', max_length=500, blank=True, null=True)
+    GrantStageID = models.ForeignKey('tlkGrantStage', models.PROTECT, db_column='GrantStageID', blank=True, null=True)
+    PI = models.IntegerField(db_column='PI', blank=True, null=True)
+    Location = models.ForeignKey('Tlklocation', models.PROTECT, db_column='Location', blank=True, null=True)
+    Faculty = models.ForeignKey('Tlkfaculty', models.PROTECT, db_column='Faculty', blank=True, null=True)
+    validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)
+    validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)
+    createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
+
+    def __str__(self):
+        return self.classificationdescription
+
+    class Meta:
+        managed = False
+        db_table = 'tblKristal'
+
+
 class Tlkclassification(models.Model):
     classificationid = models.IntegerField(db_column='classificationID', primary_key=True)  # Field name made lowercase.
     classificationdescription = models.CharField(db_column='classificationDescription', max_length=25, blank=True, null=True)  # Field name made lowercase.
@@ -313,3 +334,32 @@ class Tlkuserstatus(models.Model):
     class Meta:
         managed = False
         db_table = 'tlkUserStatus'
+
+
+class Tlklocation(models.Model):
+    locationid = models.AutoField(db_column='locationID', primary_key=True)
+    locationdescription = models.CharField(db_column='locationDescription', max_length=100, blank=True, null=True)
+    validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)
+    validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)
+
+    def __str__(self):
+        return self.locationdescription
+
+    class Meta:
+        managed = False
+        db_table = 'tlkLocation'
+
+
+class tlkGrantStage(models.Model):
+    grantstageid = models.AutoField(db_column='GrantStageID', primary_key=True)
+    stagenumber = models.DecimalField(db_column='StageNumber', max_digits=3, decimal_places=1, blank=True, null=True)
+    grantstagedescription = models.CharField(db_column='GrantStageDescription', max_length=25, blank=True, null=True)
+    validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)
+    validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)
+
+    def __str__(self):
+        return self.grantstagedescription
+
+    class Meta:
+        managed = False
+        db_table = 'tlkGrantStage'
