@@ -228,7 +228,7 @@ Pri2m : {{ project.projectnumber }}
                     </div>
                     
                     <div class="col-md-4">
-                        <legend>Kristal</legend> 
+                        <legend>Grant</legend> 
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -236,9 +236,13 @@ Pri2m : {{ project.projectnumber }}
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>123456</td>
-                                </tr>
+                                {% for grant in grants %}
+                                    <tr>
+                                        <td>
+                                            {{ grant.kristalref }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>

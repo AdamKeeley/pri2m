@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max
-from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tblprojectdatallocation, Tbluserproject
+from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal
 from .forms import ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm, ProjectDatAllocationForm
 import pandas as pd
 from django.utils import timezone
@@ -183,6 +183,16 @@ def project(request, projectnumber):
         ).values(
         ).order_by("firstname", "lastname")
 
+        ## KRISTAL REFERENCES ##
+        kristal_refs = Tblkristal.objects.filter(
+            kristalnumber__in = Tblprojectkristal.objects.filter(
+                validto__isnull=True
+                , projectnumber=projectnumber
+                )
+            ,validto__isnull=True
+        ).values(
+        ).order_by("kristalref")
+
          ## DAT ALLOCATION ##
         project_dat_allocation = Tblprojectdatallocation.objects.filter(
             validto__isnull=True
@@ -229,6 +239,7 @@ def project(request, projectnumber):
                                                 , 'notes':page_obj
                                                 , 'notes_filter' : query
                                                 , 'members': project_membership
+                                                , 'grants': kristal_refs
                                                 , 'p_docs': p_docs
                                                 , 'dat_allocation': project_dat_allocation
                                                 , 'dat_allocation_form': p_dat_allocation_form
