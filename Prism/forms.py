@@ -9,6 +9,18 @@ class DateInput(forms.DateInput):
         super().__init__(**kwargs)
 
 
+class ProjectSearchForm(forms.Form):
+    stage_id= forms.ModelChoiceField(label="Stage", queryset=Tlkstage.objects.filter(validto__isnull=True).order_by("stagenumber"), required=False)
+    classification_id= forms.ModelChoiceField(label="Classification", queryset=Tlkclassification.objects.filter(validto__isnull=True).order_by("classificationdescription"), required=False)
+    user = forms.ModelChoiceField(label="PI or Lead Applicant", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
+    faculty_id= forms.ModelChoiceField(label="Faculty", queryset=Tlkfaculty.objects.filter(validto__isnull=True).order_by("facultydescription"), required=False)
+    laser= forms.BooleanField(label="LASER", required=False)
+    internship= forms.BooleanField(label="DSDP", required=False)
+        
+    class Meta:
+        model = Tblproject
+
+
 class ProjectForm(forms.Form):
     pid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     projectnumber= forms.CharField(label="Project Number", disabled=True, max_length=5, required=False)

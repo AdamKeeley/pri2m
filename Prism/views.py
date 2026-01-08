@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max
-from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal
-from .forms import ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm, ProjectDatAllocationForm
+from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification
+from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm, ProjectDatAllocationForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -11,22 +11,57 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 
 def projects(request):
-    query = request.GET.get("q")
+    #query = request.GET.get("q")
+    query = request.GET
 
     filter_query = {}
+    advanced_filter_query = {}
+    user_filter_query = {}
+    filter_list = []
+
     if query is not None and query != '':
-        filter_query['projectname__icontains'] = query
-        filter_query['projectnumber__icontains'] = query
+        for key in query:
+            value = query.get(key)
+            if value != '':
+                if key == 'q':
+                    filter_query['projectname__icontains'] = value
+                    filter_query['projectnumber__icontains'] = value
+                    filter_list.append(f"Project Number or Name contains '{value}'")
+                if key == 'stage_id':
+                    advanced_filter_query['stage__stageid__iexact'] = value
+                    filter_list.append(f"Stage is '{Tlkstage.objects.get(stageid=value)}'")
+                if key == 'classification_id':
+                    advanced_filter_query['classification__classificationid__iexact'] = value
+                    filter_list.append(f"Risk Class is '{Tlkclassification.objects.get(classificationid=value)}'")
+                if key == 'user':
+                    user_filter_query['pi__iexact'] = value
+                    user_filter_query['leadapplicant__iexact'] = value
+                    filter_list.append(f"PI or Lead Applicant is '{Tbluser.objects.get(usernumber=value, validto__isnull=True)}'")
+                if key == 'faculty_id':
+                    advanced_filter_query['faculty__facultyid__iexact'] = value
+                    filter_list.append(f"Faculty is '{Tlkfaculty.objects.get(facultyid=value)}'")
+                if key == 'laser':
+                    advanced_filter_query['laser__iexact'] = True
+                    filter_list.append(f"LASER = {True}")
+                if key == 'internship':
+                    advanced_filter_query['internship__iexact'] = True
+                    filter_list.append(f"DSDP = {True}")
 
     projects = Tblproject.objects.filter(
             Q(**filter_query, _connector=Q.OR)
+            , Q(**advanced_filter_query, _connector=Q.AND)
+            , Q(**user_filter_query, _connector=Q.OR)
             , validto__isnull=True
         ).values(
             "pid"
             , "projectnumber"
             , "projectname"
+            , "laser"
+            , "internship"
             , "stage__pstagedescription"
+            , "classification__classificationdescription"
             , "pi"
+            , "leadapplicant"
             , "faculty__facultydescription"
         ).order_by("projectnumber")
 
@@ -41,8 +76,17 @@ def projects(request):
             pi_index = df.index[df['usernumber'] == project['pi']].tolist()
             pi_name = f"{df.at[pi_index[0],'firstname']} {df.at[pi_index[0],'lastname']}"
             project.update(pi=pi_name)
+        if project['leadapplicant'] is not None:
+            leadapplicant_index = df.index[df['usernumber'] == project['leadapplicant']].tolist()
+            leadapplicant_name = f"{df.at[leadapplicant_index[0],'firstname']} {df.at[leadapplicant_index[0],'lastname']}"
+            project.update(leadapplicant=leadapplicant_name)
 
-    return render(request, 'Prism/projects.html', {'projects':projects})
+    filter_string = ", ".join(filter_list)
+    project_search_form = ProjectSearchForm()
+
+    return render(request, 'Prism/projects.html', {'projects': projects
+                                                   ,'project_form': project_search_form
+                                                   ,'searchterms': filter_string})
 
 
 def project(request, projectnumber):

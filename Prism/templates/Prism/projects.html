@@ -5,35 +5,63 @@ Pri2m: All Projects
 {% endblock %}
 
 {% block content %}
-    <h2>Projects</h2>
 
-    <form action="/" method="get">
-        <div class="input-group">
-            <input name="q" type="text" class="form-control" placeholder="Search...">
-            <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+<h2>Projects</h2>
+{% if searchterms|length %}
+<h3>({{ searchterms }})</h3>
+{% endif %}
+<h4>Displaying: {{ projects|length }}</h4>
+
+<form action="/" method="get">
+    <div class="input-group">
+        <input name="q" type="text" class="form-control" placeholder="Search...">
+        <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+    </div>
+    <div class="accordion" id="accordionAdvancedSearch">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAdvancedSearch">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvancedSearch" aria-expanded="false" aria-controls="collapseAdvancedSearch">
+                    Advanced Search
+                </button>
+            </h2>
+            <div id="collapseAdvancedSearch" class="accordion-collapse collapse" aria-labelledby="headingAdvancedSearch" data-bs-parent="#accordionAdvancedSearch">
+                <div class="accordion-body" style="text-align: right;">
+                    {{ project_form.as_p }}
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
+</form>
 
-    <table class="table table-hover">
-        <thead>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+        <th scope="col">ProjectNumber</th>
+        <th scope="col">ProjectName</th>
+        <th scope="col">Stage</th>
+        <th scope="col">Classification</th>
+        <th scope="col">LASER</th>
+        <th scope="col">DSDP</th>
+        <th scope="col">PI</th>
+        <th scope="col">Lead Applicant</th>
+        <th scope="col">Faculty</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for project in projects %}
             <tr>
-            <th scope="col">ProjectNumber</th>
-            <th scope="col">ProjectName</th>
-            <th scope="col">Stage</th>
-            <th scope="col">PI</th>
-            <th scope="col">Faculty</th>
+                <td><a href='project/{{ project.projectnumber }}'>{{ project.projectnumber }}</a></td>
+                <td>{{ project.projectname }}</td>
+                <td>{{ project.stage__pstagedescription|default_if_none:"" }}</td>
+                <td>{{ project.classification__classificationdescription|default_if_none:"" }}</td>
+                <td>{{ project.laser|default_if_none:"" }}</td>
+                <td>{{ project.internship|default_if_none:"" }}</td>
+                <td>{{ project.pi|default_if_none:"" }}</td>
+                <td>{{ project.leadapplicant|default_if_none:"" }}</td>
+                <td>{{ project.faculty__facultydescription|default_if_none:"" }}</td>
             </tr>
-        </thead>
-        <tbody>
-            {% for project in projects %}
-                <tr>
-                    <td><a href='project/{{ project.projectnumber }}'>{{ project.projectnumber }}</a></td>
-                    <td>{{ project.projectname }}</td>
-                    <td>{{ project.stage__pstagedescription }}</td>
-                    <td>{{ project.pi|default_if_none:"" }}</td>
-                    <td>{{ project.faculty__facultydescription }}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}
