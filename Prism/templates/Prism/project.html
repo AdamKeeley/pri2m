@@ -12,9 +12,18 @@ Pri2m : {{ project.projectnumber }}
         <div class="col-md-12">
             <form action="" method = "POST">
                 {% if form.non_field_errors %}
+                <ul>
                     {% for error in form.non_field_errors %}
-                        {{error}}
+                        <li style="color:red; font-size:200%;">{{error}}</li>
                     {% endfor %}
+                </ul>
+                {% endif %}
+                {% if dat_allocation_form.non_field_errors %}
+                <ul>
+                    {% for error in dat_allocation_form.non_field_errors %}
+                        <li style="color:red; font-size:200%;">{{error}}</li>
+                    {% endfor %}
+                </ul>
                 {% endif %}
                 {% csrf_token %}
                 <p><input class="btn btn-primary" type="submit" value="Submit"></p>
