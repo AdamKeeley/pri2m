@@ -1,6 +1,7 @@
 from django import forms
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 class DateInput(forms.DateInput):
     input_type = "date"
@@ -46,7 +47,18 @@ class ProjectForm(forms.Form):
     validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
     validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        projectedstartdate = cleaned_data.get("projectedstartdate")
+        projectedenddate = cleaned_data.get("projectedenddate")
 
+        if (projectedstartdate - projectedenddate).days > 0:
+            raise ValidationError(
+                    "Start Date cannot be later than End Date."
+                )
+        return self.cleaned_data
+        
     class Meta:
         model = Tblproject
 
@@ -99,6 +111,16 @@ class ProjectDatAllocationForm(forms.Form):
     validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        fromdate = cleaned_data.get("fromdate")
+        todate = cleaned_data.get("todate")
+
+        if (fromdate - todate).days > 0:
+            raise ValidationError(
+                    "To Date cannot be earlier than From Date."
+                )
 
     class Meta:
         model=Tblprojectdatallocation

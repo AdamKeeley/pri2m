@@ -11,8 +11,13 @@ Pri2m : {{ project.projectnumber }}
     <div class="row">
         <div class="col-md-12">
             <form action="" method = "POST">
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        {{error}}
+                    {% endfor %}
+                {% endif %}
                 {% csrf_token %}
-                <input class="btn btn-primary" type="submit" value="Submit">
+                <p><input class="btn btn-primary" type="submit" value="Submit"></p>
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-auto">
