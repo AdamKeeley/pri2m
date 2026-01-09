@@ -50,13 +50,16 @@ class ProjectForm(forms.Form):
     
     def clean(self):
         cleaned_data = super().clean()
+        startdate = cleaned_data.get("startdate")
+        enddate = cleaned_data.get("enddate")
         projectedstartdate = cleaned_data.get("projectedstartdate")
         projectedenddate = cleaned_data.get("projectedenddate")
 
+        if (startdate - enddate).days > 0:
+            self.add_error(None, "Start Date cannot be later than End Date.")
         if (projectedstartdate - projectedenddate).days > 0:
-            raise ValidationError(
-                    "Start Date cannot be later than End Date."
-                )
+            self.add_error(None, "Projected Start Date cannot be later than Projected End Date.")
+
         return self.cleaned_data
         
     class Meta:
@@ -118,9 +121,8 @@ class ProjectDatAllocationForm(forms.Form):
         todate = cleaned_data.get("todate")
 
         if (fromdate - todate).days > 0:
-            raise ValidationError(
-                    "To Date cannot be earlier than From Date."
-                )
+            self.add_error(None, "DAT Allocation To Date cannot be earlier than From Date.")
+        return self.cleaned_data
 
     class Meta:
         model=Tblprojectdatallocation
