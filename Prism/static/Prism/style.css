@@ -25,3 +25,7 @@ table {
 .errorlist {
     color: red;
 }
+.form-error {
+    color:red; 
+    font-size:150%;
+}
