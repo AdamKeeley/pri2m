@@ -153,11 +153,11 @@ Pri2m : {{ project.projectnumber }}
                             <div class="accordion" id="accordionDatAllocation">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="headingDatAllocation">
-                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDatAllocation" aria-expanded="false" aria-controls="collapseDatAllocation">
+                                        <button class="accordion-button {% if not dat_allocation_form.non_field_errors %} collapsed {% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDatAllocation" aria-expanded="false" aria-controls="collapseDatAllocation">
                                             New DAT Allocation
                                         </button>
                                     </h2>
-                                    <div id="collapseDatAllocation" class="accordion-collapse collapse" aria-labelledby="headingDatAllocation" data-bs-parent="#accordionDatAllocation">
+                                    <div id="collapseDatAllocation" class="accordion-collapse collapse {% if dat_allocation_form.non_field_errors %} show {% endif %}" aria-labelledby="headingDatAllocation" data-bs-parent="#accordionDatAllocation">
                                         <div class="accordion-body">
                                             <form action="" method="POST">
                                                 {% csrf_token %}
@@ -182,7 +182,7 @@ Pri2m : {{ project.projectnumber }}
                         <div class="accordion" id="accordionPlatform">
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="headingPlatform">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlatform" aria-expanded="false" aria-controls="collapsePlatform">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePlatform" aria-expanded="false" aria-controls="collapsePlatform">
                                         Platform Details
                                     </button>
                                 </h2>
