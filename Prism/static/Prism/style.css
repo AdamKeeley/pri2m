@@ -22,3 +22,6 @@ table {
     width: 100%;
     overflow-x: auto;
 }
+.errorlist {
+    color: red;
+}
