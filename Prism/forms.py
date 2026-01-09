@@ -55,9 +55,9 @@ class ProjectForm(forms.Form):
         projectedstartdate = cleaned_data.get("projectedstartdate")
         projectedenddate = cleaned_data.get("projectedenddate")
 
-        if (startdate - enddate).days > 0:
+        if (startdate - enddate).days >= 0:
             self.add_error(None, "Start Date cannot be later than End Date.")
-        if (projectedstartdate - projectedenddate).days > 0:
+        if (projectedstartdate - projectedenddate).days >= 0:
             self.add_error(None, "Projected Start Date cannot be later than Projected End Date.")
 
         return self.cleaned_data
@@ -120,8 +120,8 @@ class ProjectDatAllocationForm(forms.Form):
         fromdate = cleaned_data.get("fromdate")
         todate = cleaned_data.get("todate")
 
-        if (fromdate - todate).days > 0:
-            self.add_error(None, "DAT Allocation To Date cannot be earlier than From Date.")
+        if (fromdate - todate).days >= 0:
+            self.add_error(None, "To Date cannot be earlier than From Date.")
         return self.cleaned_data
 
     class Meta:
