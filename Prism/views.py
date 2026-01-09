@@ -180,8 +180,14 @@ def project(request, projectnumber):
     p_notes_form = ProjectNotesForm(prefix='p_note')
     p_platform_info_form = ProjectPlatformInfoForm(prefix='p_platform')
 
+    project_numbers = Tblproject.objects.filter(
+        validto__isnull=True
+    ).values("projectnumber"
+    ).order_by("projectnumber")
+
     context = {'project':project
         , 'form':project_form
+        , 'project_numbers': project_numbers
         , 'new_note': p_notes_form
         , 'notes':page_obj
         , 'notes_filter' : query

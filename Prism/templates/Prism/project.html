@@ -35,7 +35,20 @@ Pri2m : {{ project.projectnumber }}
                             
                             <fieldset>
                                 <legend>Project Details</legend>
-                                <p>{{ form.projectnumber.as_field_group }}</p>
+                                <p>
+                                    <label for="project-select">Project Number</label>
+                                    <select id="project-select" class="select"> 
+                                        {% for project_number in project_numbers %} 
+                                        <option value="{% url 'project' project_number.projectnumber %}" 
+                                                {% if project_number.projectnumber == project.projectnumber %}selected{% endif %}> 
+                                            {{ project_number.projectnumber }} 
+                                        </option> 
+                                        {% endfor %} 
+                                    </select> 
+                                    <script> 
+                                        document.getElementById("project-select").addEventListener("change", function () { window.location.href = this.value; }); 
+                                    </script>
+                                </p>
                                 <p>{{ form.projectname.as_field_group }}</p>
                                 <p>{{ form.stage_id.as_field_group }}</p>
                                 <p>{{ form.classification_id.as_field_group }}</p>
