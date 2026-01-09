@@ -11,7 +11,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 
 def projects(request):
-    #query = request.GET.get("q")
     query = request.GET
 
     filter_query = {}
@@ -88,8 +87,114 @@ def projects(request):
                                                    ,'project_form': project_search_form
                                                    ,'searchterms': filter_string})
 
-
 def project(request, projectnumber):
+    # Build forms
+    
+    ## PROJECT ##
+    project = Tblproject.objects.filter(
+        validto__isnull=True
+        , projectnumber=projectnumber
+    ).values(
+    ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
+
+    ## PROJECT DOCS ##
+    project_docs = Tblprojectdocument.objects.filter(
+        validto__isnull=True
+        , projectnumber=projectnumber
+    ).values(            
+    ).order_by("documenttype", "versionnumber")
+    
+    # Important that these top level key names match the values of [DocumentDescription] stored in the database table [tlkDocuments]
+    p_docs={
+        "Project Proposal":{'url':'proposal', 'status':''}
+        ,"Data Management Plan":{'url':'dmp', 'status':''}
+        ,"Risk Assessment":{'url':'ra', 'status':''}
+    }
+    for doc in p_docs:
+        if project_docs.filter(documenttype__documentdescription=doc
+                            , accepted__isnull=False).exists():
+            p_docs[doc]["status"] = "accepted"
+        elif project_docs.filter(documenttype__documentdescription=doc
+                            , accepted__isnull=True).exists():
+            p_docs[doc]["status"] = "present"
+        else: 
+            p_docs[doc]["status"] = "absent"
+
+    ## PROJECT MEMBERSHIP ##
+    project_membership = Tbluser.objects.filter(
+        usernumber__in = Tbluserproject.objects.filter(
+            validto__isnull=True
+            , projectnumber=projectnumber
+            )
+        ,validto__isnull=True
+    ).values(
+    ).order_by("firstname", "lastname")
+
+    ## KRISTAL REFERENCES ##
+    kristal_refs = Tblkristal.objects.filter(
+        kristalnumber__in = Tblprojectkristal.objects.filter(
+            validto__isnull=True
+            , projectnumber=projectnumber
+            )
+        ,validto__isnull=True
+    ).values(
+    ).order_by("kristalref")
+
+        ## DAT ALLOCATION ##
+    project_dat_allocation = Tblprojectdatallocation.objects.filter(
+        validto__isnull=True
+        , projectnumber=projectnumber
+    ).values("projectdatallocationid", "fromdate", "todate", "fte", "account"
+    ).order_by("-fromdate")
+
+    ## PROJECT PLATFORM DETAILS ##
+    project_platform_info = Tblprojectplatforminfo.objects.filter(
+        validto__isnull=True
+        , projectnumber=projectnumber
+    ).values("projectplatforminfoid", "platforminfoid__platforminfodescription", "projectplatforminfo"
+    ).order_by("platforminfoid", "projectplatforminfo")
+
+    ## PROJECT NOTES ##
+    query = request.GET.get("search_notes")
+    filter_query = {}
+    if query is not None and query != '':
+        filter_query['pnote__icontains'] = query
+    
+    project_notes = Tblprojectnotes.objects.filter(
+        Q(**filter_query, _connector=Q.OR)
+        , projectnumber=projectnumber
+    ).values(
+    ).order_by("-created")
+
+    paginator = Paginator(project_notes, 5)  # Show 5 posts per page
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    project_form = ProjectForm(initial=project, prefix='project')
+    p_dat_allocation_form = ProjectDatAllocationForm(prefix='p_dat_allocation')
+    p_notes_form = ProjectNotesForm(prefix='p_note')
+    p_platform_info_form = ProjectPlatformInfoForm(prefix='p_platform')
+
+    context = {'project':project
+        , 'form':project_form
+        , 'new_note': p_notes_form
+        , 'notes':page_obj
+        , 'notes_filter' : query
+        , 'members': project_membership
+        , 'grants': kristal_refs
+        , 'p_docs': p_docs
+        , 'dat_allocation': project_dat_allocation
+        , 'dat_allocation_form': p_dat_allocation_form
+        , 'platforminfo': project_platform_info
+        , 'platform_form': p_platform_info_form}
+
+    # Then check if POST or GET
+
     if request.method == "POST":
         if 'project-pid' in request.POST:
             project_form = ProjectForm(request.POST, prefix='project')
@@ -140,7 +245,9 @@ def project(request, projectnumber):
                 
                     messages.success(request, 'Project updated successfully.')
                 return HttpResponseRedirect(f"/project/{projectnumber}")
-        
+            else:
+                context['form']=project_form
+
         elif 'p_dat_allocation-projectdatallocationid' in request.POST:
             p_dat_allocation_form = ProjectDatAllocationForm(request.POST, prefix='p_dat_allocation')
             if p_dat_allocation_form.is_valid():
@@ -155,7 +262,9 @@ def project(request, projectnumber):
                 )
                 insert_dat_allocation.save(force_insert=True)
                 messages.success(request, 'DAT Allocation added successfully.')
-            return HttpResponseRedirect(f"/project/{projectnumber}")
+                return HttpResponseRedirect(f"/project/{projectnumber}")
+            else:
+                context['dat_allocation_form']=p_dat_allocation_form
 
         elif 'p_note-pnote' in request.POST:
             p_notes_form = ProjectNotesForm(request.POST, prefix='p_note')
@@ -169,7 +278,9 @@ def project(request, projectnumber):
                 insert_note.save(force_insert=True)
                 messages.success(request, 'Project note added successfully.')
                 return HttpResponseRedirect(f"/project/{projectnumber}")
-            
+            else:
+                context['new_note']=p_notes_form
+
         elif 'p_platform-platforminfoid' in request.POST:
             p_platform_info_form = ProjectPlatformInfoForm(request.POST, prefix='p_platform')
             if p_platform_info_form.is_valid():
@@ -184,111 +295,13 @@ def project(request, projectnumber):
                 insert_platform_info.save(force_insert=True)
                 messages.success(request, 'Project platform info added successfully.')
                 return HttpResponseRedirect(f"/project/{projectnumber}")
-    
+            else:
+                context['platform_form']=insert_platform_info
+
+        return render(request, 'Prism/project.html', context)
+
     if request.method == 'GET':
-
-        ## PROJECT ##
-        project = Tblproject.objects.filter(
-            validto__isnull=True
-            , projectnumber=projectnumber
-        ).values(
-        ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
-
-        ## PROJECT DOCS ##
-        project_docs = Tblprojectdocument.objects.filter(
-            validto__isnull=True
-            , projectnumber=projectnumber
-        ).values(            
-        ).order_by("documenttype", "versionnumber")
-
-        # Important that these top level key names match the values of [DocumentDescription] stored in the database table [tlkDocuments]
-        p_docs={
-            "Project Proposal":{'url':'proposal', 'status':''}
-            ,"Data Management Plan":{'url':'dmp', 'status':''}
-            ,"Risk Assessment":{'url':'ra', 'status':''}
-        }
-        for doc in p_docs:
-            if project_docs.filter(documenttype__documentdescription=doc
-                                , accepted__isnull=False).exists():
-                p_docs[doc]["status"] = "accepted"
-            elif project_docs.filter(documenttype__documentdescription=doc
-                                , accepted__isnull=True).exists():
-                p_docs[doc]["status"] = "present"
-            else: 
-                p_docs[doc]["status"] = "absent"
-
-        ## PROJECT MEMBERSHIP ##
-        project_membership = Tbluser.objects.filter(
-            usernumber__in = Tbluserproject.objects.filter(
-                validto__isnull=True
-                , projectnumber=projectnumber
-                )
-            ,validto__isnull=True
-        ).values(
-        ).order_by("firstname", "lastname")
-
-        ## KRISTAL REFERENCES ##
-        kristal_refs = Tblkristal.objects.filter(
-            kristalnumber__in = Tblprojectkristal.objects.filter(
-                validto__isnull=True
-                , projectnumber=projectnumber
-                )
-            ,validto__isnull=True
-        ).values(
-        ).order_by("kristalref")
-
-         ## DAT ALLOCATION ##
-        project_dat_allocation = Tblprojectdatallocation.objects.filter(
-            validto__isnull=True
-            , projectnumber=projectnumber
-        ).values("projectdatallocationid", "fromdate", "todate", "fte", "account"
-        ).order_by("-fromdate")
-
-        ## PROJECT PLATFORM DETAILS ##
-        project_platform_info = Tblprojectplatforminfo.objects.filter(
-            validto__isnull=True
-            , projectnumber=projectnumber
-        ).values("projectplatforminfoid", "platforminfoid__platforminfodescription", "projectplatforminfo"
-        ).order_by("platforminfoid", "projectplatforminfo")
-
-        ## PROJECT NOTES ##
-        query = request.GET.get("search_notes")
-        filter_query = {}
-        if query is not None and query != '':
-            filter_query['pnote__icontains'] = query
-        
-        project_notes = Tblprojectnotes.objects.filter(
-            Q(**filter_query, _connector=Q.OR)
-            , projectnumber=projectnumber
-        ).values(
-        ).order_by("-created")
-
-        paginator = Paginator(project_notes, 5)  # Show 5 posts per page
-        page_number = request.GET.get('page')
-        try:
-            page_obj = paginator.get_page(page_number)
-        except PageNotAnInteger:
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            page_obj = paginator.page(paginator.num_pages)
-
-        project_form = ProjectForm(initial=project, prefix='project')
-        p_dat_allocation_form = ProjectDatAllocationForm(prefix='p_dat_allocation')
-        p_notes_form = ProjectNotesForm(prefix='p_note')
-        p_platform_info_form = ProjectPlatformInfoForm(prefix='p_platform')
-
-        return render(request, 'Prism/project.html', {'project':project
-                                                , 'form':project_form
-                                                , 'new_note': p_notes_form
-                                                , 'notes':page_obj
-                                                , 'notes_filter' : query
-                                                , 'members': project_membership
-                                                , 'grants': kristal_refs
-                                                , 'p_docs': p_docs
-                                                , 'dat_allocation': project_dat_allocation
-                                                , 'dat_allocation_form': p_dat_allocation_form
-                                                , 'platforminfo': project_platform_info
-                                                , 'platform_form': p_platform_info_form})
+        return render(request, 'Prism/project.html', context)
 
 def projectcreate(request):
     if request.method == "POST":
@@ -348,8 +361,47 @@ def recordchanged(existing_record, form_set):
     return record_changed
 
 def projectdocs(request, projectnumber, doctype=None):
+    filter_query = {}
+    # Important that these values match the values of [DocumentDescription] stored in the database table [tlkDocuments]
+    doctype_dict = {None:None
+                    , 'proposal': 'Project Proposal'
+                    , 'dmp': 'Data Management Plan'
+                    , 'ra': 'Risk Assessment'}
+    if doctype is not None:
+        filter_query['documenttype__documentdescription'] = doctype_dict[doctype]
+
+    project_docs = Tblprojectdocument.objects.filter(
+            Q(**filter_query, _connector=Q.OR)
+            , validto__isnull=True
+            , projectnumber=projectnumber
+        ).values(
+            'pdid'
+            ,'projectnumber'
+            ,'documenttype__documentdescription'
+            ,'versionnumber'
+            ,'submitted'
+            ,'accepted'
+        ).order_by("documenttype", "versionnumber")
+
+    # Initialise documenttype input if looking at single doctype
+    if doctype is not None:
+        doc_id = Tlkdocuments.objects.filter(
+            validto__isnull=True
+            ,documentdescription=doctype_dict[doctype]
+        ).values(
+            'documentid'
+        ).get()
+        project_docs_form=ProjectDocumentsForm(initial={'documenttype':doc_id['documentid']})
+    else:
+        project_docs_form=ProjectDocumentsForm()
+    
+    context = {'project_docs':project_docs
+        , 'project_docs_form': project_docs_form
+        , 'projectnumber':projectnumber
+        , 'doctype':doctype_dict[doctype]
+        , 'doctypeurl':doctype}
+    
     if request.method == "POST":
-        
         project_docs_form=ProjectDocumentsForm(request.POST)
         if project_docs_form.is_valid():
             
@@ -363,7 +415,6 @@ def projectdocs(request, projectnumber, doctype=None):
                 new_versionnumber = int(max_versionnumber['versionnumber__max']) +1
             else:
                 new_versionnumber = 1
-            
             insert = Tblprojectdocument(
                 projectnumber=projectnumber
                 , documenttype=project_docs_form.cleaned_data['documenttype']
@@ -375,52 +426,16 @@ def projectdocs(request, projectnumber, doctype=None):
                 , createdby=request.user
                 )
             insert.save(force_insert=True)
-
             if doctype:
                 return HttpResponseRedirect(f"/project/{projectnumber}/docs/{doctype}")
             else:
                 return HttpResponseRedirect(f"/project/{projectnumber}/docs")
+        else:
+            context['project_docs_form'] = project_docs_form
+        return render(request, 'Prism/docs.html', context)
 
     if request.method == "GET":
-        filter_query = {}
-        # Important that these values match the values of [DocumentDescription] stored in the database table [tlkDocuments]
-        doctype_dict = {None:None
-                        , 'proposal': 'Project Proposal'
-                        , 'dmp': 'Data Management Plan'
-                        , 'ra': 'Risk Assessment'}
-        if doctype is not None:
-            filter_query['documenttype__documentdescription'] = doctype_dict[doctype]
-
-        project_docs = Tblprojectdocument.objects.filter(
-                Q(**filter_query, _connector=Q.OR)
-                , validto__isnull=True
-                , projectnumber=projectnumber
-            ).values(
-                'pdid'
-                ,'projectnumber'
-                ,'documenttype__documentdescription'
-                ,'versionnumber'
-                ,'submitted'
-                ,'accepted'
-            ).order_by("documenttype", "versionnumber")
-
-        # Initialise documenttype input if looking at single doctype
-        if doctype is not None:
-            doc_id = Tlkdocuments.objects.filter(
-                validto__isnull=True
-                ,documentdescription=doctype_dict[doctype]
-            ).values(
-                'documentid'
-            ).get()
-            project_docs_form=ProjectDocumentsForm(initial={'documenttype':doc_id['documentid']})
-        else:
-            project_docs_form=ProjectDocumentsForm()
-
-        return render(request, 'Prism/docs.html', {'project_docs':project_docs
-                                                   , 'project_docs_form': project_docs_form
-                                                   , 'projectnumber':projectnumber
-                                                   , 'doctype':doctype_dict[doctype]
-                                                   , 'doctypeurl':doctype})
+        return render(request, 'Prism/docs.html', context)
     
 def projectdocs_acceptwithdraw(request, projectnumber, doctype, action, pdid):
     update_record=Tblprojectdocument.objects.filter(
