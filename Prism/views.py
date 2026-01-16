@@ -9,6 +9,8 @@ from django.utils import timezone
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
+from collections import namedtuple
+
 
 def projects(request):
     query = request.GET
@@ -147,15 +149,6 @@ def project(request, projectnumber):
     ).values("projectdatallocationid", "fromdate", "todate", "fte", "account"
     ).order_by("-fromdate")
 
-    # Data Vaildation
-    dat_allocation_errors = []
-    for item in project_dat_allocation:
-        if item['account'] == '':
-            dat_allocation_errors.append("Missing chargable account information")
-            break
-
-
-
     ## PROJECT PLATFORM DETAILS ##
     project_platform_info = Tblprojectplatforminfo.objects.filter(
         validto__isnull=True
@@ -195,6 +188,9 @@ def project(request, projectnumber):
     ).values("projectnumber"
     ).order_by("projectnumber")
 
+    ## DATA VALIDATION ##
+    custom_errors = []
+
     ## SET CONTEXT ##
     context = {'project':project
         , 'form':project_form
@@ -206,7 +202,7 @@ def project(request, projectnumber):
         , 'grants': kristal_refs
         , 'p_docs': p_docs
         , 'dat_allocation': project_dat_allocation
-        , 'dat_allocation_errors': dat_allocation_errors
+        , 'custom_errors': custom_errors
         , 'dat_allocation_form': p_dat_allocation_form
         , 'platforminfo': project_platform_info
         , 'platform_form': p_platform_info_form}
@@ -319,6 +315,64 @@ def project(request, projectnumber):
         return render(request, 'Prism/project.html', context)
 
     if request.method == 'GET':
+        ## DATA VALIDATION ##
+        # For information purposes only. Nothing here will prevent submission as forms have already been submitted. This is a GET Request!
+        
+        # Do Projected and Actual Start/End dates align?
+        if project['projectedstartdate'] is not None and project['projectedstartdate'] is not None:
+            if (project['projectedstartdate']  - project['projectedenddate']).days >= 0:
+                custom_errors.append("Projected Start Date is later than Projected End Date.")    
+        if project['startdate'] is not None and project['enddate'] is not None:
+            if (project['startdate'] - project['enddate']).days >= 0:
+                custom_errors.append("Start Date is later than End Date.")
+
+        # Are there missing accounts for DAT Recoveries?
+        for item in project_dat_allocation:
+            if item['account'] == '':
+                custom_errors.append("Missing DAT Allocation Account information")
+                break
+        
+        # Are there overlapping or missing periods of DAT Support?
+        if project_dat_allocation:
+            df = pd.DataFrame(project_dat_allocation)
+            Range = namedtuple('Range', ['start', 'end'])
+            for index, row in df.iterrows():
+                if index > 0:
+                    r1 = Range(start=row['fromdate'], end=row['todate'])
+                    r2 = Range(start=df['fromdate'].iloc[index-1], end=df['todate'].iloc[index-1])
+                    latest_start = max(r1.start, r2.start)
+                    earliest_end = min(r1.end, r2.end)
+                    delta = (earliest_end - latest_start).days + 1
+                    if delta > 0:
+                        custom_errors.append("There are overlapping periods of DAT Allocation")
+                    if delta < 0:
+                        custom_errors.append("There are missing periods of DAT Allocation")
+        
+        # Does DAT Support period align with Project Start/End dates?
+        if project_dat_allocation:
+            earliest_dat_allocation = project_dat_allocation.order_by('fromdate').first()['fromdate']
+            latest_dat_allocation = project_dat_allocation.order_by('todate').last()['todate']
+            if project['projectedstartdate'] is not None and earliest_dat_allocation is not None and project['startdate'] is None:
+                if earliest_dat_allocation > project['projectedstartdate']:
+                    custom_errors.append("DAT Support starts after Projected Start Date")
+                if earliest_dat_allocation < project['projectedstartdate']:
+                    custom_errors.append("DAT Support starts before Projected Start Date")
+            if project['projectedenddate'] is not None and latest_dat_allocation is not None and project['enddate'] is None:
+                if latest_dat_allocation > project['projectedenddate']:
+                    custom_errors.append("DAT Support continues after Projected End Date")
+                if latest_dat_allocation < project['projectedenddate']:
+                    custom_errors.append("DAT Support ends before Projected End Date")
+            if project['startdate'] is not None and earliest_dat_allocation is not None:
+                if earliest_dat_allocation > project['startdate']:
+                    custom_errors.append("DAT Support starts after Start Date")
+                if earliest_dat_allocation < project['startdate']:
+                    custom_errors.append("DAT Support starts before Start Date")
+            if project['enddate'] is not None and latest_dat_allocation is not None:
+                if latest_dat_allocation > project['enddate']:
+                    custom_errors.append("DAT Support ends after End Date")
+                if latest_dat_allocation < project['enddate']:
+                    custom_errors.append("DAT Support ends before End Date")
+
         return render(request, 'Prism/project.html', context)
 
 def projectcreate(request):

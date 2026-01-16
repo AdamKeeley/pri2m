@@ -7,6 +7,13 @@ Pri2m : {{ project.projectnumber }}
 {% block content %}
 <h2>{{ project.projectnumber }} - {{ project.projectname }}</h2>
 
+{% if custom_errors %}
+<ul>
+    {% for error in custom_errors %}
+        <li class="form-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 
 {% if form.non_field_errors %}
 <ul>
@@ -142,15 +149,6 @@ Pri2m : {{ project.projectnumber }}
             </form>
                         <div class="col-md-auto">
                             <legend>DAT Allocation</legend>
-
-                            {% if dat_allocation_errors %}
-                            <ul>
-                                {% for error in dat_allocation_errors %}
-                                    <li class="form-error">{{error}}</li>
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-
                             <table class="table table-hover">
                                 <thead>
                                     <tr>

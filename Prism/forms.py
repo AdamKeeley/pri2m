@@ -21,7 +21,6 @@ class ProjectSearchForm(forms.Form):
     class Meta:
         model = Tblproject
 
-
 class ProjectForm(forms.Form):
     pid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     projectnumber= forms.CharField(label="Project Number", disabled=True, max_length=5, required=False)
@@ -55,12 +54,12 @@ class ProjectForm(forms.Form):
         projectedstartdate = cleaned_data.get("projectedstartdate")
         projectedenddate = cleaned_data.get("projectedenddate")
 
-        if startdate is not None and enddate is not None:
-            if (startdate - enddate).days >= 0:
-                self.add_error(None, "Start Date cannot be later than End Date.")
         if projectedstartdate is not None and projectedstartdate is not None:
             if (projectedstartdate - projectedenddate).days >= 0:
                 self.add_error(None, "Projected Start Date cannot be later than Projected End Date.")
+        if startdate is not None and enddate is not None:
+            if (startdate - enddate).days >= 0:
+                self.add_error(None, "Start Date cannot be later than End Date.")
 
         return self.cleaned_data
         
