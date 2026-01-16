@@ -31,6 +31,6 @@ Well, everything really! But first thoughts:
 - Transfer logging and asset register
 - DSAs 
 - Grants
-- Authentication
+- Authentication (django-entra-auth?)
 
 Functionality will need to at least equal current Prism software before we can think about deploying and using it.

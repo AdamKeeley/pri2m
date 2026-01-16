@@ -140,12 +140,21 @@ def project(request, projectnumber):
     ).values(
     ).order_by("kristalref")
 
-        ## DAT ALLOCATION ##
+    ## DAT ALLOCATION ##
     project_dat_allocation = Tblprojectdatallocation.objects.filter(
         validto__isnull=True
         , projectnumber=projectnumber
     ).values("projectdatallocationid", "fromdate", "todate", "fte", "account"
     ).order_by("-fromdate")
+
+    # Data Vaildation
+    dat_allocation_errors = []
+    for item in project_dat_allocation:
+        if item['account'] == '':
+            dat_allocation_errors.append("Missing chargable account information")
+            break
+
+
 
     ## PROJECT PLATFORM DETAILS ##
     project_platform_info = Tblprojectplatforminfo.objects.filter(
@@ -175,6 +184,7 @@ def project(request, projectnumber):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
+    ## CREATE FORMS ##
     project_form = ProjectForm(initial=project, prefix='project')
     p_dat_allocation_form = ProjectDatAllocationForm(prefix='p_dat_allocation')
     p_notes_form = ProjectNotesForm(prefix='p_note')
@@ -185,6 +195,7 @@ def project(request, projectnumber):
     ).values("projectnumber"
     ).order_by("projectnumber")
 
+    ## SET CONTEXT ##
     context = {'project':project
         , 'form':project_form
         , 'project_numbers': project_numbers
@@ -195,6 +206,7 @@ def project(request, projectnumber):
         , 'grants': kristal_refs
         , 'p_docs': p_docs
         , 'dat_allocation': project_dat_allocation
+        , 'dat_allocation_errors': dat_allocation_errors
         , 'dat_allocation_form': p_dat_allocation_form
         , 'platforminfo': project_platform_info
         , 'platform_form': p_platform_info_form}
