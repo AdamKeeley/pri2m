@@ -45,6 +45,7 @@ self.add_error(None, "Custom error message.")
 ```
 
 These `non_field_errors` can be accessed from the template like so:
+<!-- {% raw %} -->
 ```html
 {% if form.non_field_errors %}
     {% for error in form.non_field_errors %}
@@ -52,6 +53,7 @@ These `non_field_errors` can be accessed from the template like so:
     {% endfor %}
 {% endif %}
 ```
+<!-- {% endraw %} -->
 
 If the form has been created in the template via Django's built in methods (e.g. `{{ form.as_p}}`) then any `non_field_errors` will be displayed at the top of the form automatically.  
 
@@ -77,6 +79,7 @@ def MyView(request):
 ```
 
 As above, these `custom_errors` can be accessed from the template like so:
+<!-- {% raw %} -->
 ```html
 {% if custom_errors %}
     {% for error in custom_errors %}
@@ -84,6 +87,7 @@ As above, these `custom_errors` can be accessed from the template like so:
     {% endfor %}
 {% endif %}
 ```
+<!-- {% endraw %} -->
 
 Failure of these validation checks will _not_ cause the submission to fail; changes to the database _will_ be made. We're just passing through our own list of strings.    
 
