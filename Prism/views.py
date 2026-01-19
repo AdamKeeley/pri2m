@@ -189,6 +189,7 @@ def project(request, projectnumber):
     ).order_by("projectnumber")
 
     ## DATA VALIDATION ##
+    # Populated on GET Request
     custom_errors = []
 
     ## SET CONTEXT ##
@@ -316,15 +317,8 @@ def project(request, projectnumber):
 
     if request.method == 'GET':
         ## DATA VALIDATION ##
-        # For information purposes only. Nothing here will prevent submission as forms have already been submitted. This is a GET Request!
-        
-        # Do Projected and Actual Start/End dates align?
-        if project['projectedstartdate'] is not None and project['projectedstartdate'] is not None:
-            if (project['projectedstartdate']  - project['projectedenddate']).days >= 0:
-                custom_errors.append("Projected Start Date is later than Projected End Date.")    
-        if project['startdate'] is not None and project['enddate'] is not None:
-            if (project['startdate'] - project['enddate']).days >= 0:
-                custom_errors.append("Start Date is later than End Date.")
+        # For information purposes only. 
+        # Validation across/between forms or where errors not sufficient to prevent form submission.
 
         # Are there missing accounts for DAT Recoveries?
         for item in project_dat_allocation:

@@ -53,16 +53,33 @@ class ProjectForm(forms.Form):
         enddate = cleaned_data.get("enddate")
         projectedstartdate = cleaned_data.get("projectedstartdate")
         projectedenddate = cleaned_data.get("projectedenddate")
-
-        if projectedstartdate is not None and projectedstartdate is not None:
+        stage = cleaned_data["stage_id"].pstagedescription
+        
+        if projectedstartdate is not None and projectedenddate is not None:
             if (projectedstartdate - projectedenddate).days >= 0:
                 self.add_error(None, "Projected Start Date cannot be later than Projected End Date.")
         if startdate is not None and enddate is not None:
             if (startdate - enddate).days >= 0:
                 self.add_error(None, "Start Date cannot be later than End Date.")
 
+        if stage == "Active" and startdate is None:
+            self.add_error(None, "Project cannot be Active without a Start Date")
+        if (stage == "Store" or stage == "Destroy") and enddate is None:
+            self.add_error(None, "Project cannot End without an End Date")
+
         return self.cleaned_data
         
+    # When creating the form with initial data, we still want to validate the form. 
+    # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
+    # therefore the `clean()` function above.
+    # Any errors are copied to the original form and displayed with the data from the database.
+    def __init__(self, *args, **kwargs): 
+        super().__init__(*args, **kwargs)
+        if self.initial: 
+            temp = type(self)(data=self.initial) 
+            if not temp.is_valid(): 
+                self._errors = temp.errors
+
     class Meta:
         model = Tblproject
 

@@ -10,7 +10,7 @@ Pri2m : {{ project.projectnumber }}
 {% if custom_errors %}
 <ul>
     {% for error in custom_errors %}
-        <li class="form-error">{{error}}</li>
+        <li class="form-custom-error">{{error}}</li>
     {% endfor %}
 </ul>
 {% endif %}
@@ -18,7 +18,7 @@ Pri2m : {{ project.projectnumber }}
 {% if form.non_field_errors %}
 <ul>
     {% for error in form.non_field_errors %}
-        <li class="form-error">{{error}}</li>
+        <li class="form-error">!! {{error}} !!</li>
     {% endfor %}
 </ul>
 {% endif %}
