@@ -7,7 +7,7 @@ urlpatterns = [
     ,path('projectcreate', views.projectcreate, name = 'projectcreate')
     ,path('project/<str:projectnumber>/docs', views.projectdocs, name = 'projectdocs')
     ,path('project/<str:projectnumber>/docs/<str:doctype>', views.projectdocs, name = 'projectdocs')
-    ,path('project/<str:projectnumber>/docs/<str:doctype>/<str:action>/<int:pdid>', views.projectdocs_acceptwithdraw, name = 'projectdocs_acceptwithdraw')
+    ,path('project/<str:projectnumber>/docs/<str:doctype>/<str:action>/<int:pdid>', views.projectdocs_action, name = 'projectdocs_action')
     ,path('project/<str:projectnumber>/remove/platform/<int:projectplatforminfoid>', views.projectplatforminfo_remove, name = 'projectplatforminfo_remove')
     ,path('project/<str:projectnumber>/remove/datallocation/<int:projectdatallocationid>', views.projectdatallocation_remove, name = 'projectdatallocation_remove')
 ]

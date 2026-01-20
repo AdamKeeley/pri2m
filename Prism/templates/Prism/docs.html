@@ -11,6 +11,14 @@ Pri2m : {{ projectnumber }} Project Docs
 <h2><a href='/project/{{ projectnumber }}'>{{ projectnumber }}</a> - Project Documentation</h2>
 {% endif %}
 
+{% if custom_errors %}
+<ul>
+    {% for error in custom_errors %}
+        <li class="form-custom-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-auto">
@@ -38,6 +46,7 @@ Pri2m : {{ projectnumber }} Project Docs
         <th scope="col">Submitted</th>
         <th scope="col">Accepted</th>
         <th scope="col">Accept/Withdraw</th>
+        <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
@@ -52,6 +61,7 @@ Pri2m : {{ projectnumber }} Project Docs
                 {% else %}
                     <td><a href='/project/{{ projectnumber }}/docs/{{ doctypeurl }}/accept/{{ doc.pdid }}'>Accept</td>
                 {% endif %}
+                <td><a href='/project/{{ projectnumber }}/docs/{{ doctypeurl }}/remove/{{ doc.pdid }}'>x</td>
             </tr>
         {% endfor %}
     </tbody>

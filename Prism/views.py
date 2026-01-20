@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
-from django.db.models import Max
+from django.db.models import Max, Count
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm, ProjectDatAllocationForm
 import pandas as pd
@@ -469,11 +469,16 @@ def projectdocs(request, projectnumber, doctype=None):
     else:
         project_docs_form=ProjectDocumentsForm()
     
+    ## DATA VALIDATION ##
+    # Populated on GET Request
+    custom_errors = []
+    
     context = {'project_docs':project_docs
         , 'project_docs_form': project_docs_form
         , 'projectnumber':projectnumber
         , 'doctype':doctype_dict[doctype]
-        , 'doctypeurl':doctype}
+        , 'doctypeurl':doctype
+        , 'custom_errors': custom_errors}
     
     if request.method == "POST":
         project_docs_form=ProjectDocumentsForm(request.POST)
@@ -509,9 +514,28 @@ def projectdocs(request, projectnumber, doctype=None):
         return render(request, 'Prism/docs.html', context)
 
     if request.method == "GET":
+        ## DATA VALIDATION ##
+        # For information purposes only. 
+        # Validation across/between forms or where errors not sufficient to prevent form submission.
+        summary = project_docs.values('documenttype__documentdescription'
+        ).annotate(
+            accepted_count=Count('pdid', filter=Q(accepted__isnull=False), distinct=True)
+            ,max_submitted=Max('submitted')
+            ,max_accepted=Max('accepted')
+        ).order_by()
+        
+        for doc_type in summary:
+        # Is there > 1 Accepted for a Document Type?
+            if doc_type['accepted_count'] > 1:
+                custom_errors.append(f"There is more than one Accepted {doc_type['documenttype__documentdescription']}")
+        # Is there a Submitted later than an Accepted?
+            if doc_type['max_submitted'] is not None and doc_type['max_accepted'] is not None:
+                if doc_type['max_submitted'] > doc_type['max_accepted']:
+                    custom_errors.append(f"A {doc_type['documenttype__documentdescription']} has been Submitted since the last Accepted")
+        
         return render(request, 'Prism/docs.html', context)
     
-def projectdocs_acceptwithdraw(request, projectnumber, doctype, action, pdid):
+def projectdocs_action(request, projectnumber, doctype, action, pdid):
     update_record=Tblprojectdocument.objects.filter(
         pdid=pdid
         , projectnumber=projectnumber
@@ -521,11 +545,14 @@ def projectdocs_acceptwithdraw(request, projectnumber, doctype, action, pdid):
         update_record.update(accepted = timezone.now())
     elif action == 'withdraw':
         update_record.update(accepted = None)
+    elif action == 'remove':
+        update_record.update(validto = timezone.now())
     
     if doctype and doctype != 'None':
         return HttpResponseRedirect(f"/project/{projectnumber}/docs/{doctype}")
     else:
         return HttpResponseRedirect(f"/project/{projectnumber}/docs")
+
 
 def projectplatforminfo_remove(request, projectnumber, projectplatforminfoid):
     update_record=Tblprojectplatforminfo.objects.filter(
@@ -535,6 +562,7 @@ def projectplatforminfo_remove(request, projectnumber, projectplatforminfoid):
     update_record.update(validto = timezone.now())
     
     return HttpResponseRedirect(f"/project/{projectnumber}")
+
 
 def projectdatallocation_remove(request, projectnumber, projectdatallocationid):
     update_record=Tblprojectdatallocation.objects.filter(
