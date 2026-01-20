@@ -12,6 +12,9 @@ from django.contrib import messages
 from collections import namedtuple
 
 
+def index(request):
+    return render(request, 'Prism/index.html')
+
 def projects(request):
     query = request.GET
 
@@ -570,3 +573,9 @@ def projectdatallocation_remove(request, projectnumber, projectdatallocationid):
     update_record.update(validto = timezone.now())
     
     return HttpResponseRedirect(f"/project/{projectnumber}")
+
+def users(request):
+    return render(request, 'Prism/users.html')
+
+def user(request):
+    return render(request, 'Prism/user.html')
