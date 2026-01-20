@@ -418,11 +418,11 @@ def projectcreate(request):
 
             return HttpResponseRedirect(f"/project/{new_projectnumber}")
         else:
-            return render(request, 'Prism/project.html', {'form':form})   
+            return render(request, 'Prism/project_new.html', {'form':form})   
 
     if request.method == 'GET':
         form = ProjectForm()
-        return render(request, 'Prism/project.html', {'form':form})
+        return render(request, 'Prism/project_new.html', {'form':form})
     
 def recordchanged(existing_record, form_set):
     # Compare existing record to form values
@@ -553,7 +553,6 @@ def projectdocs_action(request, projectnumber, doctype, action, pdid):
     else:
         return HttpResponseRedirect(f"/project/{projectnumber}/docs")
 
-
 def projectplatforminfo_remove(request, projectnumber, projectplatforminfoid):
     update_record=Tblprojectplatforminfo.objects.filter(
         projectplatforminfoid=projectplatforminfoid
@@ -562,7 +561,6 @@ def projectplatforminfo_remove(request, projectnumber, projectplatforminfoid):
     update_record.update(validto = timezone.now())
     
     return HttpResponseRedirect(f"/project/{projectnumber}")
-
 
 def projectdatallocation_remove(request, projectnumber, projectdatallocationid):
     update_record=Tblprojectdatallocation.objects.filter(

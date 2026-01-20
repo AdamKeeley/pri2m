@@ -1,0 +1,105 @@
+{% extends "Prism/layout.html" %}
+
+{% block title %}
+Pri2m : New Project
+{% endblock %}
+
+{% block content %}
+<h2>New Project</h2>
+
+{% if form.non_field_errors %}
+<ul>
+    {% for error in form.non_field_errors %}
+        <li class="form-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <form action="" method = "POST">
+                {% csrf_token %}
+                <p><input class="btn btn-primary" type="submit" value="Submit"></p>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            
+                            <fieldset>
+                                <legend>Project Details</legend>
+                                <p>
+                                    <label for="project-number">Project Number</label>
+                                    <input type="text" id="project-number" disabled="disabled" > 
+                                    </select> 
+                                </p>
+                                <p>{{ form.projectname.as_field_group }}</p>
+                                <p>{{ form.stage_id.as_field_group }}</p>
+                                <p>{{ form.classification_id.as_field_group }}</p>
+                            </fieldset>
+                            
+                        </div>
+                        <div class="col-md-auto">
+                            
+                            <fieldset>
+                                <legend>Key Dates</legend>
+                                <p>{{ form.projectedstartdate.as_field_group }}</p>
+                                <p>{{ form.projectedenddate.as_field_group }}</p>
+                                <p>{{ form.startdate.as_field_group }}</p>
+                                <p>{{ form.enddate.as_field_group }}</p>
+                            </fieldset>
+
+                        </div>
+                        <div class="col-md-auto">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-auto">
+                                        
+                                        <fieldset>
+                                            <legend>Ownership</legend>
+                                            <p>{{ form.pi.as_field_group }}</p>
+                                            <p>{{ form.leadapplicant.as_field_group }}</p>
+                                            <p>{{ form.faculty_id.as_field_group }}</p>
+                                        </fieldset>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-auto">
+                                        
+                                        <fieldset>
+                                            <legend>Type</legend>
+                                            <p>{{ form.lida.as_field_group }}</p>
+                                            <p>{{ form.internship.as_field_group }}</p>
+                                        </fieldset>
+
+                                    </div>
+                                    <div class="col-md-auto">
+                                        
+                                        <fieldset>
+                                            <legend>Compliance</legend>
+                                            <p>{{ form.dspt.as_field_group }}</p>
+                                            <p>{{ form.iso27001.as_field_group }}</p>
+                                        </fieldset>        
+
+                                    </div>
+                                    <div class="col-md-auto">
+
+                                        <fieldset>
+                                            <legend>Platform</legend>
+                                            <p>{{ form.laser.as_field_group }}</p>
+                                            <p>{{ form.irc.as_field_group }}</p>
+                                            <p>{{ form.seed.as_field_group }}</p>
+                                        </fieldset>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
