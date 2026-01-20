@@ -20,7 +20,7 @@ The solution is to not redirect on validation failure, but render using the same
 
 To this end I have moved all `context` setting to the top of the View before making any POST/GET pathing checks. In the event of a POST request the prefixes route the request to the correct Form handling in the View and form validation occurs (with the `.is_valid()` function). On failure the page is rendered again, but with the failed form replacing the initial form in the `context`.  
 
- We now create every form on every request, then override only the one that was submitted.  
+We now create every form on every request, then override only the one that was submitted.  
 
 
 ## Custom validation in the Form  

@@ -320,6 +320,10 @@ def project(request, projectnumber):
         # For information purposes only. 
         # Validation across/between forms or where errors not sufficient to prevent form submission.
 
+        # Do we have a DAT Allocation?
+        if not project_dat_allocation:
+            custom_errors.append("Missing DAT Allocation information")
+
         # Are there missing accounts for DAT Recoveries?
         for item in project_dat_allocation:
             if item['account'] == '':
@@ -348,24 +352,28 @@ def project(request, projectnumber):
             latest_dat_allocation = project_dat_allocation.order_by('todate').last()['todate']
             if project['projectedstartdate'] is not None and earliest_dat_allocation is not None and project['startdate'] is None:
                 if earliest_dat_allocation > project['projectedstartdate']:
-                    custom_errors.append("DAT Support starts after Projected Start Date")
+                    custom_errors.append("DAT Allocation starts after Projected Start Date")
                 if earliest_dat_allocation < project['projectedstartdate']:
-                    custom_errors.append("DAT Support starts before Projected Start Date")
+                    custom_errors.append("DAT Allocation starts before Projected Start Date")
             if project['projectedenddate'] is not None and latest_dat_allocation is not None and project['enddate'] is None:
                 if latest_dat_allocation > project['projectedenddate']:
-                    custom_errors.append("DAT Support continues after Projected End Date")
+                    custom_errors.append("DAT Allocation continues after Projected End Date")
                 if latest_dat_allocation < project['projectedenddate']:
-                    custom_errors.append("DAT Support ends before Projected End Date")
+                    custom_errors.append("DAT Allocation ends before Projected End Date")
             if project['startdate'] is not None and earliest_dat_allocation is not None:
                 if earliest_dat_allocation > project['startdate']:
-                    custom_errors.append("DAT Support starts after Start Date")
+                    custom_errors.append("DAT Allocation starts after Start Date")
                 if earliest_dat_allocation < project['startdate']:
-                    custom_errors.append("DAT Support starts before Start Date")
+                    custom_errors.append("DAT Allocation starts before Start Date")
             if project['enddate'] is not None and latest_dat_allocation is not None:
                 if latest_dat_allocation > project['enddate']:
-                    custom_errors.append("DAT Support ends after End Date")
+                    custom_errors.append("DAT Allocation ends after End Date")
                 if latest_dat_allocation < project['enddate']:
-                    custom_errors.append("DAT Support ends before End Date")
+                    custom_errors.append("DAT Allocation ends before End Date")
+
+        # Do we have a Kristal Reference?
+        if not kristal_refs:
+            custom_errors.append("Missing Kristal Reference information")
 
         return render(request, 'Prism/project.html', context)
 

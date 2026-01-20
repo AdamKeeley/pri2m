@@ -55,6 +55,7 @@ class ProjectForm(forms.Form):
         projectedenddate = cleaned_data.get("projectedenddate")
         stage = cleaned_data["stage_id"].pstagedescription
         
+        # Do project start and end dates sequence correctly?
         if projectedstartdate is not None and projectedenddate is not None:
             if (projectedstartdate - projectedenddate).days >= 0:
                 self.add_error(None, "Projected Start Date cannot be later than Projected End Date.")
@@ -62,10 +63,17 @@ class ProjectForm(forms.Form):
             if (startdate - enddate).days >= 0:
                 self.add_error(None, "Start Date cannot be later than End Date.")
 
-        if stage == "Active" and startdate is None:
-            self.add_error(None, "Project cannot be Active without a Start Date")
-        if (stage == "Store" or stage == "Destroy") and enddate is None:
-            self.add_error(None, "Project cannot End without an End Date")
+        # If Stage is Active/Store/Destroy do Start Date and End Date exist?
+        if (stage == "Active" or stage == "Store") and startdate is None:
+            self.add_error(None, "Project cannot have started without a Start Date")
+        if (stage == "Destroy") and (enddate is None or startdate is None):
+            self.add_error(None, "Project cannot End without both a Start and End Date")
+
+        # If adding Start/End Dates does the Stage align?
+        if startdate and (stage == "Proposal" or stage == "Pre-grant" or stage == "Pre-Approval" or stage == "Setup"):
+            self.add_error(None, "Project cannot have a Start Date while in a pre-Active Stage")
+        if enddate and not (stage == "Destroy" or stage == "Discontinued"):
+            self.add_error(None, "Project cannot have a End Date without being in a Destroy or Discontinued Stage")
 
         return self.cleaned_data
         
