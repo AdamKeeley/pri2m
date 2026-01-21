@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max, Count
-from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification
-from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm, ProjectDatAllocationForm
+from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification, Tlkuserstatus
+from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm, ProjectDatAllocationForm, UserSearchForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -575,7 +575,68 @@ def projectdatallocation_remove(request, projectnumber, projectdatallocationid):
     return HttpResponseRedirect(f"/project/{projectnumber}")
 
 def users(request):
-    return render(request, 'Prism/users.html')
+    query = request.GET
 
-def user(request):
-    return render(request, 'Prism/user.html')
+    filter_query = {}
+    advanced_filter_query = {}
+    filter_list = []
+
+    if query is not None and query != '':
+        for key in query:
+            value = query.get(key)
+            if value != '':
+                if key == 'q':
+                    filter_query['firstname__icontains'] = value
+                    filter_query['lastname__icontains'] = value
+                    filter_list.append(f"First or Last Name contains '{value}'")
+                if key == 'status_id':
+                    advanced_filter_query['status__statusid__iexact'] = value
+                    filter_list.append(f"Status is '{Tlkuserstatus.objects.get(statusid=value)}'")
+                if key == 'username':
+                    advanced_filter_query['username__icontains'] = value
+                    filter_list.append(f"Username contains '{value}'")
+                if key == 'email':
+                    advanced_filter_query['email__icontains'] = value
+                    filter_list.append(f"Email contains'{value}'")
+                if key == 'organisation':
+                    advanced_filter_query['organisation__icontains'] = value
+                    filter_list.append(f"Organisation contains '{value}'")
+
+    users = Tbluser.objects.filter(
+            Q(**filter_query, _connector=Q.OR)
+            , Q(**advanced_filter_query, _connector=Q.AND)
+            , validto__isnull=True
+        ).values(
+            "userid"
+            , "usernumber"
+            , "status__statusdescription"
+            , "firstname"
+            , "lastname"
+            , "email"
+            , "username"
+            , "organisation"
+        ).order_by("lastname")
+
+    filter_string = ", ".join(filter_list)
+    user_search_form = UserSearchForm()
+
+    return render(request, 'Prism/users.html', {'users': users
+                                                   ,'user_form': user_search_form
+                                                   ,'searchterms': filter_string})
+
+
+def user(request, usernumber):
+    # Build forms
+    
+    ## PROJECT ##
+    user = Tbluser.objects.filter(
+        validto__isnull=True
+        , usernumber=usernumber
+    ).values(
+    ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
+
+    context={'user': user}
+
+    if request.method == 'GET':
+
+        return render(request, 'Prism/user.html', context)

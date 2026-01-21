@@ -1,5 +1,5 @@
 from django import forms
-from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation
+from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
@@ -152,3 +152,12 @@ class ProjectDatAllocationForm(forms.Form):
 
     class Meta:
         model=Tblprojectdatallocation
+
+class UserSearchForm(forms.Form):
+    status_id = forms.ModelChoiceField(label="Status", queryset=Tlkuserstatus.objects.filter(validto__isnull=True).order_by("statusid"), required=False )
+    username = forms.CharField(label="User Name", max_length=12, required=False)
+    email = forms.CharField(label="Email", max_length=255, required=False) 
+    organisation = forms.CharField(label="Organisation", max_length=255, required=False)
+
+    class meta:
+        model = Tbluser

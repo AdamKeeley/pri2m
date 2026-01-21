@@ -12,5 +12,5 @@ urlpatterns = [
     ,path('project/<str:projectnumber>/remove/platform/<int:projectplatforminfoid>', views.projectplatforminfo_remove, name = 'projectplatforminfo_remove')
     ,path('project/<str:projectnumber>/remove/datallocation/<int:projectdatallocationid>', views.projectdatallocation_remove, name = 'projectdatallocation_remove')
     ,path('users', views.users, name = 'users')
-    ,path('user', views.user, name = 'user')
+    ,path('user/<int:usernumber>', views.user, name = 'user')
 ]

@@ -6,11 +6,59 @@ Pri2m: All Users
 
 {% block content %}
 
-<h1>All Users listed here</h1>
+<h1>Users</h1>
+{% if searchterms|length %}
+<h3>({{ searchterms }})</h3>
+{% endif %}
+<h4>Displaying: {{ users|length }}</h4>
 
-<ul>
-    <li><a href='/user'>First User</li>
-    <li><a href='/user'>Second User</li>
-</ul>
+<form action="/users" method="get">
+    <div class="input-group">
+        <input name="q" type="text" class="form-control" placeholder="Search...">
+        <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+    </div>
+    <p></p>
+    <div class="accordion" id="accordionAdvancedSearch">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAdvancedSearch">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvancedSearch" aria-expanded="false" aria-controls="collapseAdvancedSearch">
+                    Advanced Search
+                </button>
+            </h2>
+            <div id="collapseAdvancedSearch" class="accordion-collapse collapse" aria-labelledby="headingAdvancedSearch" data-bs-parent="#accordionAdvancedSearch">
+                <div class="accordion-body" style="text-align: right;">
+                    {{ user_form.as_p }}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">User Name</th>
+            <th scope="col">Status</th>
+            <th scope="col">First Name</th>
+            <th scope="col">Last Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Organisation</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+            <tr>
+                <td><a href='user/{{ user.usernumber }}'>Details</a></td>
+                <td>{{ user.username|default_if_none:"" }}</td>
+                <td>{{ user.status__statusdescription|default_if_none:"" }}</td>
+                <td>{{ user.firstname|default_if_none:"" }}</td>
+                <td>{{ user.lastname|default_if_none:"" }}</td>
+                <td>{{ user.email|default_if_none:"" }}</td>
+                <td>{{ user.organisation|default_if_none:"" }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}

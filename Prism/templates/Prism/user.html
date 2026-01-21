@@ -1,11 +1,13 @@
 {% extends "Prism/layout.html" %}
 
 {% block title %}
-Pri2m : {{ user.fullname }}
+Pri2m : {{ user.username|default_if_none:"User" }}
 {% endblock %}
 
 {% block content %}
 
-<h1>Details of single user here</h1>
+<h1>User - {{ user.firstname }} {{ user.lastname }}</h1>
+
+<p>This is where we'll display deets for {{ user.firstname }} {{ user.lastname }}</p>
 
 {% endblock %}
