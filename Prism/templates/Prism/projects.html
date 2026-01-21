@@ -6,13 +6,13 @@ Pri2m: All Projects
 
 {% block content %}
 
-<h2>Projects</h2>
+<h1>Projects</h1>
 {% if searchterms|length %}
-<h3>({{ searchterms }})</h3>
+<h2>({{ searchterms }})</h2>
 {% endif %}
-<h4>Displaying: {{ projects|length }}</h4>
+<h3>Displaying: {{ projects|length }}</h3>
 
-<form action="/" method="get">
+<form action="/projects" method="get">
     <div class="input-group">
         <input name="q" type="text" class="form-control" placeholder="Search...">
         <button class="btn btn-primary" type="submit" id="button-search">Search</button>
