@@ -42,7 +42,7 @@ table {
     gap: 20px;
 }
 .tile {
-    flex: 1 0 300px;
+    /* flex: 1 0 300px; */
     /* background-color: #fff; */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     padding: 20px;
@@ -53,7 +53,7 @@ table {
     transform: scale(1.05);
 }
 .tile-link {
-    flex: 1 0 40%;
+    /* flex: 1 0 45%; */
     text-decoration: none;
     color: inherit;
     display: block;
