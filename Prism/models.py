@@ -34,6 +34,9 @@ class Tblproject(models.Model):
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
     createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.projectnumber
+
     class Meta:
         managed = False
         db_table = 'tblProject'
@@ -147,7 +150,7 @@ class Tblprojectplatforminfo(models.Model):
 
 
 class Tbluser(models.Model):
-    userid = models.IntegerField(db_column='UserID', primary_key=True)  # Field name made lowercase.
+    userid = models.AutoField(db_column='UserID', primary_key=True)  # Field name made lowercase.
     usernumber = models.IntegerField(db_column='UserNumber', blank=True, null=True)  # Field name made lowercase.
     status = models.ForeignKey('Tlkuserstatus', models.PROTECT, db_column='Status', blank=True, null=True)  # Field name made lowercase.
     title = models.ForeignKey('Tlktitle', models.PROTECT, db_column='Title', blank=True, null=True)  # Field name made lowercase.

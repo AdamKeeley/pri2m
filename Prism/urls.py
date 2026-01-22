@@ -13,4 +13,5 @@ urlpatterns = [
     ,path('project/<str:projectnumber>/remove/datallocation/<int:projectdatallocationid>', views.projectdatallocation_remove, name = 'projectdatallocation_remove')
     ,path('users', views.users, name = 'users')
     ,path('user/<int:usernumber>', views.user, name = 'user')
+    ,path('user/<int:usernumber>/remove/userproject/<int:userprojectid>', views.userproject_remove, name = 'userproject_remove')
 ]

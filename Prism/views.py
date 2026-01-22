@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.apps import apps
-from django.db.models import Max, Count
-from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification, Tlkuserstatus
-from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm, ProjectDatAllocationForm, UserSearchForm
+from django.db.models import Max, Count, OuterRef, Subquery
+from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
+    , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification, Tlkuserstatus
+from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
+    , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -628,15 +630,112 @@ def users(request):
 def user(request, usernumber):
     # Build forms
     
-    ## PROJECT ##
+    ## USER ##
     user = Tbluser.objects.filter(
         validto__isnull=True
         , usernumber=usernumber
     ).values(
     ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
 
-    context={'user': user}
+    # Using OuterRef & Subquery to perform a lookup against Tblproject on Tbluserproject's projectnumber and add it to the model with annotate 
+    projectnames = Tblproject.objects.filter(
+        validto__isnull=True
+        ,projectnumber=OuterRef("projectnumber")
+    ).values("projectname")
 
-    if request.method == 'GET':
+    user_project = Tbluserproject.objects.filter(
+        validto__isnull=True
+        , usernumber=usernumber
+    ).values(
+    ).annotate(projectname = Subquery(projectnames)
+    ).order_by("projectnumber")
+
+    ## CREATE FORMS ##
+    user_form = UserForm(initial=user, prefix='user')
+    user_project_form = UserProjectForm(prefix='user_project')
+    user_project_form.initial['usernumber'] = usernumber
+    
+    context={'user': user
+             , 'user_form': user_form
+             , 'user_project': user_project
+             , 'user_project_form': user_project_form
+             }
+
+    if request.method == 'POST':
+        if 'user-userid' in request.POST:
+            user_form = UserForm(request.POST, prefix='user')
+            if user_form.is_valid():
+                userid = user_form.cleaned_data['userid']
+                insert = Tbluser(
+                    usernumber = usernumber
+                    ,status = user_form.cleaned_data['status_id']
+                    ,title = user_form.cleaned_data['title_id']
+                    ,firstname = user_form.cleaned_data['firstname']
+                    ,lastname = user_form.cleaned_data['lastname']
+                    ,email = user_form.cleaned_data['email']
+                    ,phone = user_form.cleaned_data['phone']
+                    ,username = user_form.cleaned_data['username']
+                    ,organisation = user_form.cleaned_data['organisation']
+                    ,startdate = user_form.cleaned_data['startdate']
+                    ,enddate = user_form.cleaned_data['enddate']
+                    ,laseragreement = user_form.cleaned_data['laseragreement']
+                    ,dataprotection = user_form.cleaned_data['dataprotection']
+                    ,informationsecurity = user_form.cleaned_data['informationsecurity']
+                    ,safe = user_form.cleaned_data['safe']
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,createdby = request.user
+                )
+                
+                # Fetch existing user record
+                existing_user = Tbluser.objects.filter(
+                    validto__isnull=True
+                    , usernumber=usernumber
+                ).values(
+                ).get() 
+
+                # Only save record if fields have changed
+                if recordchanged(existing_record=existing_user, form_set=insert):
+                    insert.save(force_insert=True)
+
+                    delete = Tbluser(
+                        userid = userid
+                        ,validto = timezone.now()
+                    )
+                    delete.save(update_fields=["validto"])
+                
+                    messages.success(request, 'User updated successfully.')
+                return HttpResponseRedirect(f"/user/{usernumber}")
+            else:
+                context['user']=user_form
+
+        elif 'user_project-projectnumber' in request.POST:
+            user_project_form = UserProjectForm(request.POST, prefix='user_project')
+
+            if user_project_form.is_valid():
+                insert_user_project = Tbluserproject(
+                    usernumber = user_project_form.cleaned_data['usernumber']
+                    ,projectnumber = user_project_form.cleaned_data['projectnumber']
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,createdby = request.user
+                )
+                insert_user_project.save(force_insert=True)
+                messages.success(request, 'User Project membership added successfully.')
+                return HttpResponseRedirect(f"/user/{usernumber}")
+            else:
+                context['user_project_form']=user_project_form
 
         return render(request, 'Prism/user.html', context)
+
+    if request.method == 'GET':
+        return render(request, 'Prism/user.html', context)
+
+def userproject_remove(request, usernumber, userprojectid):
+    update_record=Tbluserproject.objects.filter(
+        userprojectid=userprojectid
+        , usernumber=usernumber
+    ).values()
+    update_record.update(validto = timezone.now())
+    
+    return HttpResponseRedirect(f"/user/{usernumber}")

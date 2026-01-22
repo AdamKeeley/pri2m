@@ -1,7 +1,8 @@
 from django import forms
-from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus
+from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
+    , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tlktitle, Tbluserproject
 from django.utils import timezone
-from django.core.exceptions import ValidationError
+#from django.core.exceptions import ValidationError
 
 class DateInput(forms.DateInput):
     input_type = "date"
@@ -161,3 +162,56 @@ class UserSearchForm(forms.Form):
 
     class meta:
         model = Tbluser
+
+class UserForm(forms.Form):
+    userid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    usernumber = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    status_id = forms.ModelChoiceField(label="Status", queryset=Tlkuserstatus.objects.filter(validto__isnull=True).order_by("statusid"), required=False )
+    title_id = forms.ModelChoiceField(label='Title', queryset=Tlktitle.objects.filter(validto__isnull=True).order_by("titledescription"), required=False )
+    firstname = forms.CharField(label="First Name", max_length=50)
+    lastname = forms.CharField(label="Last Name", max_length=50)
+    email = forms.CharField(label="Email", max_length=255, required=False) 
+    phone = forms.CharField(label="Phone", max_length=15, required=False)
+    username = forms.CharField(label="User Name", max_length=12, required=False)
+    organisation = forms.CharField(label="Organisation", max_length=255)
+    startdate = forms.DateTimeField(label="Start Date", widget = DateInput(), required=False)
+    enddate = forms.DateTimeField(label="End Date", widget = DateInput(), required=False)
+    # priviledged = forms.BooleanField(label="SEED Agreement", required=False)
+    # seedagreement = forms.BooleanField(label="SEED Agreement", required=False)
+    # ircagreement = forms.BooleanField(label="IRC Agreement", required=False)
+    laseragreement = forms.DateTimeField(label="LASER Agreement", widget = DateInput(), required=False)
+    dataprotection = forms.DateTimeField(label="Data Protection", widget = DateInput(), required=False)
+    informationsecurity = forms.DateTimeField(label="Information Security", widget = DateInput(), required=False)
+    # iset = forms.DateTimeField(label="ISET", widget = DateInput(), required=False)
+    # isat = forms.DateTimeField(label="ISAT", widget = DateInput(), required=False)
+    safe = forms.DateTimeField(label="Safe Researcher", widget = DateInput(), required=False)
+    # tokenserial = forms.IntegerField(label="Token Serial", widget = forms.HiddenInput(), required=False)
+    # tokenissued = forms.DateTimeField(label="Token Issued", widget = DateInput(), required=False)
+    # tokenreturned = forms.DateTimeField(label="Token Returned", widget = DateInput(), required=False)
+    validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
+    validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+
+    class meta:
+        model = Tbluser
+
+class UserProjectForm(forms.Form):
+    userprojectid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    usernumber = forms.IntegerField(widget = forms.HiddenInput())
+    projectnumber = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"))
+    validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
+    validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        projectnumber = cleaned_data.get('projectnumber')
+        usernumber = cleaned_data.get('usernumber')
+
+        if Tbluserproject.objects.filter(validto__isnull=True, usernumber=usernumber, projectnumber=projectnumber).exists():
+            self.add_error(None, "User already on Project")
+
+        return self.cleaned_data
+
+    class meta:
+        model = Tbluserproject
