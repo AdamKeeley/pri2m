@@ -85,6 +85,11 @@ class ProjectForm(forms.Form):
             if not self.fields["classification_id"].queryset.filter(validto__isnull=True, pk=cleaned_data['classification_id'].pk).exists():
                 self.add_error('classification_id', "This value is no longer a valid choice.")
 
+        if "faculty_id" in cleaned_data:
+            # Is Faculty in db no longer valid?
+            if not self.fields["faculty_id"].queryset.filter(validto__isnull=True, pk=cleaned_data['faculty_id'].pk).exists():
+                self.add_error('faculty_id', "This value is no longer a valid choice.")
+
         return self.cleaned_data
         
 
@@ -94,16 +99,21 @@ class ProjectForm(forms.Form):
         # If the value for ModelChoiceField is no longer valid (ie validto is not null) then add to the queryset to still display it
         stage_qs = self.fields["stage_id"].queryset
         classification_qs = self.fields["classification_id"].queryset
+        faculty_qs = self.fields["faculty_id"].queryset
         if 'initial' in kwargs:
             if not stage_qs.filter(pk=kwargs['initial']['stage_id']):
                 self.fields["stage_id"].queryset = (stage_qs | Tlkstage.objects.filter(pk=kwargs['initial']['stage_id']))
             if not classification_qs.filter(pk=kwargs['initial']['classification_id']):
                 self.fields["classification_id"].queryset = (classification_qs | Tlkclassification.objects.filter(pk=kwargs['initial']['classification_id']))
+            if not faculty_qs.filter(pk=kwargs['initial']['faculty_id']):
+                self.fields["faculty_id"].queryset = (faculty_qs | Tlkfaculty.objects.filter(pk=kwargs['initial']['faculty_id']))
         elif 'data' in kwargs:
             if not stage_qs.filter(pk=kwargs['data']['stage_id']):
                 self.fields["stage_id"].queryset = (stage_qs | Tlkstage.objects.filter(pk=kwargs['data']['stage_id']))
             if not classification_qs.filter(pk=kwargs['data']['classification_id']):
                 self.fields["classification_id"].queryset = (classification_qs | Tlkclassification.objects.filter(pk=kwargs['data']['classification_id']))
+            if not faculty_qs.filter(pk=kwargs['data']['faculty_id']):
+                self.fields["faculty_id"].queryset = (faculty_qs | Tlkfaculty.objects.filter(pk=kwargs['data']['faculty_id']))
 
         # When creating the form with initial data, we still want to validate the form. 
         # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
