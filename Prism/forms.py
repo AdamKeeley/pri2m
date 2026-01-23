@@ -28,7 +28,7 @@ class ProjectForm(forms.Form):
     projectnumber= forms.CharField(label="Project Number", disabled=True, max_length=5, required=False)
     projectname= forms.CharField(label="Project Name", max_length=500)
     portfolionumber = forms.CharField(label="Portfolio Number", widget = forms.HiddenInput(), required=False, max_length=255)
-    stage_id= forms.ModelChoiceField(label="Stage", queryset=Tlkstage.objects.filter(validto__isnull=True).order_by("stagenumber"))
+    stage_id= forms.ModelChoiceField(label="Stage", queryset=Tlkstage.objects.none())
     classification_id= forms.ModelChoiceField(label="Classification", queryset=Tlkclassification.objects.filter(validto__isnull=True).order_by("classificationdescription"))
     datrag = forms.IntegerField(label="DAT RAG", widget = forms.HiddenInput(), required=False)
     projectedstartdate= forms.DateTimeField(label="Projected Start Date", widget = DateInput())
@@ -55,7 +55,6 @@ class ProjectForm(forms.Form):
         enddate = cleaned_data.get("enddate")
         projectedstartdate = cleaned_data.get("projectedstartdate")
         projectedenddate = cleaned_data.get("projectedenddate")
-        stage = cleaned_data["stage_id"].pstagedescription
         
         # Do project start and end dates sequence correctly?
         if projectedstartdate is not None and projectedenddate is not None:
@@ -65,26 +64,43 @@ class ProjectForm(forms.Form):
             if (startdate - enddate).days >= 0:
                 self.add_error(None, "Start Date cannot be later than End Date.")
 
-        # If Stage is Active/Store/Destroy do Start Date and End Date exist?
-        if (stage == "Active" or stage == "Store") and startdate is None:
-            self.add_error(None, "Project cannot have started without a Start Date")
-        if (stage == "Destroy") and (enddate is None or startdate is None):
-            self.add_error(None, "Project cannot End without both a Start and End Date")
-
-        # If adding Start/End Dates does the Stage align?
-        if startdate and (stage == "Proposal" or stage == "Pre-grant" or stage == "Pre-Approval" or stage == "Setup"):
-            self.add_error(None, "Project cannot have a Start Date while in a pre-Active Stage")
-        if enddate and not (stage == "Destroy" or stage == "Discontinued"):
-            self.add_error(None, "Project cannot have a End Date without being in a Destroy or Discontinued Stage")
+        if "stage_id" in cleaned_data:
+            stage = cleaned_data["stage_id"].pstagedescription
+            # If Stage is Active/Store/Destroy do Start Date and End Date exist?
+            if (stage == "Active" or stage == "Store") and startdate is None:
+                self.add_error(None, "Project cannot have started without a Start Date")
+            if (stage == "Destroy") and (enddate is None or startdate is None):
+                self.add_error(None, "Project cannot End without both a Start and End Date")
+            # If adding Start/End Dates does the Stage align?
+            if startdate and (stage == "Proposal" or stage == "Pre-grant" or stage == "Pre-Approval" or stage == "Setup"):
+                self.add_error(None, "Project cannot have a Start Date while in a pre-Active Stage")
+            if enddate and not (stage == "Destroy" or stage == "Discontinued"):
+                self.add_error(None, "Project cannot have a End Date without being in a Destroy or Discontinued Stage")
+            
+            if not Tlkstage.objects.filter(validto__isnull=True, pk=cleaned_data['stage_id'].pk).exists():
+                self.add_error('stage_id', "The current value is not a valid choice anymore. Please pick a new one.")
 
         return self.cleaned_data
         
-    # When creating the form with initial data, we still want to validate the form. 
-    # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
-    # therefore the `clean()` function above.
-    # Any errors are copied to the original form and displayed with the data from the database.
+
     def __init__(self, *args, **kwargs): 
         super().__init__(*args, **kwargs)
+
+        stage_qs = Tlkstage.objects.filter(validto__isnull=True).order_by("stagenumber")
+        if 'initial' in kwargs:
+            if kwargs['initial']['stage_id'] not in stage_qs.values():
+                self.fields["stage_id"].queryset = (stage_qs | Tlkstage.objects.filter(pk=kwargs['initial']['stage_id']))
+        elif 'data' in kwargs:
+            if kwargs['data']['stage_id'] not in stage_qs.values():
+                self.fields["stage_id"].queryset = (stage_qs | Tlkstage.objects.filter(pk=kwargs['data']['stage_id']))
+        else:
+            self.fields["stage_id"].queryset = stage_qs
+
+
+        # When creating the form with initial data, we still want to validate the form. 
+        # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
+        # therefore the `clean()` function above.
+        # Any errors are copied to the original form and displayed with the data from the database.
         if self.initial: 
             temp = type(self)(data=self.initial) 
             if not temp.is_valid(): 
