@@ -253,12 +253,14 @@ Pri2m : {{ project.projectnumber }}
                             <thead>
                                 <tr>
                                     <th scope="col">Full name</th>
+                                    <th scope="col"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for member in members %}
                                 <tr>
-                                    <td>{{ member.firstname }} {{ member.lastname }}</td>
+                                    <td><a href='/user/{{ member.usernumber }}'>{{ member.firstname }} {{ member.lastname }}</a></td>
+                                    <td><a href='/user/{{ member.usernumber }}/remove/userproject/{{ member.userprojectid }}'>x</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

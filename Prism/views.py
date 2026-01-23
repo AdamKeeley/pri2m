@@ -128,13 +128,23 @@ def project(request, projectnumber):
             p_docs[doc]["status"] = "absent"
 
     ## PROJECT MEMBERSHIP ##
-    project_membership = Tbluser.objects.filter(
-        usernumber__in = Tbluserproject.objects.filter(
+    # Using OuterRef & Subquery to perform a lookup against Tblproject on Tbluserproject's projectnumber and add it to the model with annotate 
+    firstnames = Tbluser.objects.filter(
+        validto__isnull=True
+        ,usernumber=OuterRef("usernumber")
+    ).values("firstname")
+
+    lastnames = Tbluser.objects.filter(
+        validto__isnull=True
+        ,usernumber=OuterRef("usernumber")
+    ).values("lastname")
+
+    project_membership = Tbluserproject.objects.filter(
             validto__isnull=True
             , projectnumber=projectnumber
-            )
-        ,validto__isnull=True
     ).values(
+    ).annotate(firstname = Subquery(firstnames)
+               ,lastname = Subquery(lastnames)
     ).order_by("firstname", "lastname")
 
     ## KRISTAL REFERENCES ##
@@ -738,4 +748,4 @@ def userproject_remove(request, usernumber, userprojectid):
     ).values()
     update_record.update(validto = timezone.now())
     
-    return HttpResponseRedirect(f"/user/{usernumber}")
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
