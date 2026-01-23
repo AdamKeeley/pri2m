@@ -366,3 +366,14 @@ class tlkGrantStage(models.Model):
     class Meta:
         managed = False
         db_table = 'tlkGrantStage'
+
+class tblusernotes(models.Model):
+    unid = models.AutoField(db_column='unID', primary_key=True, editable=False)
+    usernumber = models.IntegerField(db_column='UserNumber', blank=True, null=True)
+    unote = models.TextField(db_column='uNote', blank=True, null=True)
+    created = models.DateTimeField(db_column='Created', blank=True, null=True)
+    createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'tblUserNotes'

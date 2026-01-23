@@ -93,4 +93,114 @@ Pri2m : {{ user.username|default_if_none:"User" }}
     </tbody>
 </table>
 
+{% if notes_filter %}
+    <legend>Notes containing "{{ notes_filter }}" (<a href='/user/{{ user.usernumber }}'>clear</a>)</legend>
+{% else %}
+    <legend>Notes</legend> 
+{% endif %}
+
+<div class="row">
+    <div class="col-md-6">
+        <form action="" method="POST">
+            {% csrf_token %}
+            <fieldset>
+                <div class="input-group">
+                    {{ new_note.unote }}
+                    <input class="btn btn-primary" type="submit" value="Add note">
+                </div>
+            </fieldset>
+            <fieldset>
+                {{ new_note.unid }}
+                {{ new_note.usernumber }}
+                {{ new_note.created }}
+                {{ new_note.createdby }}
+            </fieldset>
+        </form>
+    </div>
+
+    <div class="col-md-6">
+        <form action="" method="get">
+            <div class="input-group">
+                <input name="search_notes" type="text" class="form-control" placeholder="Search...">
+                <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                <th scope="col">Note</th>
+                <th style="white-space: nowrap;" scope="col">Created</th>
+                <th style="white-space: nowrap;" scope="col">Created By</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in notes.object_list %}
+                    <tr>
+                        <td>{{ note.unote }}</td>
+                        <td style="white-space: nowrap;">{{ note.created | date:"Y-m-d" }}</td>
+                        <td style="white-space: nowrap;">{{ note.createdby }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="pagination">
+            <ul class="pagination pagination-sm">
+            {% if notes.has_previous %}
+                <li class="page-item">
+                    {% if notes_filter %}
+                        <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.previous_page_number }}">&laquo;</a>
+                    {% else %}
+                        <a class="page-link" href="?page={{ notes.previous_page_number }}">&laquo;</a>
+                    {% endif %}
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">&laquo;</a>
+                </li>
+            {% endif %}
+
+            {% for num in notes.paginator.page_range %}
+                {% if notes.number == num %}
+                    <li class="page-item active">
+                        {% if notes_filter %}
+                            <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
+                        {% else %}
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        {% endif %}
+                    </li>
+                {% else %}
+                    <li class="page-item">
+                        {% if notes_filter %}
+                            <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
+                        {% else %}
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        {% endif %}
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if notes.has_next %}
+                <li class="page-item">
+                    {% if notes_filter %}
+                        <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.next_page_number }}">&raquo;</a>
+                    {% else %}
+                        <a class="page-link" href="?page={{ notes.next_page_number }}">&raquo;</a>
+                    {% endif %}
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" href="#">&raquo;</a>
+                </li>
+            {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

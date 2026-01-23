@@ -3,9 +3,10 @@ from django.http import HttpResponseRedirect
 from django.apps import apps
 from django.db.models import Max, Count, OuterRef, Subquery
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
-    , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification, Tlkuserstatus
+    , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
+    , Tlkuserstatus, tblusernotes
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
-    , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm
+    , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -660,15 +661,40 @@ def user(request, usernumber):
     ).annotate(projectname = Subquery(projectnames)
     ).order_by("projectnumber")
 
+    ## USER NOTES ##
+    query = request.GET.get("search_notes")
+    filter_query = {}
+    if query is not None and query != '':
+        filter_query['unote__icontains'] = query
+    
+    user_notes = tblusernotes.objects.filter(
+        Q(**filter_query, _connector=Q.OR)
+        , usernumber=usernumber
+    ).values(
+    ).order_by("-created")
+
+    paginator = Paginator(user_notes, 5)  # Show 5 posts per page
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
     ## CREATE FORMS ##
     user_form = UserForm(initial=user, prefix='user')
     user_project_form = UserProjectForm(prefix='user_project')
     user_project_form.initial['usernumber'] = usernumber
+    u_notes_form = UserNotesForm(prefix='u_note')
     
     context={'user': user
-             , 'user_form': user_form
-             , 'user_project': user_project
-             , 'user_project_form': user_project_form
+            , 'user_form': user_form
+            , 'user_project': user_project
+            , 'user_project_form': user_project_form
+            , 'notes':page_obj
+            , 'notes_filter' : query
+            , 'new_note': u_notes_form
              }
 
     if request.method == 'POST':

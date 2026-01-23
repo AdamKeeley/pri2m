@@ -1,6 +1,7 @@
 from django import forms
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
-    , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tlktitle, Tbluserproject
+    , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tlktitle, Tbluserproject \
+    , tblusernotes
 from django.utils import timezone
 #from django.core.exceptions import ValidationError
 
@@ -215,3 +216,13 @@ class UserProjectForm(forms.Form):
 
     class meta:
         model = Tbluserproject
+
+class UserNotesForm(forms.Form):
+    unid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    usernumber = forms.CharField(widget = forms.HiddenInput(), label="User Number", disabled=True, max_length=5, required=False)
+    unote = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "New note..."}), label="User Note", max_length=500)
+    created = forms.DateTimeField(widget = forms.HiddenInput(), label="Created", disabled=True, required=False)
+    createdby = forms.CharField(widget = forms.HiddenInput(), label="Created By", disabled=True, max_length=50, required=False)
+
+    class Meta:
+        model = tblusernotes
