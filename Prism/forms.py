@@ -76,19 +76,14 @@ class ProjectForm(forms.Form):
                 self.add_error(None, "Project cannot have a Start Date while in a pre-Active Stage")
             if enddate and not (stage == "Destroy" or stage == "Discontinued"):
                 self.add_error(None, "Project cannot have a End Date without being in a Destroy or Discontinued Stage")
-            # Is Stage in db no longer valid?
-            if not self.fields["stage_id"].queryset.filter(validto__isnull=True, pk=cleaned_data['stage_id'].pk).exists():
-                self.add_error('stage_id', "This value is no longer a valid choice.")
 
-        if "classification_id" in cleaned_data:
-            # Is Classification in db no longer valid?
-            if not self.fields["classification_id"].queryset.filter(validto__isnull=True, pk=cleaned_data['classification_id'].pk).exists():
-                self.add_error('classification_id', "This value is no longer a valid choice.")
-
-        if "faculty_id" in cleaned_data:
-            # Is Faculty in db no longer valid?
-            if not self.fields["faculty_id"].queryset.filter(validto__isnull=True, pk=cleaned_data['faculty_id'].pk).exists():
-                self.add_error('faculty_id', "This value is no longer a valid choice.")
+        # Loop through fields and if ModelChoiceField, check if current value is still a valid value (ie [validto] is not null)
+        for name, field in self.fields.items():
+            if isinstance(field, forms.ModelChoiceField):
+                if name in cleaned_data:
+                    # Is value in db no longer valid?
+                    if not self.fields[name].queryset.filter(validto__isnull=True, pk=cleaned_data[name].pk).exists():
+                        self.add_error(name, "This value is no longer a valid choice.")
 
         return self.cleaned_data
         
@@ -96,24 +91,16 @@ class ProjectForm(forms.Form):
     def __init__(self, *args, **kwargs): 
         super().__init__(*args, **kwargs)
 
-        # If the value for ModelChoiceField is no longer valid (ie validto is not null) then add to the queryset to still display it
-        stage_qs = self.fields["stage_id"].queryset
-        classification_qs = self.fields["classification_id"].queryset
-        faculty_qs = self.fields["faculty_id"].queryset
-        if 'initial' in kwargs:
-            if not stage_qs.filter(pk=kwargs['initial']['stage_id']):
-                self.fields["stage_id"].queryset = (stage_qs | Tlkstage.objects.filter(pk=kwargs['initial']['stage_id']))
-            if not classification_qs.filter(pk=kwargs['initial']['classification_id']):
-                self.fields["classification_id"].queryset = (classification_qs | Tlkclassification.objects.filter(pk=kwargs['initial']['classification_id']))
-            if not faculty_qs.filter(pk=kwargs['initial']['faculty_id']):
-                self.fields["faculty_id"].queryset = (faculty_qs | Tlkfaculty.objects.filter(pk=kwargs['initial']['faculty_id']))
-        elif 'data' in kwargs:
-            if not stage_qs.filter(pk=kwargs['data']['stage_id']):
-                self.fields["stage_id"].queryset = (stage_qs | Tlkstage.objects.filter(pk=kwargs['data']['stage_id']))
-            if not classification_qs.filter(pk=kwargs['data']['classification_id']):
-                self.fields["classification_id"].queryset = (classification_qs | Tlkclassification.objects.filter(pk=kwargs['data']['classification_id']))
-            if not faculty_qs.filter(pk=kwargs['data']['faculty_id']):
-                self.fields["faculty_id"].queryset = (faculty_qs | Tlkfaculty.objects.filter(pk=kwargs['data']['faculty_id']))
+        # If the value for ModelChoiceField is no longer valid (ie [validto] is not null) then add to the queryset to still display it
+        for name, field in self.fields.items():
+            if isinstance(field, forms.ModelChoiceField):
+                qs = self.fields[name].queryset
+                if 'initial' in kwargs:
+                    if not qs.filter(pk=kwargs['initial'][name]):
+                        self.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['initial'][name]))
+                elif 'data' in kwargs:
+                    if not qs.filter(pk=kwargs['data'][name]):
+                        self.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['data'][name]))
 
         # When creating the form with initial data, we still want to validate the form. 
         # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
