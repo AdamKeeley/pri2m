@@ -28,7 +28,7 @@ class ProjectForm(forms.Form):
     projectnumber= forms.CharField(label="Project Number", disabled=True, max_length=5, required=False)
     projectname= forms.CharField(label="Project Name", max_length=500)
     portfolionumber = forms.CharField(label="Portfolio Number", widget = forms.HiddenInput(), required=False, max_length=255)
-    stage_id= forms.ModelChoiceField(label="Stage", queryset=Tlkstage.objects.none())
+    stage_id= forms.ModelChoiceField(label="Stage", queryset=Tlkstage.objects.filter(validto__isnull=True).order_by("stagenumber"))
     classification_id= forms.ModelChoiceField(label="Classification", queryset=Tlkclassification.objects.filter(validto__isnull=True).order_by("classificationdescription"))
     datrag = forms.IntegerField(label="DAT RAG", widget = forms.HiddenInput(), required=False)
     projectedstartdate= forms.DateTimeField(label="Projected Start Date", widget = DateInput())
@@ -76,9 +76,9 @@ class ProjectForm(forms.Form):
                 self.add_error(None, "Project cannot have a Start Date while in a pre-Active Stage")
             if enddate and not (stage == "Destroy" or stage == "Discontinued"):
                 self.add_error(None, "Project cannot have a End Date without being in a Destroy or Discontinued Stage")
-            
-            if not Tlkstage.objects.filter(validto__isnull=True, pk=cleaned_data['stage_id'].pk).exists():
-                self.add_error('stage_id', "The current value is not a valid choice anymore. Please pick a new one.")
+
+            if not self.fields["stage_id"].queryset.filter(validto__isnull=True, pk=cleaned_data['stage_id'].pk).exists():
+                self.add_error('stage_id', "This value is no longer a valid choice.")
 
         return self.cleaned_data
         
@@ -86,16 +86,13 @@ class ProjectForm(forms.Form):
     def __init__(self, *args, **kwargs): 
         super().__init__(*args, **kwargs)
 
-        stage_qs = Tlkstage.objects.filter(validto__isnull=True).order_by("stagenumber")
+        stage_qs = self.fields["stage_id"].queryset
         if 'initial' in kwargs:
-            if kwargs['initial']['stage_id'] not in stage_qs.values():
+            if not stage_qs.filter(pk=kwargs['initial']['stage_id']):
                 self.fields["stage_id"].queryset = (stage_qs | Tlkstage.objects.filter(pk=kwargs['initial']['stage_id']))
         elif 'data' in kwargs:
-            if kwargs['data']['stage_id'] not in stage_qs.values():
+            if not stage_qs.filter(pk=kwargs['data']['stage_id']):
                 self.fields["stage_id"].queryset = (stage_qs | Tlkstage.objects.filter(pk=kwargs['data']['stage_id']))
-        else:
-            self.fields["stage_id"].queryset = stage_qs
-
 
         # When creating the form with initial data, we still want to validate the form. 
         # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
