@@ -32,173 +32,209 @@ Pri2m : {{ user.username|default_if_none:"User" }}
 </ul>
 {% endif %}
 
-<form action="" method = "POST">
-    {% csrf_token %}
-    <p><input class="btn btn-primary" type="submit" value="Submit"></p>
-    <fieldset>
-        <legend>User Details</legend>
-        <p>{{ user_form.status_id.as_field_group }}</p>
-        <p>{{ user_form.title_id.as_field_group }}</p>
-        <p>{{ user_form.firstname.as_field_group }}</p>
-        <p>{{ user_form.lastname.as_field_group }}</p>
-        <p>{{ user_form.email.as_field_group }}</p>
-        <p>{{ user_form.phone.as_field_group }}</p>
-        <p>{{ user_form.username.as_field_group }}</p>
-        <p>{{ user_form.organisation.as_field_group }}</p>
-        <p>{{ user_form.startdate.as_field_group }}</p>
-        <p>{{ user_form.enddate.as_field_group }}</p>
-    </fieldset>    
-    <fieldset>
-        <legend>User Docs</legend>
-        <p>{{ user_form.laseragreement.as_field_group }}</p>
-        <p>{{ user_form.dataprotection.as_field_group }}</p>
-        <p>{{ user_form.informationsecurity.as_field_group }}</p>
-        <p>{{ user_form.safe.as_field_group }}</p>
-    </fieldset>  
-    <fieldset>
-        {{ user_form.userid }}
-        {{ user_form.validfrom }}
-        {{ user_form.validto }}
-        {{ user_form.createdby }}
-    </fieldset>
-</form>
 
-<legend>User Projects</legend>
-<form action="" method="POST">
-    {% csrf_token %}
-    <fieldset>
-        <div class="input-group">
-            {{ user_project_form.usernumber }}
-            {{ user_project_form.projectnumber.as_field_group }}
-            <input class="btn btn-primary" type="submit" value="Add Project">
-        </div>
-    </fieldset>
-</form>
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">Project Number</th>
-            <th scope="col">Project Name</th>
-            <th scope="col"></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in user_project %}
-            <tr>
-                <td><a href='/project/{{ item.projectnumber }}'>{{ item.projectnumber }}</td>
-                <td>{{ item.projectname }}</td>
-                <td><a href='/user/{{ item.usernumber }}/remove/userproject/{{ item.userprojectid }}'>x</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-{% if notes_filter %}
-    <legend>Notes containing "{{ notes_filter }}" (<a href='/user/{{ user.usernumber }}'>clear</a>)</legend>
-{% else %}
-    <legend>Notes</legend> 
-{% endif %}
-
-<div class="row">
-    <div class="col-md-6">
-        <form action="" method="POST">
-            {% csrf_token %}
-            <fieldset>
-                <div class="input-group">
-                    {{ new_note.unote }}
-                    <input class="btn btn-primary" type="submit" value="Add note">
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <form action="" method = "POST">
+                {% csrf_token %}
+                <p><input class="btn btn-primary" type="submit" value="Submit"></p>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <legend>User Details</legend>
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-auto">
+                                        <fieldset>
+                                            <p>{{ user_form.status_id.as_field_group }}</p>
+                                            <!-- <p>{{ user_form.title_id.as_field_group }}</p> -->
+                                            <p>{{ user_form.firstname.as_field_group }}</p>
+                                            <p>{{ user_form.lastname.as_field_group }}</p>
+                                            <p>{{ user_form.email.as_field_group }}</p>
+                                            <p>{{ user_form.username.as_field_group }}</p>
+                                        </div>
+                                    <div class="col-md-auto">
+                                            <p>{{ user_form.startdate.as_field_group }}</p>
+                                            <p>{{ user_form.enddate.as_field_group }}</p>
+                                            <p>{{ user_form.phone.as_field_group }}</p>
+                                            <p>{{ user_form.organisation.as_field_group }}</p>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-auto">
+                            <fieldset>
+                                <legend>User Docs</legend>
+                                <p>{{ user_form.laseragreement.as_field_group }}</p>
+                                <p>{{ user_form.dataprotection.as_field_group }}</p>
+                                <p>{{ user_form.informationsecurity.as_field_group }}</p>
+                                <p>{{ user_form.safe.as_field_group }}</p>
+                            </fieldset>  
+                            <fieldset>
+                                {{ user_form.userid }}
+                                {{ user_form.validfrom }}
+                                {{ user_form.validto }}
+                                {{ user_form.createdby }}
+                            </fieldset>
+                        </div>
+            </form>
+                    </div>
                 </div>
-            </fieldset>
-            <fieldset>
-                {{ new_note.unid }}
-                {{ new_note.usernumber }}
-                {{ new_note.created }}
-                {{ new_note.createdby }}
-            </fieldset>
-        </form>
+        </div>
     </div>
 
-    <div class="col-md-6">
-        <form action="" method="get">
-            <div class="input-group">
-                <input name="search_notes" type="text" class="form-control" placeholder="Search...">
-                <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-4">
+                        <legend>User Projects</legend>
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <fieldset>
+                                <div class="input-group">
+                                    {{ user_project_form.usernumber }}
+                                    {{ user_project_form.projectnumber.as_field_group }}
+                                    <input class="btn btn-primary" type="submit" value="Add Project">
+                                </div>
+                            </fieldset>
+                        </form>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Project Number</th>
+                                    <th scope="col">Project Name</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in user_project %}
+                                    <tr>
+                                        <td><a href='/project/{{ item.projectnumber }}'>{{ item.projectnumber }}</td>
+                                        <td>{{ item.projectname }}</td>
+                                        <td><a href='/user/{{ item.usernumber }}/remove/userproject/{{ item.userprojectid }}'>x</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="col-md-8">
+
+                        {% if notes_filter %}
+                            <legend>Notes containing "{{ notes_filter }}" (<a href='/user/{{ user.usernumber }}'>clear</a>)</legend>
+                        {% else %}
+                            <legend>Notes</legend> 
+                        {% endif %}
+
+                        <div class="row">
+                            <div class="col-md-8">
+                                <form action="" method="POST">
+                                    {% csrf_token %}
+                                    <fieldset>
+                                        <div class="input-group">
+                                            {{ new_note.unote }}
+                                            <input class="btn btn-primary" type="submit" value="Add note">
+                                        </div>
+                                    </fieldset>
+                                    <fieldset>
+                                        {{ new_note.unid }}
+                                        {{ new_note.usernumber }}
+                                        {{ new_note.created }}
+                                        {{ new_note.createdby }}
+                                    </fieldset>
+                                </form>
+                            </div>
+
+                            <div class="col-md-4">
+                                <form action="" method="get">
+                                    <div class="input-group">
+                                        <input name="search_notes" type="text" class="form-control" placeholder="Search...">
+                                        <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">Note</th>
+                                        <th style="white-space: nowrap;" scope="col">Created</th>
+                                        <th style="white-space: nowrap;" scope="col">Created By</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for note in notes.object_list %}
+                                            <tr>
+                                                <td>{{ note.unote }}</td>
+                                                <td style="white-space: nowrap;">{{ note.created | date:"Y-m-d" }}</td>
+                                                <td style="white-space: nowrap;">{{ note.createdby }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+
+                                <div class="pagination">
+                                    <ul class="pagination pagination-sm">
+                                    {% if notes.has_previous %}
+                                        <li class="page-item">
+                                            {% if notes_filter %}
+                                                <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.previous_page_number }}">&laquo;</a>
+                                            {% else %}
+                                                <a class="page-link" href="?page={{ notes.previous_page_number }}">&laquo;</a>
+                                            {% endif %}
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">&laquo;</a>
+                                        </li>
+                                    {% endif %}
+
+                                    {% for num in notes.paginator.page_range %}
+                                        {% if notes.number == num %}
+                                            <li class="page-item active">
+                                                {% if notes_filter %}
+                                                    <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
+                                                {% else %}
+                                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                {% endif %}
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item">
+                                                {% if notes_filter %}
+                                                    <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
+                                                {% else %}
+                                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                                {% endif %}
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    {% if notes.has_next %}
+                                        <li class="page-item">
+                                            {% if notes_filter %}
+                                                <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.next_page_number }}">&raquo;</a>
+                                            {% else %}
+                                                <a class="page-link" href="?page={{ notes.next_page_number }}">&raquo;</a>
+                                            {% endif %}
+                                        </li>
+                                    {% else %}
+                                        <li class="page-item disabled">
+                                            <a class="page-link" href="#">&raquo;</a>
+                                        </li>
+                                    {% endif %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </form>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-12">
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                <th scope="col">Note</th>
-                <th style="white-space: nowrap;" scope="col">Created</th>
-                <th style="white-space: nowrap;" scope="col">Created By</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for note in notes.object_list %}
-                    <tr>
-                        <td>{{ note.unote }}</td>
-                        <td style="white-space: nowrap;">{{ note.created | date:"Y-m-d" }}</td>
-                        <td style="white-space: nowrap;">{{ note.createdby }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <div class="pagination">
-            <ul class="pagination pagination-sm">
-            {% if notes.has_previous %}
-                <li class="page-item">
-                    {% if notes_filter %}
-                        <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.previous_page_number }}">&laquo;</a>
-                    {% else %}
-                        <a class="page-link" href="?page={{ notes.previous_page_number }}">&laquo;</a>
-                    {% endif %}
-                </li>
-            {% else %}
-                <li class="page-item disabled">
-                    <a class="page-link" href="#">&laquo;</a>
-                </li>
-            {% endif %}
-
-            {% for num in notes.paginator.page_range %}
-                {% if notes.number == num %}
-                    <li class="page-item active">
-                        {% if notes_filter %}
-                            <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
-                        {% else %}
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                        {% endif %}
-                    </li>
-                {% else %}
-                    <li class="page-item">
-                        {% if notes_filter %}
-                            <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ num }}">{{ num }}</a>
-                        {% else %}
-                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
-                        {% endif %}
-                    </li>
-                {% endif %}
-            {% endfor %}
-
-            {% if notes.has_next %}
-                <li class="page-item">
-                    {% if notes_filter %}
-                        <a class="page-link" href="?search_notes={{ notes_filter }}&page={{ notes.next_page_number }}">&raquo;</a>
-                    {% else %}
-                        <a class="page-link" href="?page={{ notes.next_page_number }}">&raquo;</a>
-                    {% endif %}
-                </li>
-            {% else %}
-                <li class="page-item disabled">
-                    <a class="page-link" href="#">&raquo;</a>
-                </li>
-            {% endif %}
-            </ul>
         </div>
     </div>
 </div>
