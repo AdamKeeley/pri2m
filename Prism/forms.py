@@ -92,15 +92,17 @@ class ProjectForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         # If the value for ModelChoiceField is no longer valid (ie [validto] is not null) then add to the queryset to still display it
+        # Doesn't work for PI or LeadApplicant fields because Tblproject doesn't store pk values here, it store a surrogate key (usernumber)
         for name, field in self.fields.items():
             if isinstance(field, forms.ModelChoiceField):
-                qs = self.fields[name].queryset
-                if 'initial' in kwargs:
-                    if not qs.filter(pk=kwargs['initial'][name]):
-                        self.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['initial'][name]))
-                elif 'data' in kwargs:
-                    if not qs.filter(pk=kwargs['data'][name]):
-                        self.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['data'][name]))
+                if name != 'pi' and name != 'leadapplicant':
+                    qs = self.fields[name].queryset
+                    if 'initial' in kwargs:
+                        if not qs.filter(pk=kwargs['initial'][name]):
+                            self.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['initial'][name]))
+                    elif 'data' in kwargs:
+                        if not qs.filter(pk=kwargs['data'][name]):
+                            self.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['data'][name]))
 
         # When creating the form with initial data, we still want to validate the form. 
         # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
