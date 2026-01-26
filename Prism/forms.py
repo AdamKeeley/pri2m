@@ -1,7 +1,7 @@
 from django import forms
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
     , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tlktitle, Tbluserproject \
-    , tblusernotes
+    , Tblusernotes
 from django.utils import timezone
 #from django.core.exceptions import ValidationError
 
@@ -246,4 +246,4 @@ class UserNotesForm(forms.Form):
     createdby = forms.CharField(widget = forms.HiddenInput(), label="Created By", disabled=True, max_length=50, required=False)
 
     class Meta:
-        model = tblusernotes
+        model = Tblusernotes

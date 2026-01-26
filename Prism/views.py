@@ -4,7 +4,7 @@ from django.apps import apps
 from django.db.models import Max, Count, OuterRef, Subquery
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
     , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
-    , Tlkuserstatus, tblusernotes
+    , Tlkuserstatus, Tblusernotes
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
     , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm
 import pandas as pd
@@ -667,7 +667,7 @@ def user(request, usernumber):
     if query is not None and query != '':
         filter_query['unote__icontains'] = query
     
-    user_notes = tblusernotes.objects.filter(
+    user_notes = Tblusernotes.objects.filter(
         Q(**filter_query, _connector=Q.OR)
         , usernumber=usernumber
     ).values(
@@ -761,6 +761,21 @@ def user(request, usernumber):
                 return HttpResponseRedirect(f"/user/{usernumber}")
             else:
                 context['user_project_form']=user_project_form
+
+        elif 'u_note-unote' in request.POST:
+            u_notes_form = UserNotesForm(request.POST, prefix='u_note')
+            if u_notes_form.is_valid():
+                insert_note = Tblusernotes(
+                    usernumber = usernumber
+                    ,unote = u_notes_form.cleaned_data['unote']
+                    ,created = timezone.now()
+                    ,createdby = request.user
+                )
+                insert_note.save(force_insert=True)
+                messages.success(request, 'User note added successfully.')
+                return HttpResponseRedirect(f"/user/{usernumber}")
+            else:
+                context['new_note']=u_notes_form
 
         return render(request, 'Prism/user.html', context)
 

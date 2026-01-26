@@ -367,7 +367,7 @@ class tlkGrantStage(models.Model):
         managed = False
         db_table = 'tlkGrantStage'
 
-class tblusernotes(models.Model):
+class Tblusernotes(models.Model):
     unid = models.AutoField(db_column='unID', primary_key=True, editable=False)
     usernumber = models.IntegerField(db_column='UserNumber', blank=True, null=True)
     unote = models.TextField(db_column='uNote', blank=True, null=True)
