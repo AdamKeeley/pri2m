@@ -1,4 +1,5 @@
 from django import forms
+from django.db.models import ForeignKey
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
     , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tlktitle, Tbluserproject \
     , Tblusernotes
@@ -11,6 +12,18 @@ class DateInput(forms.DateInput):
         kwargs["format"] = "%Y-%m-%d"
         super().__init__(**kwargs)
 
+def ForiegnKeysAreValid(form, **kwargs):
+    # Loop through each field in form and if it's a ForeignKey check if the current value is valid.
+    # If not valid (ie ValidTo is not null) then add it to the queryset so it still displays on page
+    for name, field in form.fields.items():
+        if isinstance(form.Meta.model._meta.get_field(name), ForeignKey):
+            qs = form.fields[name].queryset
+            if 'initial' in kwargs:
+                if not qs.filter(pk=kwargs['initial'][name]):
+                    form.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['initial'][name]))
+            elif 'data' in kwargs:
+                if not qs.filter(pk=kwargs['data'][name]):
+                    form.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['data'][name]))
 
 class ProjectSearchForm(forms.Form):
     stage_id= forms.ModelChoiceField(label="Stage", queryset=Tlkstage.objects.filter(validto__isnull=True).order_by("stagenumber"), required=False)
@@ -77,38 +90,18 @@ class ProjectForm(forms.Form):
             if enddate and not (stage == "Destroy" or stage == "Discontinued"):
                 self.add_error(None, "Project cannot have a End Date without being in a Destroy or Discontinued Stage")
 
-        # Loop through fields and if ModelChoiceField, check if current value is still a valid value (ie [validto] is not null)
-        for name, field in self.fields.items():
-            if isinstance(field, forms.ModelChoiceField):
-                if name in cleaned_data:
-                    # Is value in db no longer valid?
-                    if not self.fields[name].queryset.filter(validto__isnull=True, pk=cleaned_data[name].pk).exists():
-                        self.add_error(name, "This value is no longer a valid choice.")
-
         return self.cleaned_data
         
 
     def __init__(self, *args, **kwargs): 
         super().__init__(*args, **kwargs)
 
-        # If the value for ModelChoiceField is no longer valid (ie [validto] is not null) then add to the queryset to still display it
-        # Doesn't work for PI or LeadApplicant fields because Tblproject doesn't store pk values here, it store a surrogate key (usernumber)
-        for name, field in self.fields.items():
-            if isinstance(field, forms.ModelChoiceField):
-                if name != 'pi' and name != 'leadapplicant':
-                    qs = self.fields[name].queryset
-                    if 'initial' in kwargs:
-                        if not qs.filter(pk=kwargs['initial'][name]):
-                            self.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['initial'][name]))
-                    elif 'data' in kwargs:
-                        if not qs.filter(pk=kwargs['data'][name]):
-                            self.fields[name].queryset = (qs | qs.model.objects.filter(pk=kwargs['data'][name]))
-
         # When creating the form with initial data, we still want to validate the form. 
         # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
         # therefore the `clean()` function above.
         # Any errors are copied to the original form and displayed with the data from the database.
         if self.initial: 
+            ForiegnKeysAreValid(self, **kwargs)
             temp = type(self)(data=self.initial) 
             if not temp.is_valid(): 
                 self._errors = temp.errors
