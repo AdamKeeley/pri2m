@@ -24,12 +24,29 @@ Pri2m : {{ user.username|default_if_none:"User" }}
 </ul>
 {% endif %}
 
+{% if ask_confirm %}
+    <div class="warning">
+        <p><strong>Possible duplicates found.</strong> Are you sure you want to create this record?</p>
+        <ul>
+        {% for p in possible_duplicates %}
+            <li>
+            {{ p.firstname }} {{ p.lastname }}
+            {% if p.email %} — {{ p.email }}{% endif %}
+            {% if p.username %} — {{ p.username }}{% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-12">
             <form action="" method = "POST">
                 {% csrf_token %}
-                <p><input class="btn btn-primary" type="submit" value="Submit"></p>
+                <p><input class="btn btn-primary" type="submit" value={% if ask_confirm %}Confirm and Create{% else %}Create{% endif %}></p>
+                <a href="{% url 'users' %}">Cancel</a>
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-auto">
@@ -68,6 +85,9 @@ Pri2m : {{ user.username|default_if_none:"User" }}
                                 {{ user_form.validfrom }}
                                 {{ user_form.validto }}
                                 {{ user_form.createdby }}
+                                {% if ask_confirm %}
+                                    <input type="hidden" name="confirm_duplicate" value="1">
+                                {% endif %}
                             </fieldset>
                         </div>
             </form>

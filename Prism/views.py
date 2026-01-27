@@ -810,6 +810,28 @@ def usercreate(request):
                 ,validto = None
                 ,createdby = request.user
                 )
+            
+            # Check if record already exists in database with matching values
+            duplicate_qs = Tbluser.objects.none()
+            if insert.email:
+                duplicate_qs = duplicate_qs | Tbluser.objects.filter(email__iexact=insert.email)
+            if insert.username:
+                duplicate_qs = duplicate_qs | Tbluser.objects.filter(email__iexact=insert.username)
+            if insert.firstname and insert.lastname:
+                duplicate_qs = duplicate_qs | Tbluser.objects.filter(
+                    firstname__iexact=insert.firstname,
+                    lastname__iexact=insert.lastname
+                )
+            duplicate_qs = duplicate_qs.distinct()
+            user_confirmed = request.POST.get("confirm_duplicate") == "1"
+
+            # Render a confirmation prompt if a potential duplicate exists
+            if duplicate_qs.exists() and not user_confirmed:
+                return render(request, 'Prism/user_new.html', {'user_form':user_form
+                                                               ,'possible_duplicates':duplicate_qs
+                                                               ,'ask_confirm': True})   
+
+            # If no potential duplicate or submission confirmed, submit
             insert.save(force_insert=True)
 
             return HttpResponseRedirect(f"/user/{new_usernumber}")
