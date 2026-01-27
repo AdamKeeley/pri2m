@@ -130,7 +130,7 @@ class ProjectDocumentsForm(forms.Form):
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
 
-    class meta:
+    class Meta:
         model=Tblprojectdocument
 
 class ProjectPlatformInfoForm(forms.Form):
@@ -177,14 +177,14 @@ class UserSearchForm(forms.Form):
     email = forms.CharField(label="Email", max_length=255, required=False) 
     organisation = forms.CharField(label="Organisation", max_length=255, required=False)
 
-    class meta:
+    class Meta:
         model = Tbluser
 
 class UserForm(forms.Form):
     userid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     usernumber = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     status_id = forms.ModelChoiceField(label="Status", queryset=Tlkuserstatus.objects.filter(validto__isnull=True).order_by("statusid"), required=False )
-    title_id = forms.ModelChoiceField(label='Title', queryset=Tlktitle.objects.filter(validto__isnull=True).order_by("titledescription"), required=False )
+    # title_id = forms.ModelChoiceField(label='Title', queryset=Tlktitle.objects.filter(validto__isnull=True).order_by("titledescription"), required=False )
     firstname = forms.CharField(label="First Name", max_length=50)
     lastname = forms.CharField(label="Last Name", max_length=50)
     email = forms.CharField(label="Email", max_length=255, required=False) 
@@ -208,8 +208,21 @@ class UserForm(forms.Form):
     validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
     validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+    
+    def __init__(self, *args, **kwargs): 
+        super().__init__(*args, **kwargs)
 
-    class meta:
+        # When creating the form with initial data, we still want to validate the form. 
+        # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
+        # therefore the `clean()` function above.
+        # Any errors are copied to the original form and displayed with the data from the database.
+        if self.initial: 
+            ForiegnKeysAreValid(self, **kwargs)
+            temp = type(self)(data=self.initial) 
+            if not temp.is_valid(): 
+                self._errors = temp.errors
+
+    class Meta:
         model = Tbluser
 
 class UserProjectForm(forms.Form):
@@ -230,7 +243,7 @@ class UserProjectForm(forms.Form):
 
         return self.cleaned_data
 
-    class meta:
+    class Meta:
         model = Tbluserproject
 
 class UserNotesForm(forms.Form):
