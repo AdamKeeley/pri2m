@@ -818,11 +818,11 @@ def usercreate(request):
             if insert.username:
                 duplicate_qs = duplicate_qs | Tbluser.objects.filter(email__iexact=insert.username)
             if insert.firstname and insert.lastname:
-                duplicate_qs = duplicate_qs | Tbluser.objects.filter(
-                    firstname__iexact=insert.firstname,
-                    lastname__iexact=insert.lastname
-                )
+                duplicate_qs = duplicate_qs | Tbluser.objects.filter(firstname__iexact=insert.firstname
+                                                                    ,lastname__iexact=insert.lastname
+                                                                    )
             duplicate_qs = duplicate_qs.distinct()
+            # This is a hidden input in the User form template, only rendered if ask_confirm=True. user_confirmed==False if not present
             user_confirmed = request.POST.get("confirm_duplicate") == "1"
 
             # Render a confirmation prompt if a potential duplicate exists
