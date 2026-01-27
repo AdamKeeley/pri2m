@@ -208,7 +208,43 @@ class UserForm(forms.Form):
     validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
     validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
-    
+
+    def clean(self):
+        cleaned_data = super().clean()
+        startdate = cleaned_data.get("startdate")
+        enddate = cleaned_data.get("enddate")
+        laseragreement = cleaned_data.get("laseragreement")
+        dataprotection = cleaned_data.get("dataprotection")
+        informationsecurity = cleaned_data.get("informationsecurity")
+        safe = cleaned_data.get("safe")
+        
+        # Do user start and end dates sequence correctly?
+        if startdate is not None and enddate is not None:
+            if (startdate - enddate).days >= 0:
+                self.add_error(None, "Start Date cannot be later than End Date.")
+
+        if "status_id" in cleaned_data:
+            status = cleaned_data["status_id"].statusdescription
+            # If Status is Enabled/Disabled do Start Date and End Date exist?
+            if status == "Enabled" and startdate is None:
+                self.add_error(None, "User cannot be 'Enabled' without a Start Date")
+            if status == "Disabled" and (enddate is None or startdate is None):
+                self.add_error(None, "User cannot be 'Disabled' without both a Start and End Date")
+            # If adding Start/End Dates does the Status align?
+            if startdate and status == "Pending":
+                self.add_error(None, "User cannot have a Start Date while 'Pending'")
+            if enddate and not status == "Disabled":
+                self.add_error(None, "User cannot have a End Date while not 'Disabled'")
+            # If Status is Enabled do we have correct UserDocs?
+            if status == "Enabled" and safe is None:
+                if laseragreement is None or dataprotection is None or informationsecurity is None:
+                    self.add_error(None, "User cannot be 'Enabled' without correct User Docs")
+            elif status == "Enabled" and safe is not None:
+                if laseragreement is None:
+                    self.add_error(None, "User cannot be 'Enabled' without correct User Docs")
+
+        return self.cleaned_data
+
     def __init__(self, *args, **kwargs): 
         super().__init__(*args, **kwargs)
 
