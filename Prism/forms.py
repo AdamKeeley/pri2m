@@ -183,7 +183,7 @@ class UserSearchForm(forms.Form):
 class UserForm(forms.Form):
     userid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     usernumber = forms.IntegerField(widget = forms.HiddenInput(), required=False)
-    status_id = forms.ModelChoiceField(label="Status", queryset=Tlkuserstatus.objects.filter(validto__isnull=True).order_by("statusid"), required=False )
+    status_id = forms.ModelChoiceField(label="Status", queryset=Tlkuserstatus.objects.filter(validto__isnull=True).order_by("statusid") )
     # title_id = forms.ModelChoiceField(label='Title', queryset=Tlktitle.objects.filter(validto__isnull=True).order_by("titledescription"), required=False )
     firstname = forms.CharField(label="First Name", max_length=50)
     lastname = forms.CharField(label="Last Name", max_length=50)
