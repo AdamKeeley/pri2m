@@ -742,7 +742,7 @@ def user(request, usernumber):
                     messages.success(request, 'User updated successfully.')
                 return HttpResponseRedirect(f"/user/{usernumber}")
             else:
-                context['user']=user_form
+                context['user_form']=user_form
 
         elif 'user_project-projectnumber' in request.POST:
             user_project_form = UserProjectForm(request.POST, prefix='user_project')
