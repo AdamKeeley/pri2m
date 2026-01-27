@@ -705,7 +705,6 @@ def user(request, usernumber):
                 insert = Tbluser(
                     usernumber = usernumber
                     ,status = user_form.cleaned_data['status_id']
-                    ,title = user_form.cleaned_data['title_id']
                     ,firstname = user_form.cleaned_data['firstname']
                     ,lastname = user_form.cleaned_data['lastname']
                     ,email = user_form.cleaned_data['email']
