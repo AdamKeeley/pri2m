@@ -637,7 +637,6 @@ def users(request):
                                                    ,'user_form': user_search_form
                                                    ,'searchterms': filter_string})
 
-
 def user(request, usernumber):
     # Build forms
     
@@ -780,6 +779,46 @@ def user(request, usernumber):
 
     if request.method == 'GET':
         return render(request, 'Prism/user.html', context)
+    
+def usercreate(request):
+    if request.method == "POST":
+        user_form = UserForm(request.POST)
+        if user_form.is_valid():
+
+            # Get latest UserNumber from database model and iterate up by one for new UserNumber
+            max_usernumber = Tbluser.objects.filter(
+                validto__isnull=True
+            ).aggregate(Max("usernumber"))
+            new_usernumber = max_usernumber['usernumber__max'] + 1
+            
+            insert = Tbluser(
+                usernumber = new_usernumber
+                ,status = user_form.cleaned_data['status_id']
+                ,firstname = user_form.cleaned_data['firstname']
+                ,lastname = user_form.cleaned_data['lastname']
+                ,email = user_form.cleaned_data['email']
+                ,phone = user_form.cleaned_data['phone']
+                ,username = user_form.cleaned_data['username']
+                ,organisation = user_form.cleaned_data['organisation']
+                ,startdate = user_form.cleaned_data['startdate']
+                ,enddate = user_form.cleaned_data['enddate']
+                ,laseragreement = user_form.cleaned_data['laseragreement']
+                ,dataprotection = user_form.cleaned_data['dataprotection']
+                ,informationsecurity = user_form.cleaned_data['informationsecurity']
+                ,safe = user_form.cleaned_data['safe']
+                ,validfrom = timezone.now()
+                ,validto = None
+                ,createdby = request.user
+                )
+            insert.save(force_insert=True)
+
+            return HttpResponseRedirect(f"/user/{new_usernumber}")
+        else:
+            return render(request, 'Prism/user_new.html', {'user_form':user_form})   
+
+    if request.method == 'GET':
+        user_form = UserForm()
+        return render(request, 'Prism/user_new.html', {'user_form':user_form})
 
 def userproject_remove(request, usernumber, userprojectid):
     update_record=Tbluserproject.objects.filter(

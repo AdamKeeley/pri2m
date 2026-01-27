@@ -1,0 +1,80 @@
+{% extends "Prism/layout.html" %}
+
+{% block title %}
+Pri2m : {{ user.username|default_if_none:"User" }}
+{% endblock %}
+
+{% block content %}
+
+<h1>User - {{ user.firstname }} {{ user.lastname }}</h1>
+
+{% if custom_errors %}
+<ul>
+    {% for error in custom_errors %}
+        <li class="form-custom-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if user_form.non_field_errors %}
+<ul>
+    {% for error in user_form.non_field_errors %}
+        <li class="form-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <form action="" method = "POST">
+                {% csrf_token %}
+                <p><input class="btn btn-primary" type="submit" value="Submit"></p>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <legend>User Details</legend>
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-md-auto">
+                                        <fieldset>
+                                            <p>{{ user_form.status_id.as_field_group }}</p>
+                                            <!-- <p>{{ user_form.title_id.as_field_group }}</p> -->
+                                            <p>{{ user_form.firstname.as_field_group }}</p>
+                                            <p>{{ user_form.lastname.as_field_group }}</p>
+                                            <p>{{ user_form.email.as_field_group }}</p>
+                                            <p>{{ user_form.username.as_field_group }}</p>
+                                    </div>
+                                    <div class="col-md-auto">
+                                            <p>{{ user_form.startdate.as_field_group }}</p>
+                                            <p>{{ user_form.enddate.as_field_group }}</p>
+                                            <p>{{ user_form.phone.as_field_group }}</p>
+                                            <p>{{ user_form.organisation.as_field_group }}</p>
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-auto">
+                            <fieldset>
+                                <legend>User Docs</legend>
+                                <p>{{ user_form.laseragreement.as_field_group }}</p>
+                                <p>{{ user_form.dataprotection.as_field_group }}</p>
+                                <p>{{ user_form.informationsecurity.as_field_group }}</p>
+                                <p>{{ user_form.safe.as_field_group }}</p>
+                            </fieldset>  
+                            <fieldset>
+                                {{ user_form.userid }}
+                                {{ user_form.validfrom }}
+                                {{ user_form.validto }}
+                                {{ user_form.createdby }}
+                            </fieldset>
+                        </div>
+            </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
