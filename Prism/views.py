@@ -821,6 +821,9 @@ def usercreate(request):
                 duplicate_qs = duplicate_qs | Tbluser.objects.filter(firstname__iexact=insert.firstname
                                                                     ,lastname__iexact=insert.lastname
                                                                     )
+                duplicate_qs = duplicate_qs | Tbluser.objects.filter(firstname__iexact=insert.lastname
+                                                                    ,lastname__iexact=insert.firstname
+                                                                    )
             duplicate_qs = duplicate_qs.distinct()
             # This is a hidden input in the User form template, only rendered if ask_confirm=True. user_confirmed==False if not present
             user_confirmed = request.POST.get("confirm_duplicate") == "1"
