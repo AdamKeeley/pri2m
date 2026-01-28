@@ -30,9 +30,9 @@ Pri2m : {{ user.username|default_if_none:"User" }}
         <ul>
         {% for p in possible_duplicates %}
             <li>
-            {{ p.firstname }} {{ p.lastname }}
-            {% if p.email %} — {{ p.email }}{% endif %}
-            {% if p.username %} — {{ p.username }}{% endif %}
+                <a href='user/{{ p.usernumber }}'>{{ p.firstname }} {{ p.lastname }}</a>
+                {% if p.email %} — {{ p.email }}{% endif %}
+                {% if p.username %} — {{ p.username }}{% endif %}
             </li>
         {% endfor %}
         </ul>
@@ -56,7 +56,6 @@ Pri2m : {{ user.username|default_if_none:"User" }}
                                     <div class="col-md-auto">
                                         <fieldset>
                                             <p>{{ user_form.status_id.as_field_group }}</p>
-                                            <!-- <p>{{ user_form.title_id.as_field_group }}</p> -->
                                             <p>{{ user_form.firstname.as_field_group }}</p>
                                             <p>{{ user_form.lastname.as_field_group }}</p>
                                             <p>{{ user_form.email.as_field_group }}</p>
