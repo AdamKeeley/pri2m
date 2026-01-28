@@ -174,7 +174,7 @@ class ProjectDatAllocationForm(forms.Form):
 class KristalForm(forms.Form):
     kristalid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     kristalnumber = forms.IntegerField(widget = forms.HiddenInput(), required=False)
-    kristalref = forms.DecimalField(label="Kristal Ref", widget=forms.NumberInput(attrs={"placeholder": "New Kristal Ref..."}), min_value=100000)
+    kristalref = forms.DecimalField(label="Kristal Ref", widget=forms.NumberInput(attrs={"placeholder": "New Kristal Ref..."}), min_value=100000, max_value=999999)
     kristalname = forms.CharField(label="Kristal Name", max_length=500, required=False)
     grantstageid = forms.ModelChoiceField(label="Grant Stage", queryset=tlkGrantStage.objects.filter(validto__isnull=True).order_by("stagenumber"), required=False)
     pi = forms.ModelChoiceField(label="PI", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
