@@ -110,7 +110,7 @@ class Tblprojectdocument(models.Model):
 
 
 class Tblprojectkristal(models.Model):
-    projectkristalid = models.IntegerField(db_column='ProjectKristalID', primary_key=True)  # Field name made lowercase.
+    projectkristalid = models.AutoField(db_column='ProjectKristalID', primary_key=True)  # Field name made lowercase.
     projectnumber = models.CharField(db_column='ProjectNumber', max_length=5, blank=True, null=True)  # Field name made lowercase.
     kristalnumber = models.DecimalField(db_column='KristalNumber', max_digits=6, decimal_places=0, blank=True, null=True)  # Field name made lowercase.
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.

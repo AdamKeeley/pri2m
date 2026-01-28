@@ -114,7 +114,7 @@ Pri2m : {{ user.username|default_if_none:"User" }}
                                     <tr>
                                         <td><a href='/project/{{ item.projectnumber }}'>{{ item.projectnumber }}</td>
                                         <td>{{ item.projectname }}</td>
-                                        <td><a href='/user/{{ item.usernumber }}/remove/userproject/{{ item.userprojectid }}'>x</td>
+                                        <td><a href='/remove/userproject/{{ item.userprojectid }}'>x</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

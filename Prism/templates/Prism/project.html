@@ -29,6 +29,13 @@ Pri2m : {{ project.projectnumber }}
     {% endfor %}
 </ul>
 {% endif %}
+{% if p_kristal_form.non_field_errors %}
+<ul>
+    {% for error in p_kristal_form.non_field_errors %}
+        <li class="form-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
 
 <div class="container-fluid">
     <div class="row">
@@ -246,7 +253,7 @@ Pri2m : {{ project.projectnumber }}
                 </div>
 
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-6">
 
                         <legend>Membership</legend> 
                         <table class="table table-hover">
@@ -260,27 +267,36 @@ Pri2m : {{ project.projectnumber }}
                                 {% for member in members %}
                                 <tr>
                                     <td><a href='/user/{{ member.usernumber }}'>{{ member.firstname }} {{ member.lastname }}</a></td>
-                                    <td><a href='/user/{{ member.usernumber }}/remove/userproject/{{ member.userprojectid }}'>x</td>
+                                    <td><a href='/remove/userproject/{{ member.userprojectid }}'>x</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
                         </table>
                     </div>
                     
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <legend>Grant</legend> 
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <fieldset>
+                                <div class="input-group">
+                                    {{ p_kristal_form.kristalref }}
+                                    <input class="btn btn-primary" type="submit" value="Add grant">
+                                </div>
+                            </fieldset>
+                        </form>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th scope="col">Kristal Ref</th>
+                                    <th scope="col"></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {% for grant in grants %}
                                     <tr>
-                                        <td>
-                                            {{ grant.kristalref }}
-                                        </td>
+                                        <td>{{ grant.kristalref }}</td>
+                                        <td><a href='/remove/projectkristal/{{ grant.projectkristalid }}'>x</td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

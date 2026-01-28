@@ -4,9 +4,9 @@ from django.apps import apps
 from django.db.models import Max, Count, OuterRef, Subquery
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
     , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
-    , Tlkuserstatus, Tblusernotes
+    , Tlkuserstatus, Tblusernotes, Tblprojectkristal
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
-    , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm
+    , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -149,13 +149,21 @@ def project(request, projectnumber):
     ).order_by("firstname", "lastname")
 
     ## KRISTAL REFERENCES ##
+    # Using OuterRef & Subquery to perform a lookup against Tblprojectkristal on Tbluserproject's projectnumber and add it to the model with annotate 
+    projectkristalids = Tblprojectkristal.objects.filter(
+        validto__isnull=True
+        , projectnumber=projectnumber
+        , kristalnumber=OuterRef("kristalnumber")
+    ).values("projectkristalid")
+
     kristal_refs = Tblkristal.objects.filter(
         kristalnumber__in = Tblprojectkristal.objects.filter(
             validto__isnull=True
             , projectnumber=projectnumber
-            )
+            ).values_list('kristalnumber')
         ,validto__isnull=True
     ).values(
+    ).annotate(projectkristalid=Subquery(projectkristalids)
     ).order_by("kristalref")
 
     ## DAT ALLOCATION ##
@@ -198,6 +206,7 @@ def project(request, projectnumber):
     p_dat_allocation_form = ProjectDatAllocationForm(prefix='p_dat_allocation')
     p_notes_form = ProjectNotesForm(prefix='p_note')
     p_platform_info_form = ProjectPlatformInfoForm(prefix='p_platform')
+    p_kristal_form = KristalForm(prefix='p_kristal')
 
     project_numbers = Tblproject.objects.filter(
         validto__isnull=True
@@ -212,17 +221,18 @@ def project(request, projectnumber):
     context = {'project':project
         , 'form':project_form
         , 'project_numbers': project_numbers
-        , 'new_note': p_notes_form
-        , 'notes':page_obj
-        , 'notes_filter' : query
-        , 'members': project_membership
-        , 'grants': kristal_refs
         , 'p_docs': p_docs
         , 'dat_allocation': project_dat_allocation
         , 'custom_errors': custom_errors
         , 'dat_allocation_form': p_dat_allocation_form
         , 'platforminfo': project_platform_info
-        , 'platform_form': p_platform_info_form}
+        , 'platform_form': p_platform_info_form
+        , 'members': project_membership
+        , 'grants': kristal_refs
+        , 'p_kristal_form': p_kristal_form
+        , 'new_note': p_notes_form
+        , 'notes':page_obj
+        , 'notes_filter' : query}
 
     # Then check if POST or GET
 
@@ -327,7 +337,56 @@ def project(request, projectnumber):
                 messages.success(request, 'Project platform info added successfully.')
                 return HttpResponseRedirect(f"/project/{projectnumber}")
             else:
-                context['platform_form']=insert_platform_info
+                context['platform_form']=p_platform_info_form
+        
+        elif 'p_kristal-kristalref' in request.POST:
+            kristal_form = KristalForm(request.POST, prefix='p_kristal')
+            if kristal_form.is_valid():
+                # Check if Kristal Ref alrady exists in Tblkristal
+                if not Tblkristal.objects.filter(validto__isnull=True, kristalref = kristal_form.cleaned_data['kristalref']).exists():
+                    # If it doesn't insert new record to Tblkristal
+                    # Get latest UserNumber from database model and iterate up by one for new UserNumber
+                    max_kristalnumber = Tblkristal.objects.filter(
+                        validto__isnull=True
+                    ).aggregate(Max("kristalnumber"))
+                    new_kristalnumber = max_kristalnumber['kristalnumber__max'] + 1
+
+                    insert_new_kristal = Tblkristal(
+                        kristalnumber = new_kristalnumber
+                        ,kristalref = kristal_form.cleaned_data['kristalref']
+                        ,validfrom = timezone.now()
+                        ,validto = None
+                        ,createdby = request.user
+                    )
+
+                    insert_new_kristal.save(force_insert=True)
+
+                # Then insert new record to Tblprojectkristal
+                kristalnumber = Tblkristal.objects.filter(validto__isnull=True, kristalref=kristal_form.cleaned_data['kristalref']).values('kristalnumber').get()['kristalnumber']
+                # Use form validation to prevent duplicate entries
+                insert_project_kristal_form = ProjectKristalForm(data={
+                    'projectnumber' : projectnumber
+                    ,'kristalnumber' : kristalnumber
+                    })
+
+                if insert_project_kristal_form.is_valid():
+                    insert_project_kristal = Tblprojectkristal(
+                        projectnumber = projectnumber
+                        ,kristalnumber = kristalnumber
+                        ,validfrom = timezone.now()
+                        ,validto = None
+                        ,createdby = request.user
+                    )
+                    insert_project_kristal.save(force_insert=True)
+
+                    messages.success(request, 'Kristal Ref added to Project successfully.')
+                    return HttpResponseRedirect(f"/project/{projectnumber}")
+                else: 
+                    # Copy ProjectKristalForm non_field_errors to KristalForm used on page
+                    kristal_form.add_error(None, insert_project_kristal_form.errors)
+                    context['p_kristal_form']=kristal_form
+            else:
+                context['p_kristal_form']=kristal_form
 
         return render(request, 'Prism/project.html', context)
 
@@ -814,14 +873,18 @@ def usercreate(request):
             # Check if record already exists in database with matching values
             duplicate_qs = Tbluser.objects.none()
             if insert.email:
-                duplicate_qs = duplicate_qs | Tbluser.objects.filter(email__iexact=insert.email)
+                duplicate_qs = duplicate_qs | Tbluser.objects.filter(validto__isnull=True
+                                                                    ,email__iexact=insert.email)
             if insert.username:
-                duplicate_qs = duplicate_qs | Tbluser.objects.filter(email__iexact=insert.username)
+                duplicate_qs = duplicate_qs | Tbluser.objects.filter(validto__isnull=True
+                                                                    ,email__iexact=insert.username)
             if insert.firstname and insert.lastname:
-                duplicate_qs = duplicate_qs | Tbluser.objects.filter(firstname__iexact=insert.firstname
+                duplicate_qs = duplicate_qs | Tbluser.objects.filter(validto__isnull=True
+                                                                    ,firstname__iexact=insert.firstname
                                                                     ,lastname__iexact=insert.lastname
                                                                     )
-                duplicate_qs = duplicate_qs | Tbluser.objects.filter(firstname__iexact=insert.lastname
+                duplicate_qs = duplicate_qs | Tbluser.objects.filter(validto__isnull=True
+                                                                    ,firstname__iexact=insert.lastname
                                                                     ,lastname__iexact=insert.firstname
                                                                     )
             duplicate_qs = duplicate_qs.distinct()
@@ -845,10 +908,17 @@ def usercreate(request):
         user_form = UserForm()
         return render(request, 'Prism/user_new.html', {'user_form':user_form})
 
-def userproject_remove(request, usernumber, userprojectid):
+def userproject_remove(request, userprojectid):
     update_record=Tbluserproject.objects.filter(
         userprojectid=userprojectid
-        , usernumber=usernumber
+    ).values()
+    update_record.update(validto = timezone.now())
+    
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+def projectkristal_remove(request, projectkristalid):
+    update_record=Tblprojectkristal.objects.filter(
+        projectkristalid=projectkristalid
     ).values()
     update_record.update(validto = timezone.now())
     

@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import ForeignKey
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
     , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tlktitle, Tbluserproject \
-    , Tblusernotes
+    , Tblusernotes, tlkGrantStage, Tlklocation, Tblkristal, Tblprojectkristal
 from django.utils import timezone
 #from django.core.exceptions import ValidationError
 
@@ -171,6 +171,43 @@ class ProjectDatAllocationForm(forms.Form):
     class Meta:
         model=Tblprojectdatallocation
 
+class KristalForm(forms.Form):
+    kristalid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    kristalnumber = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    kristalref = forms.DecimalField(label="Kristal Ref", widget=forms.NumberInput(attrs={"placeholder": "New Kristal Ref..."}), min_value=100000)
+    kristalname = forms.CharField(label="Kristal Name", max_length=500, required=False)
+    grantstageid = forms.ModelChoiceField(label="Grant Stage", queryset=tlkGrantStage.objects.filter(validto__isnull=True).order_by("stagenumber"), required=False)
+    pi = forms.ModelChoiceField(label="PI", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
+    location = forms.ModelChoiceField(label="Location", queryset=Tlklocation.objects.filter(validto__isnull=True).order_by("locationdescription"), required=False)
+    faculty = forms.ModelChoiceField(label="Faculty", queryset=Tlkfaculty.objects.filter(validto__isnull=True).order_by("facultydescription"), required=False)
+    validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+
+    class Meta:
+        model=Tblkristal
+
+class ProjectKristalForm(forms.Form):
+    projectkristalid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    projectnumber = forms.CharField(widget = forms.HiddenInput())
+    kristalnumber = forms.IntegerField(widget = forms.HiddenInput())
+    validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
+    validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        projectnumber = cleaned_data.get('projectnumber')
+        kristalnumber = cleaned_data.get('kristalnumber')
+
+        if Tblprojectkristal.objects.filter(validto__isnull=True, kristalnumber=kristalnumber, projectnumber=projectnumber).exists():
+            self.add_error(None, "Grant is already on Project")
+
+        return self.cleaned_data
+
+    class Meta:
+        model = Tblprojectkristal
+
 class UserSearchForm(forms.Form):
     status_id = forms.ModelChoiceField(label="Status", queryset=Tlkuserstatus.objects.filter(validto__isnull=True).order_by("statusid"), required=False )
     username = forms.CharField(label="User Name", max_length=12, required=False)
@@ -275,7 +312,7 @@ class UserProjectForm(forms.Form):
         usernumber = cleaned_data.get('usernumber')
 
         if Tbluserproject.objects.filter(validto__isnull=True, usernumber=usernumber, projectnumber=projectnumber).exists():
-            self.add_error(None, "User already on Project")
+            self.add_error(None, "User is already on Project")
 
         return self.cleaned_data
 

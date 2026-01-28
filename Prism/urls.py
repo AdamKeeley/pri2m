@@ -14,5 +14,6 @@ urlpatterns = [
     ,path('users', views.users, name = 'users')
     ,path('user/<int:usernumber>', views.user, name = 'user')
     ,path('usercreate', views.usercreate, name = 'usercreate')
-    ,path('user/<int:usernumber>/remove/userproject/<int:userprojectid>', views.userproject_remove, name = 'userproject_remove')
+    ,path('remove/userproject/<int:userprojectid>', views.userproject_remove, name = 'userproject_remove')
+    ,path('remove/projectkristal/<int:projectkristalid>', views.projectkristal_remove, name = 'projectkristal_remove')
 ]
