@@ -465,7 +465,7 @@ def project(request, projectnumber):
                 if latest_dat_allocation < project['enddate']:
                     custom_errors.append("DAT Allocation ends before End Date")
 
-        if project['stage_id'] == 3:
+        if project['stage_id'] == 3 and project['laser']:
             for doc in p_docs:
                 if p_docs[doc]['status'] == "absent" or p_docs[doc]['status'] == "present":
                     custom_errors.append(f"Project is 'Active' without a required {doc}")
