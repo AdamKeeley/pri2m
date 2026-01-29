@@ -6,7 +6,7 @@ from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tl
     , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
     , Tlkuserstatus, Tblusernotes, Tblprojectkristal
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
-    , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm
+    , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm 
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -206,6 +206,8 @@ def project(request, projectnumber):
     p_dat_allocation_form = ProjectDatAllocationForm(prefix='p_dat_allocation')
     p_notes_form = ProjectNotesForm(prefix='p_note')
     p_platform_info_form = ProjectPlatformInfoForm(prefix='p_platform')
+    p_user_form = UserProjectForm(prefix='p_user')
+    p_user_form.initial['projectnumber'] = projectnumber
     p_kristal_form = KristalForm(prefix='p_kristal')
 
     project_numbers = Tblproject.objects.filter(
@@ -228,6 +230,7 @@ def project(request, projectnumber):
         , 'platforminfo': project_platform_info
         , 'platform_form': p_platform_info_form
         , 'members': project_membership
+        , 'p_user_form': p_user_form
         , 'grants': kristal_refs
         , 'p_kristal_form': p_kristal_form
         , 'new_note': p_notes_form
@@ -338,6 +341,22 @@ def project(request, projectnumber):
                 return HttpResponseRedirect(f"/project/{projectnumber}")
             else:
                 context['platform_form']=p_platform_info_form
+        
+        elif 'p_user-usernumber' in request.POST:
+            p_user_form = UserProjectForm(request.POST, prefix='p_user')
+            if p_user_form.is_valid():
+                insert_user_project = Tbluserproject(
+                    usernumber = p_user_form.cleaned_data['usernumber'].usernumber
+                    ,projectnumber = projectnumber
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,createdby = request.user
+                )
+                insert_user_project.save(force_insert=True)
+                messages.success(request, 'User added to Project successfully.')
+                return HttpResponseRedirect(f"/project/{projectnumber}")
+            else:
+                context['p_user_form']=p_user_form
         
         elif 'p_kristal-kristalref' in request.POST:
             kristal_form = KristalForm(request.POST, prefix='p_kristal')
@@ -807,8 +826,8 @@ def user(request, usernumber):
 
             if user_project_form.is_valid():
                 insert_user_project = Tbluserproject(
-                    usernumber = user_project_form.cleaned_data['usernumber']
-                    ,projectnumber = user_project_form.cleaned_data['projectnumber']
+                    usernumber = usernumber
+                    ,projectnumber = user_project_form.cleaned_data['projectnumber'].projectnumber
                     ,validfrom = timezone.now()
                     ,validto = None
                     ,createdby = request.user

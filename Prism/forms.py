@@ -300,16 +300,16 @@ class UserForm(forms.Form):
 
 class UserProjectForm(forms.Form):
     userprojectid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
-    usernumber = forms.IntegerField(widget = forms.HiddenInput())
-    projectnumber = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"))
+    usernumber = forms.ModelChoiceField(label="Member", empty_label="Select user", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber")
+    projectnumber = forms.ModelChoiceField(label="Project Number", empty_label="Select project", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), to_field_name="projectnumber")
     validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
     validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
 
     def clean(self):
         cleaned_data = super().clean()
-        projectnumber = cleaned_data.get('projectnumber')
-        usernumber = cleaned_data.get('usernumber')
+        projectnumber = cleaned_data.get('projectnumber').projectnumber
+        usernumber = cleaned_data.get('usernumber').usernumber
 
         if Tbluserproject.objects.filter(validto__isnull=True, usernumber=usernumber, projectnumber=projectnumber).exists():
             self.add_error(None, "User is already on Project")

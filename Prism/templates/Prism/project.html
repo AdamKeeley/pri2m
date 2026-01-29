@@ -223,7 +223,7 @@ Pri2m : {{ project.projectnumber }}
                                                 <div class="input-group">
                                                     {{ platform_form.platforminfoid }}
                                                     {{ platform_form.projectplatforminfo }}
-                                                    <input class="btn btn-primary" type="submit" value="Add Platform Item">
+                                                    <input class="btn btn-primary" type="submit" value="Add platform item">
                                                 </div>
                                             </fieldset>
                                         </form>
@@ -255,7 +255,17 @@ Pri2m : {{ project.projectnumber }}
                 <div class="row">
                     <div class="col-md-6">
 
-                        <legend>Membership</legend> 
+                        <legend>Membership</legend>
+                        <form action="" method="POST">
+                            {% csrf_token %}
+                            <fieldset>
+                                <div class="input-group">
+                                    {{ p_user_form.usernumber }}
+                                    {{ p_user_form.projectnumber.as_hidden }}
+                                    <input class="btn btn-primary" type="submit" value="Add member">
+                                </div>
+                            </fieldset>
+                        </form>
                         <table class="table table-hover">
                             <thead>
                                 <tr>
