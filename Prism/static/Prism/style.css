@@ -58,3 +58,9 @@ table {
     color: inherit;
     display: block;
 }
+
+.center-img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}

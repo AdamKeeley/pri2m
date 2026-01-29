@@ -1,4 +1,5 @@
 {% extends "Prism/layout.html" %}
+{% load static %}
 
 {% block title %}
 Pri2m: Welcome!
@@ -7,7 +8,7 @@ Pri2m: Welcome!
 {% block content %}
 
 <header>
-    <h1>Welcome to Prism!</h1>
+    <h1 style="text-align:center">Welcome to Pri2m!</h1>
 </header>
 
 <section class="tiles-container">
@@ -46,5 +47,11 @@ Pri2m: Welcome!
                 Coming 'soon'&trade;
             </p>
         </div>
+</section>
 
+{% endblock %}
+
+{% block footer %}
+<img class="center-img" src="{% static 'Prism/prism.png' %}" alt="Prism icon" width="15%" height="15%" style="margin-top: 100px;">
+<p style="text-align:center"><br>Slow is Smooth and Smooth is Fast</p>
 {% endblock %}
