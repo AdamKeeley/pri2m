@@ -70,13 +70,6 @@
     <div class="container-fluid">
       {% block footer %}
       {% endblock %}
-      <div style="text-align: right;">
-        {% if request.user.username %}
-          Logged in as: {{ request.user.username }}
-        {% else %}
-          Not signed in
-        {% endif %}
-      </div>
     </div>
 </footer>
 
