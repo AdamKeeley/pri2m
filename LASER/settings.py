@@ -198,7 +198,7 @@ ENTRA_AUTH = {
     "CA_BUNDLE": False,
     "CLAIM_MAPPING": {"first_name": "given_name",
                       "last_name": "family_name",
-                      "email": "mail"}, # Adjust based on claims from your provider
+                      "email": "upn"}, # Adjust based on claims from your provider
     # See documentation for TokenLifecycleMiddleware settings like:
     # "TOKEN_REFRESH_THRESHOLD", "STORE_OBO_TOKEN", "TOKEN_ENCRYPTION_SALT",
     # "LOGOUT_ON_TOKEN_REFRESH_FAILURE"
