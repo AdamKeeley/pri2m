@@ -11,7 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from .config import DATABASE
+import time
+from azure.core.credentials import AccessToken
+from azure.core.exceptions import ClientAuthenticationError
+from azure.identity import DefaultAzureCredential
+from .config import client_secret
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'Prism',
     'bootstrap5',
+    'django_entra_auth',
 ]
 
 MIDDLEWARE = [
@@ -81,7 +86,55 @@ WSGI_APPLICATION = 'LASER.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-DATABASES = DATABASE
+
+class DatabaseToken(str):
+    cached_token: AccessToken | None = None
+
+    def __new__(cls) -> None:
+        instance = super().__new__(cls, "")
+        instance.get_access_token()
+        return instance
+
+    def token_is_valid(self) -> bool:
+        if self.cached_token is None:
+            return False
+
+        return self.cached_token.expires_on > time.time()
+
+    def get_new_token(self) -> AccessToken:
+        try:
+            return DefaultAzureCredential().get_token("https://database.windows.net/.default")
+        except ClientAuthenticationError:
+            pass
+
+        return DefaultAzureCredential(exclude_shared_token_cache_credential=True).get_token(
+            "https://database.windows.net/.default"
+        )
+    
+    def get_access_token(self) -> AccessToken:
+        if self.token_is_valid():
+            return self.cached_token
+
+        self.cached_token = self.get_new_token()
+        return self.cached_token
+
+    def encode(self, *args, **kwargs) -> bytes:
+        return self.get_access_token().token.encode(*args, **kwargs)
+    
+# DATABASES = DATABASE
+DATABASES = {
+    "default": {
+        "ENGINE": "mssql",
+        "NAME": "playground",
+        "TOKEN": DatabaseToken(),
+        "HOST": "adam-playground.database.windows.net",
+        "CONN_MAX_AGE": 30 * 60,  # max of 30 min, since AT is valid for 60 min
+        "OPTIONS": {
+            "driver": "ODBC Driver 18 for SQL Server",
+            },
+        "TIME_ZONE": "UTC",
+    }
+}
 
 
 # Password validation
@@ -124,3 +177,37 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'django_entra_auth.backend.AdfsAuthCodeBackend',
+)
+
+# Basic configuration for Entra ID
+# checkout the documentation for more settings
+ENTRA_AUTH = {
+    "TENANT_ID": "bdeaeda8-c81d-45ce-863e-5232a535b7cb",
+    # For Entra ID, use 'login.microsoftonline.com/<your-tenant-id>'
+    "SERVER": "login.microsoftonline.com/bdeaeda8-c81d-45ce-863e-5232a535b7cb",
+    "CLIENT_ID": "1e2f40dc-097b-455d-96d5-bc4b93b3727f",
+    'CLIENT_SECRET': client_secret['value'],
+    "RELYING_PARTY_ID": "1e2f40dc-097b-455d-96d5-bc4b93b3727f", # Often same as CLIENT_ID for Entra ID
+    # OIDC Audience ("aud" claim). For Entra ID, LIENT_ID
+    "AUDIENCE": "1e2f40dc-097b-455d-96d5-bc4b93b3727f",
+    # Set to False for Entra ID. Provide path for ADFS.
+    "CA_BUNDLE": False,
+    "CLAIM_MAPPING": {"first_name": "given_name",
+                      "last_name": "family_name",
+                      "email": "mail"}, # Adjust based on claims from your provider
+    # See documentation for TokenLifecycleMiddleware settings like:
+    # "TOKEN_REFRESH_THRESHOLD", "STORE_OBO_TOKEN", "TOKEN_ENCRYPTION_SALT",
+    # "LOGOUT_ON_TOKEN_REFRESH_FAILURE"
+    
+    # This is important, without GROUPS_CLAIM = None a user will lose membership of all Django Permissions Groups when they login
+    # https://tnware.github.io/django-entra-auth/settings_ref.html#groups-claim
+    "GROUPS_CLAIM": None,
+}
+
+# Configure django to redirect users to the right URL for login
+LOGIN_URL = "django_entra_auth:login"
+LOGIN_REDIRECT_URL = "/" # Or wherever users should land after login

@@ -13,11 +13,14 @@ from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from collections import namedtuple
+from django.contrib.auth.decorators import login_required, permission_required 
 
 
 def index(request):
     return render(request, 'Prism/index.html')
 
+@login_required
+@permission_required("Prism.view_tblproject", raise_exception=True)
 def projects(request):
     query = request.GET
 
@@ -95,6 +98,8 @@ def projects(request):
                                                    ,'project_form': project_search_form
                                                    ,'searchterms': filter_string})
 
+@login_required
+@permission_required("Prism.change_tblproject", raise_exception=True)
 def project(request, projectnumber):
     # Build forms
     

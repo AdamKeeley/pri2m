@@ -19,5 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('Prism.urls'))
+    path('', include('Prism.urls')),
+    path('oauth2/', include('django_entra_auth.urls')),
 ]
