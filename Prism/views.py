@@ -20,7 +20,7 @@ def index(request):
     return render(request, 'Prism/index.html')
 
 @login_required
-@permission_required("Prism.view_tblproject", raise_exception=True)
+@permission_required(["Prism.view_tbluser", "Prism.view_tblproject"], raise_exception=True)
 def projects(request):
     query = request.GET
 
@@ -99,7 +99,13 @@ def projects(request):
                                                    ,'searchterms': filter_string})
 
 @login_required
-@permission_required("Prism.change_tblproject", raise_exception=True)
+@permission_required(["Prism.view_tblproject", "Prism.add_tblproject", "Prism.change_tblproject"
+                      , "Prism.view_tblprojectdocument"
+                      , "Prism.view_tbluser", "Prism.view_tbluserproject", "Prism.add_tbluserproject", "Prism.change_tbluserproject"
+                      , "Prism.view_tblkristal", "Prism.view_tblprojectkristal", "Prism.add_tblprojectkristal", "Prism.change_tblprojectkristal"
+                      , "Prism.view_tblprojectdatallocation", "Prism.add_tblprojectdatallocation", "Prism.change_tblprojectdatallocation"
+                      , "Prism.view_tblprojectplatforminfo", "Prism.add_tblprojectplatforminfo", "Prism.change_tblprojectplatforminfo"
+                      , "Prism.view_tblprojectnotes", "Prism.add_tblprojectnotes", "Prism.change_tblprojectnotes"], raise_exception=True)
 def project(request, projectnumber):
     # Build forms
     
@@ -481,6 +487,8 @@ def project(request, projectnumber):
 
         return render(request, 'Prism/project.html', context)
 
+@login_required
+@permission_required("Prism.add_tblproject", raise_exception=True)
 def projectcreate(request):
     if request.method == "POST":
         form = ProjectForm(request.POST)
@@ -538,6 +546,8 @@ def recordchanged(existing_record, form_set):
             record_changed = True
     return record_changed
 
+@login_required
+@permission_required(["Prism.view_tblprojectdocument", "Prism.add_tblprojectdocument", "Prism.change_tblprojectdocument"], raise_exception=True)
 def projectdocs(request, projectnumber, doctype=None):
     filter_query = {}
     # Important that these values match the values of [DocumentDescription] stored in the database table [tlkDocuments]
@@ -639,6 +649,8 @@ def projectdocs(request, projectnumber, doctype=None):
         
         return render(request, 'Prism/docs.html', context)
     
+@login_required
+@permission_required(["Prism.change_tblprojectdocument"], raise_exception=True)
 def projectdocs_action(request, projectnumber, doctype, action, pdid):
     update_record=Tblprojectdocument.objects.filter(
         pdid=pdid
@@ -657,6 +669,8 @@ def projectdocs_action(request, projectnumber, doctype, action, pdid):
     else:
         return HttpResponseRedirect(f"/project/{projectnumber}/docs")
 
+@login_required
+@permission_required(["Prism.change_tblprojectplatforminfo"], raise_exception=True)
 def projectplatforminfo_remove(request, projectnumber, projectplatforminfoid):
     update_record=Tblprojectplatforminfo.objects.filter(
         projectplatforminfoid=projectplatforminfoid
@@ -666,6 +680,8 @@ def projectplatforminfo_remove(request, projectnumber, projectplatforminfoid):
     
     return HttpResponseRedirect(f"/project/{projectnumber}")
 
+@login_required
+@permission_required(["Prism.change_tblprojectdatallocation"], raise_exception=True)
 def projectdatallocation_remove(request, projectnumber, projectdatallocationid):
     update_record=Tblprojectdatallocation.objects.filter(
         projectdatallocationid=projectdatallocationid
@@ -675,6 +691,8 @@ def projectdatallocation_remove(request, projectnumber, projectdatallocationid):
     
     return HttpResponseRedirect(f"/project/{projectnumber}")
 
+@login_required
+@permission_required(["Prism.view_tbluser"], raise_exception=True)
 def users(request):
     query = request.GET
 
@@ -725,6 +743,10 @@ def users(request):
                                                    ,'user_form': user_search_form
                                                    ,'searchterms': filter_string})
 
+@login_required
+@permission_required(["Prism.view_tbluser", "Prism.add_tbluser", "Prism.change_tbluser"
+                      , "Prism.view_tblproject", "Prism.view_tbluserproject", "Prism.add_tbluserproject", "Prism.change_tbluserproject"
+                      , "Prism.view_tblusernotes", "Prism.add_tblusernotes", "Prism.change_tblusernotes"], raise_exception=True)
 def user(request, usernumber):
     # Build forms
     
@@ -867,7 +889,9 @@ def user(request, usernumber):
 
     if request.method == 'GET':
         return render(request, 'Prism/user.html', context)
-    
+
+@login_required
+@permission_required(["Prism.add_tbluser"], raise_exception=True)
 def usercreate(request):
     if request.method == "POST":
         user_form = UserForm(request.POST)
@@ -937,6 +961,8 @@ def usercreate(request):
         user_form = UserForm()
         return render(request, 'Prism/user_new.html', {'user_form':user_form})
 
+@login_required
+@permission_required(["Prism.change_tbluserproject"], raise_exception=True)
 def userproject_remove(request, userprojectid):
     update_record=Tbluserproject.objects.filter(
         userprojectid=userprojectid
@@ -945,6 +971,8 @@ def userproject_remove(request, userprojectid):
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+@login_required
+@permission_required(["Prism.change_tblprojectkristal"], raise_exception=True)
 def projectkristal_remove(request, projectkristalid):
     update_record=Tblprojectkristal.objects.filter(
         projectkristalid=projectkristalid
