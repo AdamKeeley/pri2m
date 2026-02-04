@@ -11,6 +11,26 @@ has_children: false
 
 # Authentication using Entra ID
 
+```mermaid
+flowchart LR
+
+    Pri2m_App <--> |1. Fetches Client Secret using Managed Identity| Key_Vault
+    Pri2m_App --> |2. Uses Client Secret| App_Reg
+    
+    subgraph User 
+        Key_Vault
+        App_Reg --> |3. Has read.user| MS_Graph
+    end
+
+    MS_Graph --> |4. Returns user status| Pri2m_App
+
+    Pri2m_App <--> |Managed Identity| Prism_db
+
+    subgraph App
+        Prism_db
+    end
+```
+
 ## Azure SQL Database  
 
 Azure SQL Database: [Connect to MSSQL database in Django using Tokens](https://dev.to/kummerer94/connect-to-mssql-database-in-django-using-tokens-3oid)
