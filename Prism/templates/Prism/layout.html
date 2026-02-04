@@ -41,22 +41,19 @@
           </ul>
         </div>
         <div style="text-align: right;">
-          {% if user.is_authenticated %}
+          {% if request.user.is_authenticated %}
             <form method="post" action="{% url 'django_entra_auth:logout' %}">
               {% csrf_token %}
               <button class="btn btn-secondary" type="submit">Logout</button>
+              <br>Logged in as: {{ request.user.username }}</br>
             </form>
           {% else %}
             <form method="post" action="{% url 'django_entra_auth:login' %}">
               {% csrf_token %}
               <input type="hidden" name="next" value="{{ next }}">
               <button class="btn btn-secondary" type="submit">Login</button>
+              <br>Not signed in</br>
             </form>
-          {% endif %}
-          {% if request.user.username %}
-            Logged in as: {{ request.user.username }}
-          {% else %}
-            Not signed in
           {% endif %}
         </div>
       </div>
