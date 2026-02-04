@@ -1,3 +1,14 @@
+---
+layout: default
+title: Authentication
+nav_order: 7
+parent: Django initiation
+has_children: false
+---
+
+- TOC
+{:toc}
+
 # Authentication using Entra ID
 
 ## Azure SQL Database  
@@ -27,7 +38,7 @@ Decorators on views can be used to ensure they can only be accessed by authentic
 
 ```python
 @login_required
-@permission_required("<app_label_>.<permission>_<model>", raise_exception=True)
+@permission_required(["<app_label_>.<permission>_<model>"], raise_exception=True)
 def my_view():
     ...
 ```
@@ -40,4 +51,22 @@ There are four default permissions automatically created for every Model on migr
 
 We may need to make use of custom permissions moving forward but for now we'll make do with these.  
 
-From Django Admin I have created a group and assigned permissions to the group. Adding users to the group assigns them those permissions. These permissions are checked by the above decorators and access denied if absent.  
+From Django Admin I have created a group and assigned permissions to the group. Adding users to the group assigns them those permissions. These permissions are checked by the above decorators and access denied if absent. The first argument in the `permission_required` decorator can be a list of permissions. All must be met for access to be granted.  
+
+Combining `login_required` with `permission_required` and `raise_exception=True` returns a 403 Forbidden error if the current authenticated user does not have appropriate permissions. If the user is not signed in they will be redirected to sign in.  
+
+- I have created a Group in Django Admin called 'DAT'.  
+- Permissions for `view`, `add` and `change` to appropriate models have been granted to this group.  
+    - `delete` permissions are not used, as Pri2m only deals in logical deletions (which are actually updates).  
+- Basically I went through each View and determined what operations it performs on which Models and added those permissions requirements to the `permission_required` list, and then granted those permissions to the DAT group.  
+- For testing I have one login outside of that Group and another that has membership.  
+
+IMPORTANT:
+Must include this in `settings.py` as without it a user will lose membership of all Django Permissions Groups when they login. `django-entra-auth` will try to map their existing permissions and group membership from Entra ID to Django Admin, but because that's not included in the scope of the `CLAIM_MAPPING` it will return empty and map that instead, clearing all Django Group memberships.  
+[https://tnware.github.io/django-entra-auth/settings_ref.html#groups-claim](https://tnware.github.io/django-entra-auth/settings_ref.html#groups-claim)  
+
+```python
+ENTRA_AUTH = {
+    "GROUPS_CLAIM": None,
+}
+```
