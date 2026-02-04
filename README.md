@@ -27,10 +27,10 @@ Well, everything really! But first thoughts:
     - ~~project membership~~ *Need to add [UserProjectId] pk field to [tblUserProject]
     - ~~kristal references~~
     - data flow diagrams  
-- Users and all that entails
+- ~~Users and all that entails~~  
 - Transfer logging and asset register
 - DSAs 
 - Grants
-- Authentication (django-entra-auth?)
+- ~~Authentication~~  
 
 Functionality will need to at least equal current Prism software before we can think about deploying and using it.
