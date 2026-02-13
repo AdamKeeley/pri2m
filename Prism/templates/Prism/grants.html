@@ -1,0 +1,62 @@
+{% extends "Prism/layout.html" %}
+
+{% block title %}
+Pri2m: All Grants
+{% endblock %}
+
+{% block content %}
+
+<h1>Grants</h1>
+{% if searchterms|length %}
+<h3>({{ searchterms }})</h3>
+{% endif %}
+<h4>Displaying: {{ grants|length }}</h4>
+
+<form action="/grants" method="get">
+    <div class="input-group">
+        <input name="q" type="text" class="form-control" placeholder="Search...">
+        <button class="btn btn-primary" type="submit" id="button-search">Search</button>
+    </div>
+    <p></p>
+    <div class="accordion" id="accordionAdvancedSearch">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingAdvancedSearch">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvancedSearch" aria-expanded="false" aria-controls="collapseAdvancedSearch">
+                    Advanced Search
+                </button>
+            </h2>
+            <div id="collapseAdvancedSearch" class="accordion-collapse collapse" aria-labelledby="headingAdvancedSearch" data-bs-parent="#accordionAdvancedSearch">
+                <div class="accordion-body" style="text-align: right;">
+                    {{ grant_form.as_p }}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col"></th>
+            <th scope="col">Kristal Ref</th>
+            <th scope="col">Kristal Name</th>
+            <th scope="col">Grant Stage</th>
+            <th scope="col">Faculty</th>
+            <th scope="col">Location</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for grant in grants %}
+            <tr>
+                <td><a href='grant/{{ grant.kristalnumber }}'>Details</a></td>
+                <td>{{ grant.kristalref|default_if_none:"" }}</td>
+                <td>{{ grant.kristalname|default_if_none:"" }}</td>
+                <td>{{ grant.grantstageid__grantstagedescription|default_if_none:"" }}</td>
+                <td>{{ grant.faculty__facultydescription|default_if_none:"" }}</td>
+                <td>{{ grant.location__locationdescription|default_if_none:"" }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

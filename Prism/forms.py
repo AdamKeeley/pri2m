@@ -2,7 +2,7 @@ from django import forms
 from django.db.models import ForeignKey
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
     , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tlktitle, Tbluserproject \
-    , Tblusernotes, tlkGrantStage, Tlklocation, Tblkristal, Tblprojectkristal
+    , Tblusernotes, tlkGrantStage, Tlklocation, Tblkristal, Tblprojectkristal, Tblkristalnotes
 from django.utils import timezone
 #from django.core.exceptions import ValidationError
 
@@ -176,10 +176,10 @@ class KristalForm(forms.Form):
     kristalnumber = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     kristalref = forms.DecimalField(label="Kristal Ref", widget=forms.NumberInput(attrs={"placeholder": "New Kristal Ref..."}), min_value=100000, max_value=999999)
     kristalname = forms.CharField(label="Kristal Name", max_length=500, required=False)
-    grantstageid = forms.ModelChoiceField(label="Grant Stage", queryset=tlkGrantStage.objects.filter(validto__isnull=True).order_by("stagenumber"), required=False)
+    grantstageid_id = forms.ModelChoiceField(label="Grant Stage", queryset=tlkGrantStage.objects.filter(validto__isnull=True).order_by("stagenumber"), required=False)
     pi = forms.ModelChoiceField(label="PI", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
-    location = forms.ModelChoiceField(label="Location", queryset=Tlklocation.objects.filter(validto__isnull=True).order_by("locationdescription"), required=False)
-    faculty = forms.ModelChoiceField(label="Faculty", queryset=Tlkfaculty.objects.filter(validto__isnull=True).order_by("facultydescription"), required=False)
+    location_id = forms.ModelChoiceField(label="Location", queryset=Tlklocation.objects.filter(validto__isnull=True).order_by("locationdescription"), required=False)
+    faculty_id = forms.ModelChoiceField(label="Faculty", queryset=Tlkfaculty.objects.filter(validto__isnull=True).order_by("facultydescription"), required=False)
     validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
@@ -328,3 +328,21 @@ class UserNotesForm(forms.Form):
 
     class Meta:
         model = Tblusernotes
+
+class GrantSearchForm(forms.Form):
+    grantstageid_id = forms.ModelChoiceField(label="Stage", queryset=tlkGrantStage.objects.filter(validto__isnull=True).order_by("stagenumber"), required=False )
+    faculty_id = forms.ModelChoiceField(label="Faculty", queryset=Tlkfaculty.objects.filter(validto__isnull=True).order_by("facultydescription"), required=False )
+    location_id = forms.ModelChoiceField(label="Location", queryset=Tlklocation.objects.filter(validto__isnull=True).order_by("locationdescription"), required=False )
+
+    class Meta:
+        model = Tblkristal
+
+class GrantNotesForm(forms.Form):
+    knid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    kristalnumber = forms.CharField(widget = forms.HiddenInput(), label="Kristal Number", disabled=True, max_length=5, required=False)
+    kristalnote = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "New note..."}), label="User Note", max_length=500)
+    created = forms.DateTimeField(widget = forms.HiddenInput(), label="Created", disabled=True, required=False)
+    createdby = forms.CharField(widget = forms.HiddenInput(), label="Created By", disabled=True, max_length=50, required=False)
+
+    class Meta:
+        model = Tblkristalnotes

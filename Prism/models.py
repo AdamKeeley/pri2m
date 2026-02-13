@@ -218,7 +218,7 @@ class Tblkristal(models.Model):
     createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)
 
     def __str__(self):
-        return self.classificationdescription
+        return self.kristalnumber
 
     class Meta:
         managed = False

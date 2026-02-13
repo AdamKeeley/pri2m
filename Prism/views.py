@@ -4,9 +4,10 @@ from django.apps import apps
 from django.db.models import Max, Count, OuterRef, Subquery
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
     , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
-    , Tlkuserstatus, Tblusernotes, Tblprojectkristal
+    , Tlkuserstatus, Tblusernotes, Tblprojectkristal, tlkGrantStage, Tlklocation, Tblkristalnotes
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
-    , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm 
+    , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm \
+    , GrantSearchForm, GrantNotesForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -980,3 +981,193 @@ def projectkristal_remove(request, projectkristalid):
     update_record.update(validto = timezone.now())
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+@permission_required(["Prism.view_tblkristal"], raise_exception=True)
+def grants(request):
+    query = request.GET
+
+    filter_query = {}
+    advanced_filter_query = {}
+    filter_list = []
+
+    if query is not None and query != '':
+        for key in query:
+            value = query.get(key)
+            if value != '':
+                if key == 'q':
+                    filter_query['kristalname__icontains'] = value
+                    filter_query['kristalref__icontains'] = value
+                    filter_list.append(f"Kristal Name or Reference contains '{value}'")
+                if key == 'grantstageid_id':
+                    advanced_filter_query['grantstageid__grantstageid__iexact'] = value
+                    filter_list.append(f"Grant Stage is '{tlkGrantStage.objects.get(grantstageid=value)}'")
+                if key == 'faculty_id':
+                    advanced_filter_query['faculty__facultyid__iexact'] = value
+                    filter_list.append(f"Faculty is '{Tlkfaculty.objects.get(facultyid=value)}'")
+                if key == 'location_id':
+                    advanced_filter_query['location__locationid__iexact'] = value
+                    filter_list.append(f"Location is '{Tlklocation.objects.get(locationid=value)}'")
+                
+    grants = Tblkristal.objects.filter(
+            Q(**filter_query, _connector=Q.OR)
+            , Q(**advanced_filter_query, _connector=Q.AND)
+            , validto__isnull=True
+        ).values(
+            "kristalid"
+            , "kristalnumber"
+            , "kristalref"
+            , "kristalname"
+            , "grantstageid__grantstagedescription"
+            , "location__locationdescription"
+            , "faculty__facultydescription"
+        ).order_by("kristalref")
+
+    filter_string = ", ".join(filter_list)
+    grant_search_form = GrantSearchForm()
+
+    return render(request, 'Prism/grants.html', {'grants': grants
+                                                   ,'grant_form': grant_search_form
+                                                   ,'searchterms': filter_string})
+
+@login_required
+@permission_required(["Prism.view_tblkristal", "Prism.add_tblkristal", "Prism.change_tblkristal"
+                      , "Prism.view_tblproject", "Prism.view_tblprojectkristal", "Prism.add_tblprojectkristal", "Prism.change_tblprojectkristal"
+                      , "Prism.view_tblkristalnotes", "Prism.add_tblkristalnotes", "Prism.change_tblkristalnotes"], raise_exception=True)
+def grant(request, kristalnumber):
+    # Build forms
+    
+    ## USER ##
+    grant = Tblkristal.objects.filter(
+        validto__isnull=True
+        , kristalnumber=kristalnumber
+    ).values(
+    ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
+
+    # Using OuterRef & Subquery to perform a lookup against Tblproject on Tbluserproject's projectnumber and add it to the model with annotate 
+    projectnames = Tblproject.objects.filter(
+        validto__isnull=True
+        ,projectnumber=OuterRef("projectnumber")
+    ).values("projectname")
+
+    grant_project = Tblprojectkristal.objects.filter(
+        validto__isnull=True
+        , kristalnumber=kristalnumber
+    ).values(
+    ).annotate(projectname = Subquery(projectnames)
+    ).order_by("projectnumber")
+
+    ## GRANT NOTES ##
+    query = request.GET.get("search_notes")
+    filter_query = {}
+    if query is not None and query != '':
+        filter_query['kristalnote__icontains'] = query
+    
+    grant_notes = Tblkristalnotes.objects.filter(
+        Q(**filter_query, _connector=Q.OR)
+        , kristalnumber=kristalnumber
+    ).values(
+    ).order_by("-created")
+
+    paginator = Paginator(grant_notes, 5)  # Show 5 posts per page
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    ## CREATE FORMS ##
+    grant_form = KristalForm(initial=grant, prefix='grant')
+    grant_project_form = ProjectKristalForm(prefix='grant_project')
+    grant_project_form.initial['kristalnumber'] = kristalnumber
+    grant_notes_form = GrantNotesForm(prefix='grant_note')
+    
+    context={'grant': grant
+            , 'grant_form': grant_form
+            , 'grant_project': grant_project
+            , 'grant_project_form': grant_project_form
+            , 'notes':page_obj
+            , 'notes_filter' : query
+            , 'new_note': grant_notes_form
+             }
+
+    if request.method == 'POST':
+        if 'grant-kristalid' in request.POST:
+            grant_form = KristalForm(request.POST, prefix='grant')
+            if grant_form.is_valid():
+                kristalid = grant_form.cleaned_data['kristalid']
+                insert = Tblkristal(
+                    kristalnumber = kristalnumber
+                    ,kristalref = grant_form.cleaned_data['kristalref']
+                    ,kristalname = grant_form.cleaned_data['kristalname']
+                    ,grantstageid = grant_form.cleaned_data['grantstageid_id']
+                    ,pi = grant_form.cleaned_data['pi'].usernumber
+                    ,location = grant_form.cleaned_data['location_id']
+                    ,faculty = grant_form.cleaned_data['faculty_id']
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,createdby = request.user
+                )
+                
+                # Fetch existing user record
+                existing_grant = Tblkristal.objects.filter(
+                    validto__isnull=True
+                    , kristalnumber=kristalnumber
+                ).values(
+                ).get() 
+
+                # Only save record if fields have changed
+                if recordchanged(existing_record=existing_grant, form_set=insert):
+                    insert.save(force_insert=True)
+
+                    delete = Tblkristal(
+                        kristalid = kristalid
+                        ,validto = timezone.now()
+                    )
+                    delete.save(update_fields=["validto"])
+                
+                    messages.success(request, 'Grant updated successfully.')
+                return HttpResponseRedirect(f"/grant/{kristalnumber}")
+            else:
+                context['grant_form']=grant_form
+
+        elif 'grant_project-kristalnumber' in request.POST:
+            grant_project_form = ProjectKristalForm(request.POST, prefix='grant_project')
+
+            if grant_project_form.is_valid():
+                insert_grant_project = Tblprojectkristal(
+                    kristalnumber = kristalnumber
+                    ,projectnumber = grant_project_form.cleaned_data['projectnumber'].projectnumber
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,createdby = request.user
+                )
+                insert_grant_project.save(force_insert=True)
+                messages.success(request, 'Grant Project membership added successfully.')
+                return HttpResponseRedirect(f"/grant/{kristalnumber}")
+            else:
+                context['grant_project_form']=grant_project_form
+
+        elif 'grant_note-kristalnote' in request.POST:
+            grant_notes_form = GrantNotesForm(request.POST, prefix='grant_note')
+            if grant_notes_form.is_valid():
+                insert_note = Tblkristalnotes(
+                    kristalnumber = kristalnumber
+                    ,kristalnote = grant_notes_form.cleaned_data['kristalnote']
+                    ,created = timezone.now()
+                    ,createdby = request.user
+                )
+                insert_note.save(force_insert=True)
+                messages.success(request, 'Grant note added successfully.')
+                return HttpResponseRedirect(f"/grant/{kristalnumber}")
+            else:
+                context['new_note']=grant_notes_form
+
+        return render(request, 'Prism/grant.html', context)
+
+    if request.method == 'GET':
+        return render(request, 'Prism/grant.html', context)
+
