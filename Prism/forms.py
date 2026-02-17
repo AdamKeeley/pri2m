@@ -184,15 +184,6 @@ class KristalForm(forms.Form):
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby = forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
 
-    def clean(self):
-        cleaned_data = super().clean()
-        kristalref = cleaned_data.get('kristalref')
-
-        if Tblkristal.objects.filter(validto__isnull=True, kristalref=kristalref).exists():
-            self.add_error(None, "Grant already exists in Prism")
-
-        return self.cleaned_data
-
     class Meta:
         model=Tblkristal
 
