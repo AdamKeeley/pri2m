@@ -1,8 +1,9 @@
 from django import forms
 from django.db.models import ForeignKey
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
-    , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tlktitle, Tbluserproject \
-    , Tblusernotes, tlkGrantStage, Tlklocation, Tblkristal, Tblprojectkristal, Tblkristalnotes
+    , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tbluserproject \
+    , Tblusernotes, tlkGrantStage, Tlklocation, Tblkristal, Tblprojectkristal, Tblkristalnotes, Tbldsas, Tbldsadataowners \
+    , Tbldsanotes, Tbldsasprojects
 from django.utils import timezone
 #from django.core.exceptions import ValidationError
 
@@ -346,3 +347,55 @@ class GrantNotesForm(forms.Form):
 
     class Meta:
         model = Tblkristalnotes
+
+class DsaForm (forms.Form):
+    dsaid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    documentid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    dataowner_id = forms.ModelChoiceField(label="Data Owner", queryset=Tbldsadataowners.objects.order_by("dataownername"))
+    # amendmentof_id = forms.ModelChoiceField(label="Amendment Of", queryset=Tbldsas.objects.filter(validto__isnull=True).order_by("dsaname"), required=False)
+    dsaname = forms.CharField(label="DSA Name", max_length=100)
+    dsafileloc = forms.CharField(label="DSA File Location", max_length=200)
+    startdate = forms.DateTimeField(label="Start Date", widget = DateInput())
+    expirydate = forms.DateTimeField(label="Expiry Date", widget = DateInput(), required=False)
+    datadestructiondate = forms.DateTimeField(label="Data Destruction Date", widget = DateInput(), required=False)
+    agreementowneremail = forms.CharField(label="Agreement Owner Email", max_length=50, required=False) 
+    dspt = forms.BooleanField(label="NHS DSPT", required=False)
+    iso27001 = forms.BooleanField(label="ISO27001", required=False)
+    requiresencryption = forms.BooleanField(label="Requires Encryption", required=False)
+    noremoteaccess = forms.BooleanField(label="No Remote Access", required=False)
+    validfrom = forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
+    validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    deprecated = forms.BooleanField(label="Deprecated", required=False)
+    
+    class Meta:
+        model = Tbldsas
+
+class DsaNotesForm(forms.Form):
+    dnid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    dsa = forms.CharField(widget = forms.HiddenInput(), label="DSA ID", disabled=True, max_length=5, required=False)
+    note = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "New note..."}), label="DSA Note", max_length=500)
+    created = forms.DateTimeField(widget = forms.HiddenInput(), label="Created", disabled=True, required=False)
+    createdby = forms.CharField(widget = forms.HiddenInput(), label="Created By", disabled=True, max_length=50, required=False)
+
+    class Meta:
+        model = Tbldsanotes
+
+class ProjectDsaForm(forms.Form):
+    dpid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    documentid = forms.IntegerField(widget = forms.HiddenInput()) 
+    project = forms.ModelChoiceField(label="Project Number", empty_label="Select project", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), to_field_name="projectnumber")
+    validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
+    validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        documentid = cleaned_data.get('documentid')
+        project = cleaned_data.get('project')
+
+        if Tbldsasprojects.objects.filter(validto__isnull=True, documentid=documentid, project=project).exists():
+            self.add_error(None, "DSA is already on Project")
+
+        return self.cleaned_data
+
+    class Meta:
+        model = Tbldsasprojects

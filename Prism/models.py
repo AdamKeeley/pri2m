@@ -438,13 +438,16 @@ class Tbldsadataowners(models.Model):
     rebrandof = models.ForeignKey('self', models.PROTECT, db_column='RebrandOf', blank=True, null=True)  # Field name made lowercase.
     dataowneremail = models.CharField(db_column='DataOwnerEmail', max_length=50, blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.dataownername
+
     class Meta:
         managed = False
         db_table = 'tblDsaDataOwners'
 
 
 class Tbldsanotes(models.Model):
-    dnid = models.AutoField(db_column='dnID', primary_key=True)  # Field name made lowercase.
+    dnid = models.AutoField(db_column='dnID', primary_key=True, editable=False)  # Field name made lowercase.
     dsa = models.IntegerField(db_column='Dsa')  # Field name made lowercase.
     note = models.TextField(db_column='Note', blank=True, null=True)  # Field name made lowercase.
     created = models.DateTimeField(db_column='Created', blank=True, null=True)  # Field name made lowercase.
@@ -472,7 +475,10 @@ class Tbldsas(models.Model):
     noremoteaccess = models.BooleanField(db_column='NoRemoteAccess', blank=True, null=True)  # Field name made lowercase.
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
-    deprecated = models.BooleanField(db_column='Deprecated')  # Field name made lowercase.
+    deprecated = models.BooleanField(db_column='Deprecated') #, null=False, db_default=False)  # Field name made lowercase.
+
+    def __str__(self):
+        return self.dsaname
 
     class Meta:
         managed = False
