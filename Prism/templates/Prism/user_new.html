@@ -46,7 +46,9 @@ Pri2m : {{ user.username|default_if_none:"User" }}
             <form action="" method = "POST">
                 {% csrf_token %}
                 <p><input class="btn btn-primary" type="submit" value={% if ask_confirm %}Confirm and Create{% else %}Create{% endif %}></p>
-                <a href="{% url 'users' %}">Cancel</a>
+                {% if ask_confirm %}
+                    <a href="{% url 'users' %}">Cancel</a>
+                {% endif %}
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-auto">
