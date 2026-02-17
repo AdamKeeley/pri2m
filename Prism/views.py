@@ -4,10 +4,11 @@ from django.apps import apps
 from django.db.models import Max, Count, OuterRef, Subquery
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
     , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
-    , Tlkuserstatus, Tblusernotes, Tblprojectkristal, tlkGrantStage, Tlklocation, Tblkristalnotes
+    , Tlkuserstatus, Tblusernotes, Tblprojectkristal, tlkGrantStage, Tlklocation, Tblkristalnotes, Tbldsas, Tbldsanotes \
+    , Tbldsasprojects
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
     , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm \
-    , GrantSearchForm, GrantNotesForm
+    , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -1038,14 +1039,14 @@ def grants(request):
 def grant(request, kristalnumber):
     # Build forms
     
-    ## USER ##
+    ## GRANT ##
     grant = Tblkristal.objects.filter(
         validto__isnull=True
         , kristalnumber=kristalnumber
     ).values(
     ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
 
-    # Using OuterRef & Subquery to perform a lookup against Tblproject on Tbluserproject's projectnumber and add it to the model with annotate 
+    # Using OuterRef & Subquery to perform a lookup against Tblproject on Tblprojectkristal's projectnumber and add it to the model with annotate 
     projectnames = Tblproject.objects.filter(
         validto__isnull=True
         ,projectnumber=OuterRef("projectnumber")
@@ -1139,7 +1140,6 @@ def grant(request, kristalnumber):
 
         elif 'grant_project-kristalnumber' in request.POST:
             grant_project_form = ProjectKristalForm(request.POST, prefix='grant_project')
-            print(grant_project_form.errors)
             if grant_project_form.is_valid():
                 insert_grant_project = Tblprojectkristal(
                     kristalnumber = kristalnumber
@@ -1220,3 +1220,154 @@ def grantcreate(request):
     if request.method == 'GET':
         kristal_form = KristalForm()
         return render(request, 'Prism/grant_new.html', {'kristal_form':kristal_form})
+
+@login_required
+@permission_required(["Prism.view_tbldsas", "Prism.add_tbldsas", "Prism.change_tbldsas"
+                      , "Prism.view_tblproject", "Prism.view_tbldsasprojects", "Prism.add_tbldsasprojects", "Prism.change_tbldsasprojects"
+                      , "Prism.view_tbldsanotes", "Prism.add_tbldsanotes", "Prism.change_tbldsanotes"], raise_exception=True)
+def dsa(request, documentid):
+    # Build forms
+    
+    ## DSA ##
+    dsa = Tbldsas.objects.filter(
+        validto__isnull=True
+        , documentid=documentid
+    ).values(
+    ).get()         # get() with no arguments will raise an exception if the queryset doesn't contain exactly one item
+
+    # Using OuterRef & Subquery to perform a lookup against Tblproject on Tbldsasprojects' projectnumber and add it to the model with annotate 
+    projectnames = Tblproject.objects.filter(
+        validto__isnull=True
+        ,projectnumber=OuterRef("project")
+    ).values("projectname")
+
+    dsa_project = Tbldsasprojects.objects.filter(
+        validto__isnull=True
+        , documentid=documentid
+    ).values(
+    ).annotate(projectname = Subquery(projectnames)
+    ).order_by("project")
+
+    ## DSA NOTES ##
+    query = request.GET.get("search_notes")
+    filter_query = {}
+    if query is not None and query != '':
+        filter_query['note__icontains'] = query
+    
+    dsa_notes = Tbldsanotes.objects.filter(
+        Q(**filter_query, _connector=Q.OR)
+        , dsa=documentid
+    ).values(
+    ).order_by("-created")
+
+    paginator = Paginator(dsa_notes, 5)  # Show 5 posts per page
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    ## CREATE FORMS ##
+    dsa_form = DsaForm(initial=dsa, prefix="dsa")
+    dsa_project_form = ProjectDsaForm(prefix='dsa_project')
+    dsa_project_form.initial['documentid'] = documentid
+    dsa_notes_form = DsaNotesForm(prefix='dsa_note')
+
+    context = {'dsa': dsa
+            , 'dsa_form': dsa_form
+            , 'dsa_project': dsa_project
+            , 'dsa_project_form': dsa_project_form
+            , 'notes':page_obj
+            , 'notes_filter' : query
+            , 'new_note': dsa_notes_form
+            }
+
+    if request.method == 'POST':
+        if 'dsa-dsaid' in request.POST:
+            dsa_form = DsaForm(request.POST, prefix='dsa')
+            if dsa_form.is_valid():
+                dsaid = dsa_form.cleaned_data['dsaid']
+                insert = Tbldsas(
+                    documentid = documentid
+                    ,dataowner = dsa_form.cleaned_data['dataowner_id']
+                    ,dsaname = dsa_form.cleaned_data['dsaname']
+                    ,dsafileloc = dsa_form.cleaned_data['dsafileloc']
+                    ,startdate = dsa_form.cleaned_data['startdate']
+                    ,expirydate = dsa_form.cleaned_data['expirydate']
+                    ,datadestructiondate = dsa_form.cleaned_data['datadestructiondate']
+                    ,agreementowneremail = dsa_form.cleaned_data['agreementowneremail']
+                    ,dspt = dsa_form.cleaned_data['dspt']
+                    ,iso27001 = dsa_form.cleaned_data['iso27001']
+                    ,requiresencryption = dsa_form.cleaned_data['requiresencryption']
+                    ,noremoteaccess = dsa_form.cleaned_data['noremoteaccess']
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,deprecated = False
+                )
+                
+                # Fetch existing user record
+                existing_dsa = Tbldsas.objects.filter(
+                    validto__isnull=True
+                    , documentid=documentid
+                ).values(
+                ).get() 
+
+                # Only save record if fields have changed
+                if recordchanged(existing_record=existing_dsa, form_set=insert):
+                    insert.save(force_insert=True)
+
+                    delete = Tbldsas(
+                        dsaid = dsaid
+                        ,validto = timezone.now()
+                    )
+                    delete.save(update_fields=["validto"])
+                
+                    messages.success(request, 'DSA updated successfully.')
+                return HttpResponseRedirect(f"/dsa/{documentid}")
+            else:
+                context['dsa_form']=dsa_form
+            
+        elif 'dsa_project-documentid' in request.POST:
+            dsa_project_form = ProjectDsaForm(request.POST, prefix='dsa_project')
+            if dsa_project_form.is_valid():
+                insert_dsa_project = Tbldsasprojects(
+                    documentid = documentid
+                    ,project = dsa_project_form.cleaned_data['project'].projectnumber
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                )
+                insert_dsa_project.save(force_insert=True)
+                messages.success(request, 'DSA Project membership added successfully.')
+                return HttpResponseRedirect(f"/dsa/{documentid}")
+            else:
+                context['dsa_project_form']=dsa_project_form
+        
+        elif 'dsa_note-note' in request.POST:
+            dsa_notes_form = DsaNotesForm(request.POST, prefix='dsa_note')
+            if dsa_notes_form.is_valid():
+                insert_note = Tbldsanotes(
+                    dsa = documentid
+                    ,note = dsa_notes_form.cleaned_data['note']
+                    ,created = timezone.now()
+                    ,createdby = request.user
+                )
+                insert_note.save(force_insert=True)
+                messages.success(request, 'DSA note added successfully.')
+                return HttpResponseRedirect(f"/dsa/{documentid}")
+            else:
+                context['new_note']=dsa_notes_form
+
+    if request.method == 'GET':
+        return render(request, "Prism/dsa.html", context)
+    
+@login_required
+@permission_required(["Prism.change_tbldsasprojects"], raise_exception=True)
+def projectdsa_remove(request, dpid):
+    update_record=Tbldsasprojects.objects.filter(
+        dpid=dpid
+    ).values()
+    update_record.update(validto = timezone.now())
+    
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
