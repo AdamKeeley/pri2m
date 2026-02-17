@@ -376,7 +376,7 @@ def project(request, projectnumber):
                 # Check if Kristal Ref alrady exists in Tblkristal
                 if not Tblkristal.objects.filter(validto__isnull=True, kristalref = kristal_form.cleaned_data['kristalref']).exists():
                     # If it doesn't insert new record to Tblkristal
-                    # Get latest UserNumber from database model and iterate up by one for new UserNumber
+                    # Get latest KristalNumber from database model and iterate up by one for new KristalNumber
                     max_kristalnumber = Tblkristal.objects.filter(
                         validto__isnull=True
                     ).aggregate(Max("kristalnumber"))
@@ -1171,3 +1171,40 @@ def grant(request, kristalnumber):
     if request.method == 'GET':
         return render(request, 'Prism/grant.html', context)
 
+@login_required
+@permission_required(["Prism.add_tblkristal"], raise_exception=True)
+def grantcreate(request):
+    if request.method == "POST":
+        kristal_form = KristalForm(request.POST)
+        if kristal_form.is_valid():
+            # Check if Kristal Ref alrady exists in Tblkristal
+            if not Tblkristal.objects.filter(validto__isnull=True, kristalref = kristal_form.cleaned_data['kristalref']).exists():
+                # If it doesn't insert new record to Tblkristal
+                # Get latest KristalNumber from database model and iterate up by one for new KristalNumber
+                max_kristalnumber = Tblkristal.objects.filter(
+                    validto__isnull=True
+                ).aggregate(Max("kristalnumber"))
+                new_kristalnumber = max_kristalnumber['kristalnumber__max'] + 1
+
+                insert_new_kristal = Tblkristal(
+                    kristalnumber = new_kristalnumber
+                    ,kristalref = kristal_form.cleaned_data['kristalref']
+                    ,kristalname = kristal_form.cleaned_data['kristalname']
+                    ,grantstageid = kristal_form.cleaned_data['grantstageid_id']
+                    ,pi = kristal_form.cleaned_data['pi'].usernumber
+                    ,location = kristal_form.cleaned_data['location_id']
+                    ,faculty = kristal_form.cleaned_data['faculty_id']
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,createdby = request.user
+                )
+
+                insert_new_kristal.save(force_insert=True)
+
+                return HttpResponseRedirect(f"/grant/{new_kristalnumber}")
+        else:
+            return render(request, 'Prism/grant_new.html', {'kristal_form':kristal_form})   
+
+    if request.method == 'GET':
+        kristal_form = KristalForm()
+        return render(request, 'Prism/grant_new.html', {'kristal_form':kristal_form})

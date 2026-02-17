@@ -18,4 +18,5 @@ urlpatterns = [
     ,path('remove/projectkristal/<int:projectkristalid>', views.projectkristal_remove, name = 'projectkristal_remove')
     ,path('grants', views.grants, name = 'grants')
     ,path('grant/<int:kristalnumber>', views.grant, name = 'grant')
+    ,path('grantcreate', views.grantcreate, name = 'grantcreate')
 ]
