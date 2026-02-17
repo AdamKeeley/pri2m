@@ -189,7 +189,7 @@ class KristalForm(forms.Form):
 
 class ProjectKristalForm(forms.Form):
     projectkristalid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
-    projectnumber = forms.CharField(widget = forms.HiddenInput())
+    projectnumber = forms.ModelChoiceField(label="Project Number", empty_label="Select project", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), to_field_name="projectnumber")
     kristalnumber = forms.IntegerField(widget = forms.HiddenInput())
     validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
     validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)

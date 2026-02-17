@@ -1136,7 +1136,7 @@ def grant(request, kristalnumber):
 
         elif 'grant_project-kristalnumber' in request.POST:
             grant_project_form = ProjectKristalForm(request.POST, prefix='grant_project')
-
+            print(grant_project_form.errors)
             if grant_project_form.is_valid():
                 insert_grant_project = Tblprojectkristal(
                     kristalnumber = kristalnumber
