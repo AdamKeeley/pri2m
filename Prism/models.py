@@ -392,46 +392,6 @@ class Tblusernotes(models.Model):
         db_table = 'tblUserNotes'
 
 
-class Tblassetgroups(models.Model):
-    assetid = models.AutoField(db_column='AssetID', primary_key=True)  # Field name made lowercase.
-    project = models.CharField(db_column='Project', max_length=5, blank=True, null=True)  # Field name made lowercase.
-    assetname = models.CharField(db_column='AssetName', max_length=500, blank=True, null=True)  # Field name made lowercase.
-    dataowner = models.CharField(db_column='DataOwner', max_length=100, blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'tblAssetGroups'
-
-
-class Tblassetschangelog(models.Model):
-    changeid = models.AutoField(db_column='ChangeID', primary_key=True)  # Field name made lowercase.
-    requestid = models.ForeignKey('Tbltransferrequests', models.PROTECT, db_column='RequestID', blank=True, null=True)  # Field name made lowercase.
-    fileid = models.ForeignKey('Tblassetsregister', models.PROTECT, db_column='FileID')  # Field name made lowercase.
-    transfermethod = models.ForeignKey('Tlkfiletransfermethods', models.PROTECT, db_column='TransferMethod', blank=True, null=True)  # Field name made lowercase.
-    transferfrom = models.CharField(db_column='TransferFrom', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    transferto = models.CharField(db_column='TransferTo', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    dsareviewed = models.ForeignKey('Tbldsas', models.PROTECT, db_column='DsaReviewed', blank=True, null=True)  # Field name made lowercase.
-    changeaccepted = models.BooleanField(db_column='ChangeAccepted', blank=True, null=True)  # Field name made lowercase.
-    rejectionnotes = models.TextField(db_column='RejectionNotes', blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'tblAssetsChangeLog'
-
-
-class Tblassetsregister(models.Model):
-    fileid = models.AutoField(db_column='FileID', primary_key=True)  # Field name made lowercase.
-    project = models.CharField(db_column='Project', max_length=5, blank=True, null=True)  # Field name made lowercase.
-    datafilename = models.CharField(db_column='DataFileName', max_length=300)  # Field name made lowercase.
-    vrefilepath = models.CharField(db_column='VreFilePath', max_length=200, blank=True, null=True)  # Field name made lowercase.
-    datarepofilepath = models.CharField(db_column='DataRepoFilePath', max_length=200, blank=True, null=True)  # Field name made lowercase.
-    assetid = models.ForeignKey(Tblassetgroups, models.PROTECT, db_column='AssetID', blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'tblAssetsRegister'
-
-
 class Tbldsadataowners(models.Model):
     doid = models.AutoField(db_column='doID', primary_key=True)  # Field name made lowercase.
     dataownername = models.CharField(db_column='DataOwnerName', unique=True, max_length=100)  # Field name made lowercase.
@@ -497,11 +457,27 @@ class Tbldsasprojects(models.Model):
         db_table = 'tblDsasProjects'
 
 
+class Tblassetschangelog(models.Model):
+    changeid = models.AutoField(db_column='ChangeID', primary_key=True)  # Field name made lowercase.
+    requestid = models.ForeignKey('Tbltransferrequests', models.PROTECT, db_column='RequestID', blank=True, null=True)  # Field name made lowercase.
+    fileid = models.ForeignKey('Tblassetsregister', models.PROTECT, db_column='FileID')  # Field name made lowercase.
+    transfermethod = models.ForeignKey('Tlkfiletransfermethods', models.PROTECT, db_column='TransferMethod', blank=True, null=True)  # Field name made lowercase.
+    transferfrom = models.CharField(db_column='TransferFrom', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    transferto = models.CharField(db_column='TransferTo', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    dsareviewed = models.ForeignKey('Tbldsas', models.PROTECT, db_column='DsaReviewed', blank=True, null=True)  # Field name made lowercase.
+    changeaccepted = models.BooleanField(db_column='ChangeAccepted', blank=True, null=True)  # Field name made lowercase.
+    rejectionnotes = models.TextField(db_column='RejectionNotes', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'tblAssetsChangeLog'
+
+
 class Tbltransferrequests(models.Model):
     requestid = models.AutoField(db_column='RequestID', primary_key=True)  # Field name made lowercase.
     project = models.CharField(db_column='Project', max_length=5, blank=True, null=True)  # Field name made lowercase.
     vrenumber = models.CharField(db_column='VreNumber', max_length=15, blank=True, null=True)  # Field name made lowercase.
-    requesttype = models.ForeignKey('Tlktransferrequesttypes', models.DO_NOTHING, db_column='RequestType')  # Field name made lowercase.
+    requesttype = models.ForeignKey('Tlktransferrequesttypes', models.PROTECT, db_column='RequestType')  # Field name made lowercase.
     requestedby = models.IntegerField(db_column='RequestedBy', blank=True, null=True)  # Field name made lowercase.
     requesternotes = models.TextField(db_column='RequesterNotes', blank=True, null=True)  # Field name made lowercase.
     reviewedby = models.IntegerField(db_column='ReviewedBy', blank=True, null=True)  # Field name made lowercase.
@@ -511,6 +487,30 @@ class Tbltransferrequests(models.Model):
     class Meta:
         managed = False
         db_table = 'tblTransferRequests'
+
+
+class Tblassetgroups(models.Model):
+    assetid = models.AutoField(db_column='AssetID', primary_key=True)  # Field name made lowercase.
+    project = models.CharField(db_column='Project', max_length=5, blank=True, null=True)  # Field name made lowercase.
+    assetname = models.CharField(db_column='AssetName', max_length=500, blank=True, null=True)  # Field name made lowercase.
+    dataowner = models.CharField(db_column='DataOwner', max_length=100, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'tblAssetGroups'
+
+
+class Tblassetsregister(models.Model):
+    fileid = models.AutoField(db_column='FileID', primary_key=True)  # Field name made lowercase.
+    project = models.CharField(db_column='Project', max_length=5, blank=True, null=True)  # Field name made lowercase.
+    datafilename = models.CharField(db_column='DataFileName', max_length=300)  # Field name made lowercase.
+    vrefilepath = models.CharField(db_column='VreFilePath', max_length=200, blank=True, null=True)  # Field name made lowercase.
+    datarepofilepath = models.CharField(db_column='DataRepoFilePath', max_length=200, blank=True, null=True)  # Field name made lowercase.
+    assetid = models.ForeignKey(Tblassetgroups, models.PROTECT, db_column='AssetID', blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'tblAssetsRegister'
 
 
 class Tlkfiletransfermethods(models.Model):
@@ -534,3 +534,4 @@ class Tlktransferrequesttypes(models.Model):
         managed = False
         db_table = 'tlkTransferRequestTypes'
 
+    
