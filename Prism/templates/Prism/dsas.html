@@ -50,19 +50,24 @@ Pri2m: All DSAs
         </tr>
     </thead>
     <tbody>
+        {% now "Y-m-d" as todays_date %}
         {% for dsa in dsas %}
-            <tr>
-                <td><a href='dsa/{{ dsa.documentid }}'>Details</a></td>
-                <td>{{ dsa.dataowner__dataownername|default_if_none:"" }}</td>
-                <td>{{ dsa.dsaname|default_if_none:"" }}</td>
-                <td>{{ dsa.startdate|default_if_none:""| date:"Y-m-d" }}</td>
-                <td>{{ dsa.expirydate|default_if_none:""| date:"Y-m-d" }}</td>
-                <td>{{ dsa.datadestructiondate|default_if_none:""| date:"Y-m-d" }}</td>
-                <td>{{ dsa.dspt|default_if_none:"" }}</td>
-                <td>{{ dsa.iso27001|default_if_none:"" }}</td>
-                <td>{{ dsa.requiresencryption|default_if_none:"" }}</td>
-                <td>{{ dsa.noremoteaccess|default_if_none:"" }}</td>
-            </tr>
+            {% if dsa.expirydate|date:"Y-m-d" < todays_date %}
+                <tr style="color: red;">
+            {% else %}
+                <tr>
+            {% endif %}
+                    <td><a href='dsa/{{ dsa.documentid }}'>Details</a></td>
+                    <td>{{ dsa.dataowner__dataownername|default_if_none:"" }}</td>
+                    <td>{{ dsa.dsaname|default_if_none:"" }}</td>
+                    <td>{{ dsa.startdate|default_if_none:""| date:"Y-m-d" }}</td>
+                    <td>{{ dsa.expirydate|default_if_none:""| date:"Y-m-d" }}</td>
+                    <td>{{ dsa.datadestructiondate|default_if_none:""| date:"Y-m-d" }}</td>
+                    <td>{{ dsa.dspt|default_if_none:"" }}</td>
+                    <td>{{ dsa.iso27001|default_if_none:"" }}</td>
+                    <td>{{ dsa.requiresencryption|default_if_none:"" }}</td>
+                    <td>{{ dsa.noremoteaccess|default_if_none:"" }}</td>
+                </tr>
         {% endfor %}
     </tbody>
 </table>

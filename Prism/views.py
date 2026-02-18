@@ -1340,6 +1340,10 @@ def dsa(request, documentid):
     dsa_project_form.initial['documentid'] = documentid
     dsa_notes_form = DsaNotesForm(prefix='dsa_note')
 
+    ## DATA VALIDATION ##
+    # Populated on GET Request
+    custom_errors = []
+
     context = {'dsa': dsa
             , 'dsa_form': dsa_form
             , 'dsa_project': dsa_project
@@ -1347,6 +1351,7 @@ def dsa(request, documentid):
             , 'notes':page_obj
             , 'notes_filter' : query
             , 'new_note': dsa_notes_form
+            , 'custom_errors': custom_errors
             }
 
     if request.method == 'POST':
@@ -1424,7 +1429,25 @@ def dsa(request, documentid):
             else:
                 context['new_note']=dsa_notes_form
 
+        return render(request, "Prism/dsa.html", context)
+
     if request.method == 'GET':
+        ## DATA VALIDATION ##
+        # For information purposes only. 
+        # Validation across/between forms or where errors not sufficient to prevent form submission.
+
+        # Are end dates present?
+        if not dsa['expirydate'] :
+            custom_errors.append("DSA is missing Expiry Date")
+        if not dsa['datadestructiondate']:
+            custom_errors.append("DSA is missing Data Destruction Date")
+        # Is the DSA expired?
+        if dsa['expirydate'] and dsa['expirydate'] < timezone.now():
+            custom_errors.append("DSA has expired; is there an updated version available?")
+        # Has data destruction date passed?
+        if dsa['datadestructiondate'] and dsa['datadestructiondate'] < timezone.now():
+            custom_errors.append("Data destruction date has passed; has the data been destroyed?")
+
         return render(request, "Prism/dsa.html", context)
 
 @login_required
@@ -1515,3 +1538,4 @@ def dataownercreate(request):
     if request.method == 'GET':
         data_owner_form = DataOwnerCreateForm()
         return render(request, 'Prism/data_owner_new.html', {'data_owner_form':data_owner_form})   
+    

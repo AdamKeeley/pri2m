@@ -367,6 +367,36 @@ class DsaForm (forms.Form):
     validto = forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     deprecated = forms.BooleanField(label="Deprecated", required=False)
     
+    def clean(self):
+        cleaned_data = super().clean()
+        startdate = cleaned_data.get("startdate")
+        expirydate = cleaned_data.get("expirydate")
+        datadestructiondate = cleaned_data.get("datadestructiondate")
+        
+        # Do DSA start and end dates sequence correctly?
+        if startdate is not None and expirydate is not None:
+            if (startdate - expirydate).days >= 0:
+                self.add_error(None, "Start Date cannot be later than Expiry Date.")
+        if startdate is not None and datadestructiondate is not None:
+            if (startdate - datadestructiondate).days >= 0:
+                self.add_error(None, "Start Date cannot be later than Data Destruction Date.")
+
+        return self.cleaned_data
+        
+
+    def __init__(self, *args, **kwargs): 
+        super().__init__(*args, **kwargs)
+
+        # When creating the form with initial data, we still want to validate the form. 
+        # This `__init__` override will populate a temporary form (temp) with `data=initial` (as if POST) to trigger validation and 
+        # therefore the `clean()` function above.
+        # Any errors are copied to the original form and displayed with the data from the database.
+        if self.initial: 
+            ForiegnKeysAreValid(self, **kwargs)
+            temp = type(self)(data=self.initial) 
+            if not temp.is_valid(): 
+                self._errors = temp.errors
+
     class Meta:
         model = Tbldsas
 
