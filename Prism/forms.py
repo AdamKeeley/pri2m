@@ -353,7 +353,7 @@ class DsaForm (forms.Form):
     documentid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
     dataowner_id = forms.ModelChoiceField(label="Data Owner", queryset=Tbldsadataowners.objects.order_by("dataownername"))
     # amendmentof_id = forms.ModelChoiceField(label="Amendment Of", queryset=Tbldsas.objects.filter(validto__isnull=True).order_by("dsaname"), required=False)
-    dsaname = forms.CharField(label="DSA Name", max_length=100)
+    dsaname = forms.CharField(label="DSA File Name", max_length=100)
     dsafileloc = forms.CharField(label="DSA File Location", max_length=200)
     startdate = forms.DateTimeField(label="Start Date", widget = DateInput())
     expirydate = forms.DateTimeField(label="Expiry Date", widget = DateInput(), required=False)
@@ -399,3 +399,13 @@ class ProjectDsaForm(forms.Form):
 
     class Meta:
         model = Tbldsasprojects
+
+class DsaSearchForm(forms.Form):
+    dataowner_id = forms.ModelChoiceField(label="Data Owner", queryset=Tbldsadataowners.objects.order_by("dataownername"), required=False)
+    dspt = forms.BooleanField(label="NHS DSPT", required=False)
+    iso27001 = forms.BooleanField(label="ISO27001", required=False)
+    requiresencryption = forms.BooleanField(label="Requires Encryption", required=False)
+    noremoteaccess = forms.BooleanField(label="No Remote Access", required=False)
+        
+    class Meta:
+        model = Tbldsas

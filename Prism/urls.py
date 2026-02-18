@@ -19,6 +19,8 @@ urlpatterns = [
     ,path('grants', views.grants, name = 'grants')
     ,path('grant/<int:kristalnumber>', views.grant, name = 'grant')
     ,path('grantcreate', views.grantcreate, name = 'grantcreate')
+    ,path('dsas', views.dsas, name = 'dsas')
     ,path('dsa/<int:documentid>', views.dsa, name = 'dsa')
+    ,path('dsacreate', views.dsacreate, name = 'dsacreate')
     ,path('remove/projectdsa/<int:dpid>', views.projectdsa_remove, name = 'projectdsa_remove')
 ]

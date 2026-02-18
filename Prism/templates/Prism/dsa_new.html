@@ -1,0 +1,78 @@
+{% extends "Prism/layout.html" %}
+
+{% block title %}
+Pri2m : {{ grant.kristalref|default_if_none:"Grant" }}
+{% endblock %}
+
+{% block content %}
+
+<h1>DSA - New</h1>
+
+{% if custom_errors %}
+<ul>
+    {% for error in custom_errors %}
+        <li class="form-custom-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if dsa_form.non_field_errors %}
+<ul>
+    {% for error in dsa_form.non_field_errors %}
+        <li class="form-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <form action="" method = "POST">
+                {% csrf_token %}
+                <p><input class="btn btn-primary" type="submit" value="Create"></p>
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <legend>Data Owner</legend>
+                            <fieldset>
+                                <p>{{ dsa_form.dataowner_id.as_field_group }}</p>
+                                <p>{{ dsa_form.agreementowneremail.as_field_group }}</p>
+                            </fieldset>
+                        </div>
+                        <div class="col-md-auto">
+                            <legend>File Details</legend>
+                            <fieldset>
+                                <p>{{ dsa_form.dsaname.as_field_group }}</p>
+                                <p>{{ dsa_form.dsafileloc.as_field_group }}</p>
+                            </fieldset>
+                        </div>
+                        <div class="col-md-auto">
+                            <legend>Dates</legend>
+                            <fieldset>
+                                <p>{{ dsa_form.startdate.as_field_group }}</p>
+                                <p>{{ dsa_form.expirydate.as_field_group }}</p>
+                                <p>{{ dsa_form.datadestructiondate.as_field_group }}</p>
+                            </fieldset>
+                        </div>
+                        <div class="col-md-auto">
+                            <legend>Governance</legend>
+                            <fieldset>
+                                <p>{{ dsa_form.dspt.as_field_group }}</p>
+                                <p>{{ dsa_form.iso27001.as_field_group }}</p>
+                                <p>{{ dsa_form.requiresencryption.as_field_group }}</p>
+                                <p>{{ dsa_form.noremoteaccess.as_field_group }}</p>
+                            </fieldset>
+                            <fieldset>
+                                {{ dsa_form.dsaid }}
+                                {{ dsa_form.validfrom }}
+                                {{ dsa_form.validto }}
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

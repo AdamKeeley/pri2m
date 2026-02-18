@@ -77,7 +77,7 @@ Pri2m : {{ grant.kristalref|default_if_none:"Grant" }}
         <div class="col-md-12">
             <div class="container-fluid">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <legend>Projects</legend>
                         <form action="" method="POST">
                             {% csrf_token %}
@@ -108,7 +108,7 @@ Pri2m : {{ grant.kristalref|default_if_none:"Grant" }}
                             </tbody>
                         </table>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-8">
                         <div class="container-fluid">
                             {% if notes_filter %}
                                 <legend>Notes containing "{{ notes_filter }}" (<a href='/dsa/{{ dsa.documentid }}'>clear</a>)</legend>

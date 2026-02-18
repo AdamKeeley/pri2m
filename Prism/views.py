@@ -5,10 +5,10 @@ from django.db.models import Max, Count, OuterRef, Subquery
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
     , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
     , Tlkuserstatus, Tblusernotes, Tblprojectkristal, tlkGrantStage, Tlklocation, Tblkristalnotes, Tbldsas, Tbldsanotes \
-    , Tbldsasprojects
+    , Tbldsasprojects, Tbldsadataowners
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
     , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm \
-    , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm
+    , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm, DsaSearchForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -1222,6 +1222,62 @@ def grantcreate(request):
         return render(request, 'Prism/grant_new.html', {'kristal_form':kristal_form})
 
 @login_required
+@permission_required(["Prism.view_tbldsas", "Prism.view_tbldsadataowners"], raise_exception=True)
+def dsas (request):
+    query = request.GET
+
+    filter_query = {}
+    advanced_filter_query = {}
+    filter_list = []
+
+    if query is not None and query != '':
+        for key in query:
+            value = query.get(key)
+            if value != '':
+                if key == 'q':
+                    filter_query['dsaname__icontains'] = value
+                    filter_list.append(f"DSA File Name contains '{value}'")
+                if key == 'dataowner_id':
+                    advanced_filter_query['dataowner__doid__iexact'] = value
+                    filter_list.append(f"Data Owner is '{Tbldsadataowners.objects.get(doid=value)}'")
+                if key == 'dspt':
+                    advanced_filter_query['dspt__iexact'] = True
+                    filter_list.append(f"NHS DSPT = {True}")
+                if key == 'iso27001':
+                    advanced_filter_query['iso27001__iexact'] = True
+                    filter_list.append(f"ISO27001 = {True}")
+                if key == 'requiresencryption':
+                    advanced_filter_query['requiresencryption__iexact'] = True
+                    filter_list.append(f"Requires Encryption = {True}")
+                if key == 'noremoteaccess':
+                    advanced_filter_query['noremoteaccess__iexact'] = True
+                    filter_list.append(f"No Remote Access = {True}")
+                
+    dsas = Tbldsas.objects.filter(
+            Q(**filter_query, _connector=Q.OR)
+            , Q(**advanced_filter_query, _connector=Q.AND)
+            , validto__isnull=True
+        ).values(
+            "documentid"
+            , "dataowner__dataownername"
+            , "dsaname"
+            , "startdate"
+            , "expirydate"
+            , "datadestructiondate"
+            , "dspt"
+            , "iso27001"
+            , "requiresencryption"
+            , "noremoteaccess"
+        ).order_by("dataowner__dataownername")
+
+    filter_string = ", ".join(filter_list)
+    dsa_search_form = DsaSearchForm()
+
+    return render(request, 'Prism/dsas.html', {'dsas': dsas
+                                                   ,'dsa_form': dsa_search_form
+                                                   ,'searchterms': filter_string})
+
+@login_required
 @permission_required(["Prism.view_tbldsas", "Prism.add_tbldsas", "Prism.change_tbldsas"
                       , "Prism.view_tblproject", "Prism.view_tbldsasprojects", "Prism.add_tbldsasprojects", "Prism.change_tbldsasprojects"
                       , "Prism.view_tbldsanotes", "Prism.add_tbldsanotes", "Prism.change_tbldsanotes"], raise_exception=True)
@@ -1361,7 +1417,47 @@ def dsa(request, documentid):
 
     if request.method == 'GET':
         return render(request, "Prism/dsa.html", context)
-    
+
+@login_required
+@permission_required("Prism.add_tbldsas", raise_exception=True)
+def dsacreate(request):
+    if request.method == "POST":
+        dsa_form = DsaForm(request.POST)
+        if dsa_form.is_valid():
+
+            # Get latest documentid from database model and iterate up by one for new documentid
+            max_documentid = Tbldsas.objects.filter(
+                validto__isnull=True
+            ).aggregate(Max("documentid"))
+            new_documentid = max_documentid['documentid__max'] + 1
+            
+            insert = Tbldsas(
+                documentid = new_documentid
+                ,dataowner = dsa_form.cleaned_data['dataowner_id']
+                ,dsaname = dsa_form.cleaned_data['dsaname']
+                ,dsafileloc = dsa_form.cleaned_data['dsafileloc']
+                ,startdate = dsa_form.cleaned_data['startdate']
+                ,expirydate = dsa_form.cleaned_data['expirydate']
+                ,datadestructiondate = dsa_form.cleaned_data['datadestructiondate']
+                ,agreementowneremail = dsa_form.cleaned_data['agreementowneremail']
+                ,dspt = dsa_form.cleaned_data['dspt']
+                ,iso27001 = dsa_form.cleaned_data['iso27001']
+                ,requiresencryption = dsa_form.cleaned_data['requiresencryption']
+                ,noremoteaccess = dsa_form.cleaned_data['noremoteaccess']
+                ,validfrom = timezone.now()
+                ,validto = None
+                ,deprecated = False
+            )
+            insert.save(force_insert=True)
+
+            return HttpResponseRedirect(f"/dsa/{new_documentid}")
+        else:
+            return render(request, 'Prism/dsa_new.html', {'dsa_form':dsa_form})   
+
+    if request.method == 'GET':
+        dsa_form = DsaForm()
+        return render(request, 'Prism/dsa_new.html', {'dsa_form':dsa_form})
+
 @login_required
 @permission_required(["Prism.change_tbldsasprojects"], raise_exception=True)
 def projectdsa_remove(request, dpid):
@@ -1371,3 +1467,4 @@ def projectdsa_remove(request, dpid):
     update_record.update(validto = timezone.now())
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
