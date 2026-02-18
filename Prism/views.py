@@ -161,20 +161,6 @@ def project(request, projectnumber):
                ,lastname = Subquery(lastnames)
     ).order_by("firstname", "lastname")
 
-    ## DATA SHARING AGREEMENTS ##
-    # Using OuterRef & Subquery to perform a lookup against Tblproject on Tbldsasprojects' projectnumber and add it to the model with annotate 
-    dsanames = Tbldsas.objects.filter(
-        validto__isnull=True
-        ,documentid=OuterRef("documentid")
-    ).values("dsaname")
-
-    dsa_project = Tbldsasprojects.objects.filter(
-        validto__isnull=True
-        , project=projectnumber
-    ).values(
-    ).annotate(dsaname = Subquery(dsanames)
-    ).order_by("dsaname")
-
     ## KRISTAL REFERENCES ##
     # Using OuterRef & Subquery to perform a lookup against Tblprojectkristal on Tbluserproject's projectnumber and add it to the model with annotate 
     projectkristalids = Tblprojectkristal.objects.filter(
@@ -258,7 +244,6 @@ def project(request, projectnumber):
         , 'platform_form': p_platform_info_form
         , 'members': project_membership
         , 'p_user_form': p_user_form
-        , 'dsa_project': dsa_project
         , 'grants': kristal_refs
         , 'p_kristal_form': p_kristal_form
         , 'new_note': p_notes_form
@@ -1256,6 +1241,13 @@ def dsas (request):
                 if key == 'dataowner_id':
                     advanced_filter_query['dataowner__doid__iexact'] = value
                     filter_list.append(f"Data Owner is '{Tbldsadataowners.objects.get(doid=value)}'")
+                
+                if key == 'project':
+                    projectnumber=Tblproject.objects.filter(pk=value).get()
+                    documentlist = Tbldsasprojects.objects.filter(validto__isnull=True, project=projectnumber).values_list("documentid")
+                    advanced_filter_query ['documentid__in'] = documentlist
+                    filter_list.append(f"Project Number = '{projectnumber}'")
+                
                 if key == 'dspt':
                     advanced_filter_query['dspt__iexact'] = True
                     filter_list.append(f"NHS DSPT = {True}")
