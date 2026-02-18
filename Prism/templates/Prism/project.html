@@ -253,38 +253,81 @@ Pri2m : {{ project.projectnumber }}
                 </div>
 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-7">
 
-                        <legend>Membership</legend>
-                        <form action="" method="POST">
-                            {% csrf_token %}
-                            <fieldset>
-                                <div class="input-group">
-                                    {{ p_user_form.usernumber }}
-                                    {{ p_user_form.projectnumber.as_hidden }}
-                                    <input class="btn btn-primary" type="submit" value="Add member">
+                        <legend style="text-align: left;">Membership</legend>
+                        <div class="accordion" id="accordionMembership">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingMembership">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMembership" aria-expanded="false" aria-controls="collapseMembership">
+                                        Membership Details
+                                    </button>
+                                </h2>
+                                <div id="collapseMembership" class="accordion-collapse collapse" aria-labelledby="headingMembership" data-bs-parent="#accordionMembership">
+                                    <div class="accordion-body">
+                                        <form action="" method="POST">
+                                            {% csrf_token %}
+                                            <fieldset>
+                                                <div class="input-group">
+                                                    {{ p_user_form.usernumber }}
+                                                    {{ p_user_form.projectnumber.as_hidden }}
+                                                    <input class="btn btn-primary" type="submit" value="Add member">
+                                                </div>
+                                            </fieldset>
+                                        </form>
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Full name</th>
+                                                    <th scope="col"></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for member in members %}
+                                                <tr>
+                                                    <td><a href='/user/{{ member.usernumber }}'>{{ member.firstname }} {{ member.lastname }}</a></td>
+                                                    <td><a href='/remove/userproject/{{ member.userprojectid }}'>x</td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
-                            </fieldset>
-                        </form>
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Full name</th>
-                                    <th scope="col"></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for member in members %}
-                                <tr>
-                                    <td><a href='/user/{{ member.usernumber }}'>{{ member.firstname }} {{ member.lastname }}</a></td>
-                                    <td><a href='/remove/userproject/{{ member.userprojectid }}'>x</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                            </div>
+                        </div>
+
+                        <legend style="text-align: left;">Data Sharing Agreements</legend>
+                        <div class="accordion" id="accordionDSA">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingDSA">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDSA" aria-expanded="false" aria-controls="collapseDSA">
+                                        DSA Details
+                                    </button>
+                                </h2>
+                                <div id="collapseDSA" class="accordion-collapse collapse" aria-labelledby="headingDSA" data-bs-parent="#accordionDSA">
+                                    <div class="accordion-body">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">DSA Name</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for dsa in dsa_project %}
+                                                <tr>
+                                                    <td><a href='/dsa/{{ dsa.documentid }}'>{{ dsa.dsaname }}</a></td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     
-                    <div class="col-md-6">
+                    <div class="col-md-5">
                         <legend>Grant</legend> 
                         <form action="" method="POST">
                             {% csrf_token %}
