@@ -402,7 +402,7 @@ class ProjectDsaForm(forms.Form):
 
 class DsaSearchForm(forms.Form):
     dataowner_id = forms.ModelChoiceField(label="Data Owner", queryset=Tbldsadataowners.objects.order_by("dataownername"), required=False)
-    project = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"))
+    project = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), required=False)
     dspt = forms.BooleanField(label="NHS DSPT", required=False)
     iso27001 = forms.BooleanField(label="ISO27001", required=False)
     requiresencryption = forms.BooleanField(label="Requires Encryption", required=False)
