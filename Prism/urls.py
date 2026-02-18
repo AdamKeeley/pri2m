@@ -23,4 +23,5 @@ urlpatterns = [
     ,path('dsa/<int:documentid>', views.dsa, name = 'dsa')
     ,path('dsacreate', views.dsacreate, name = 'dsacreate')
     ,path('remove/projectdsa/<int:dpid>', views.projectdsa_remove, name = 'projectdsa_remove')
+    ,path('dataownercreate', views.dataownercreate, name = 'dataownercreate')
 ]

@@ -8,7 +8,7 @@ from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tl
     , Tbldsasprojects, Tbldsadataowners
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
     , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm \
-    , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm, DsaSearchForm
+    , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm, DsaSearchForm, DataOwnerCreateForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -1468,3 +1468,41 @@ def projectdsa_remove(request, dpid):
     
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+@login_required
+@permission_required("Prism.add_tbldsadataowners", raise_exception=True)
+def dataownercreate(request):
+    if request.method == "POST":
+        data_owner_form = DataOwnerCreateForm(request.POST)
+        if data_owner_form.is_valid():
+            
+            insert = Tbldsadataowners(
+                dataownername = data_owner_form.cleaned_data['dataownername']
+                ,dataowneremail = data_owner_form.cleaned_data['dataowneremail']
+            )
+
+            # Check if record already exists in database with matching values
+            duplicate_qs = Tbldsadataowners.objects.none()
+            if insert.dataownername:
+                duplicate_qs = duplicate_qs | Tbldsadataowners.objects.filter(dataownername__icontains=insert.dataownername)
+            if insert.dataowneremail:
+                duplicate_qs = duplicate_qs | Tbldsadataowners.objects.filter(dataowneremail__icontains=insert.dataowneremail)
+
+            duplicate_qs = duplicate_qs.distinct().order_by("dataownername")
+            # This is a hidden input in the Data Owner Create template, only rendered if ask_confirm=True. data_owner_confirmed==False if not present
+            data_owner_confirmed = request.POST.get("confirm_duplicate") == "1"
+
+            # Render a confirmation prompt if a potential duplicate exists
+            if duplicate_qs.exists() and not data_owner_confirmed:
+                return render(request, 'Prism/data_owner_new.html', {'data_owner_form':data_owner_form
+                                                               ,'possible_duplicates':duplicate_qs
+                                                               ,'ask_confirm': True})   
+            
+            insert.save(force_insert=True)
+
+            return HttpResponseRedirect("/dsas")
+        else:
+            return render(request, 'Prism/data_owner_new.html', {'data_owner_form':data_owner_form})   
+
+    if request.method == 'GET':
+        data_owner_form = DataOwnerCreateForm()
+        return render(request, 'Prism/data_owner_new.html', {'data_owner_form':data_owner_form})   

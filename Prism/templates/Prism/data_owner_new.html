@@ -1,0 +1,61 @@
+{% extends "Prism/layout.html" %}
+
+{% block title %}
+Pri2m : New Data Owner
+{% endblock %}
+
+{% block content %}
+
+<h1>New Data Owner</h1>
+
+{% if data_owner_form.non_field_errors %}
+<ul>
+    {% for error in data_owner_form.non_field_errors %}
+        <li class="form-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+{% if ask_confirm %}
+    <div class="warning">
+        <p><strong>Possible duplicates found.</strong> Are you sure you want to create this record?</p>
+        <ul>
+        {% for p in possible_duplicates %}
+            <li>
+                {% if p.dataownername %} {{ p.dataownername }} {% endif %}
+                {% if p.dataowneremail %} {{ p.dataowneremail }} {% endif %}
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <form action="" method = "POST">
+                {% csrf_token %}
+                <p><input class="btn btn-primary" type="submit" value={% if ask_confirm %}"Confirm and Create"{% else %}Create{% endif %}></p>
+                {% if ask_confirm %}
+                    <a href="{% url 'dataownercreate' %}">Cancel</a>
+                {% endif %}
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-auto">
+                            <legend>New Data Owner</legend>
+                            <fieldset>
+                                <p>{{ data_owner_form.dataownername.as_field_group }}</p>
+                                <p>{{ data_owner_form.dataowneremail.as_field_group }}</p>
+                                {% if ask_confirm %}
+                                    <input type="hidden" name="confirm_duplicate" value="1">
+                                {% endif %}
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,7 +1,7 @@
 {% extends "Prism/layout.html" %}
 
 {% block title %}
-Pri2m : {{ grant.kristalref|default_if_none:"Grant" }}
+Pri2m : {{ dsa.dsaname|default_if_none:"DSA" }}
 {% endblock %}
 
 {% block content %}
@@ -35,7 +35,10 @@ Pri2m : {{ grant.kristalref|default_if_none:"Grant" }}
                         <div class="col-md-auto">
                             <legend>Data Owner</legend>
                             <fieldset>
-                                <p>{{ dsa_form.dataowner_id.as_field_group }}</p>
+                                <p>
+                                    {{ dsa_form.dataowner_id.as_field_group }} <br>
+                                    <small><a href='/dataownercreate'>new data owner</a></small>
+                                </p>
                                 <p>{{ dsa_form.agreementowneremail.as_field_group }}</p>
                             </fieldset>
                         </div>

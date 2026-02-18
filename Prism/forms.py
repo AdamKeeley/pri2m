@@ -409,3 +409,10 @@ class DsaSearchForm(forms.Form):
         
     class Meta:
         model = Tbldsas
+
+class DataOwnerCreateForm(forms.Form):
+    dataownername = forms.CharField(label="Data Owner Name", max_length=100)
+    dataowneremail = forms.CharField(label="Data Owner Email", max_length=50, required=False)
+        
+    class Meta:
+        model = Tbldsadataowners
