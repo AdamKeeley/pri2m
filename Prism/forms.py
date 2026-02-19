@@ -3,7 +3,7 @@ from django.db.models import ForeignKey
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
     , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tbluserproject \
     , Tblusernotes, tlkGrantStage, Tlklocation, Tblkristal, Tblprojectkristal, Tblkristalnotes, Tbldsas, Tbldsadataowners \
-    , Tbldsanotes, Tbldsasprojects
+    , Tbldsanotes, Tbldsasprojects, Tbltransferrequests, Tlktransferrequesttypes
 from django.utils import timezone
 #from django.core.exceptions import ValidationError
 
@@ -432,7 +432,7 @@ class ProjectDsaForm(forms.Form):
 
 class DsaSearchForm(forms.Form):
     dataowner_id = forms.ModelChoiceField(label="Data Owner", queryset=Tbldsadataowners.objects.order_by("dataownername"), required=False)
-    project = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), required=False)
+    project = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), to_field_name="projectnumber", required=False)
     dspt = forms.BooleanField(label="NHS DSPT", required=False)
     iso27001 = forms.BooleanField(label="ISO27001", required=False)
     requiresencryption = forms.BooleanField(label="Requires Encryption", required=False)
@@ -448,3 +448,12 @@ class DataOwnerCreateForm(forms.Form):
     class Meta:
         model = Tbldsadataowners
 
+class TransferSearchForm(forms.Form):
+    project = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), to_field_name="projectnumber", required=False)
+    requesttype = forms.ModelChoiceField(label="Request Type", queryset=Tlktransferrequesttypes.objects.filter(validto__isnull=True).order_by("requesttypelabel"), required=False)
+    requestedby = forms.ModelChoiceField(label="Requested By", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
+    reviewedby = forms.ModelChoiceField(label="Reviewed By", queryset=Tbluser.objects.filter(validto__isnull=True, priviledged=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
+    reviewdate = forms.DateTimeField(label="Review Date", widget = DateInput(), required=False)
+        
+    class Meta:
+        model = Tbltransferrequests

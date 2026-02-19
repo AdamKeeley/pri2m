@@ -5,10 +5,10 @@ from django.db.models import Max, Count, OuterRef, Subquery
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
     , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
     , Tlkuserstatus, Tblusernotes, Tblprojectkristal, tlkGrantStage, Tlklocation, Tblkristalnotes, Tbldsas, Tbldsanotes \
-    , Tbldsasprojects, Tbldsadataowners
+    , Tbldsasprojects, Tbldsadataowners, Tlktransferrequesttypes, Tbltransferrequests
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
     , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm \
-    , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm, DsaSearchForm, DataOwnerCreateForm
+    , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm, DsaSearchForm, DataOwnerCreateForm, TransferSearchForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -1243,10 +1243,9 @@ def dsas (request):
                     filter_list.append(f"Data Owner is '{Tbldsadataowners.objects.get(doid=value)}'")
                 
                 if key == 'project':
-                    projectnumber=Tblproject.objects.filter(pk=value).get()
-                    documentlist = Tbldsasprojects.objects.filter(validto__isnull=True, project=projectnumber).values_list("documentid")
+                    documentlist = Tbldsasprojects.objects.filter(validto__isnull=True, project=value).values_list("documentid")
                     advanced_filter_query ['documentid__in'] = documentlist
-                    filter_list.append(f"Project Number = '{projectnumber}'")
+                    filter_list.append(f"Project Number = '{value}'")
                 
                 if key == 'dspt':
                     advanced_filter_query['dspt__iexact'] = True
@@ -1539,3 +1538,65 @@ def dataownercreate(request):
         data_owner_form = DataOwnerCreateForm()
         return render(request, 'Prism/data_owner_new.html', {'data_owner_form':data_owner_form})   
     
+def transferrequests(request):
+    query = request.GET
+
+    advanced_filter_query = {}
+    user_filter_query = {}
+    filter_list = []
+
+    if query is not None and query != '':
+        for key in query:
+            value = query.get(key)
+            if value != '':
+                if key == 'project':
+                    advanced_filter_query['project__iexact'] = value
+                    filter_list.append(f"Project is '{value}'")
+                if key == 'requesttype':
+                    advanced_filter_query['requesttype__exact'] = value
+                    filter_list.append(f"Request Type is '{Tlktransferrequesttypes.objects.get(requesttypeid=value)}'")
+                if key == 'requestedby':
+                    user_filter_query['requestedby__iexact'] = value
+                    filter_list.append(f"Requested By '{Tbluser.objects.get(usernumber=value, validto__isnull=True)}'")
+                if key == 'reviewedby':
+                    user_filter_query['reviewedby__iexact'] = value
+                    filter_list.append(f"Reviewed By '{Tbluser.objects.get(usernumber=value, validto__isnull=True)}'")
+                if key == 'reviewdate':
+                    advanced_filter_query['reviewdate__date__iexact'] = value
+                    filter_list.append(f"Review Date is '{value}'")
+                
+    transfers = Tbltransferrequests.objects.filter(
+            Q(**advanced_filter_query, _connector=Q.AND)
+            , Q(**user_filter_query, _connector=Q.OR)
+        ).values(
+            "requestid"
+            , "project"
+            , "requesttype"
+            , "requesttype__requesttypelabel"
+            , "requestedby"
+            , "reviewedby"
+            , "reviewdate"
+        ).order_by("-requestid")
+
+    users = Tbluser.objects.filter(
+            validto__isnull=True
+            ).values()
+    
+    df = pd.DataFrame(users)
+
+    for transfer in transfers:
+        if transfer['requestedby'] is not None:
+            requestedby_index = df.index[df['usernumber'] == transfer['requestedby']].tolist()
+            requestedby_name = f"{df.at[requestedby_index[0],'firstname']} {df.at[requestedby_index[0],'lastname']}"
+            transfer.update(requestedby=requestedby_name)
+        if transfer['reviewedby'] is not None:
+            reviewedby_index = df.index[df['usernumber'] == transfer['reviewedby']].tolist()
+            reviewedby_name = f"{df.at[reviewedby_index[0],'firstname']} {df.at[reviewedby_index[0],'lastname']}"
+            transfer.update(reviewedby=reviewedby_name)
+
+    filter_string = ", ".join(filter_list)
+    transfer_search_form = TransferSearchForm()
+
+    return render(request, 'Prism/transfers.html', {'transfers': transfers
+                                                   ,'transfer_search_form': transfer_search_form
+                                                   ,'searchterms': filter_string})
