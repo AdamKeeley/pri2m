@@ -517,6 +517,9 @@ class Tlkfiletransfermethods(models.Model):
     validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.methodlabel
+
     class Meta:
         managed = False
         db_table = 'tlkFileTransferMethods'

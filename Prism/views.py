@@ -8,7 +8,8 @@ from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tl
     , Tbldsasprojects, Tbldsadataowners, Tlktransferrequesttypes, Tbltransferrequest, Tbltransferfile, Tbltransferfileasset
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
     , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm \
-    , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm, DsaSearchForm, DataOwnerCreateForm, TransferSearchForm
+    , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm, DsaSearchForm, DataOwnerCreateForm, TransferSearchForm \
+    , TransferForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -1605,8 +1606,6 @@ def transferrequests(request):
                                                    ,'searchterms': filter_string})
 
 def transferrequest(request, requestid):
-    
-    # Using OuterRef & Subquery to perform a lookup against Tblproject on Tbluserproject's projectnumber and add it to the model with annotate 
     requestedby_firstname = Tbluser.objects.filter(
         validto__isnull=True
         ,usernumber=OuterRef("requestedby")
@@ -1667,16 +1666,35 @@ def transferrequest(request, requestid):
                         ).values(
                         ).annotate(asset_name = Subquery(asset_name)
                         ).order_by("asset_name", "filename")
-    
-    # transfer_file_assets = Tbltransferfileasset.objects.filter(
-    #                         validto__isnull=True
-    #                         ,requestid=requestid
-    #                         ).values(
-    #                         ).order_by("filename")
 
     context = {'transfer_request': transfer_request
                 ,'transfer_files': transfer_files
-                # , 'transfer_file_assets': transfer_file_assets
             }
 
     return render(request, 'Prism/transfer.html', context)
+
+def transfercreate(request, projectnumber):
+    project_numbers = Tblproject.objects.filter(
+        validto__isnull=True
+        , laser = True
+    ).values("projectnumber"
+    ).order_by("projectnumber")
+    
+    transfer_form = TransferForm()
+
+    # If projectnumber not yet selected, disable form fields
+    if projectnumber == 'new':
+        for field in transfer_form.fields:
+            transfer_form.fields[field].disabled=True
+
+    # Limit the options in drop downs to just those relevant to the selected project number
+    if projectnumber != 'new':
+        transfer_form.fields['dsareviewed'].queryset = Tbldsas.objects.filter(validto__isnull=True, documentid__in=Tbldsasprojects.objects.filter(validto__isnull=True, project__iexact=projectnumber).values("documentid")).order_by("dsaname")
+        transfer_form.fields['requestedby'].queryset = Tbluser.objects.filter(validto__isnull=True, usernumber__in=Tbluserproject.objects.filter(validto__isnull=True, projectnumber__iexact=projectnumber).values("usernumber")).order_by("firstname", "lastname")
+
+    context = {'projectnumber': projectnumber
+        , 'project_numbers': project_numbers
+        , 'transfer_form':transfer_form}
+
+    if request.method == 'GET':
+        return render(request, 'Prism/transfer_new.html', context)

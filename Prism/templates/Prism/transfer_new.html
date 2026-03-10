@@ -1,0 +1,72 @@
+{% extends "Prism/layout.html" %}
+
+{% block title %}
+Pri2m : Transfer - New
+{% endblock %}
+
+{% block content %}
+
+<h1>Transfer - Create</h1>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <legend>Request</legend>
+            <p>
+                <label for="project-select">Project Number</label>
+                <select id="project-select" class="select"> 
+                    <option></option>
+                    {% for project_number in project_numbers %} 
+                    <option value="{% url 'transfercreate' project_number.projectnumber %}" 
+                            {% if project_number.projectnumber == projectnumber %}selected{% endif %}> 
+                        {{ project_number.projectnumber }} 
+                    </option> 
+                    {% endfor %} 
+                </select> 
+                <script> 
+                    document.getElementById("project-select").addEventListener("change", function () { window.location.href = this.value; }); 
+                </script>
+            </p>
+            <p>{{ transfer_form.reviewdate.as_field_group }}</p>
+            <p>{{ transfer_form.requestedby.as_field_group }}</p>
+            <p>{{ transfer_form.transfermethod.as_field_group }}</p>
+            <p>{{ transfer_form.transferfrom.as_field_group }}</p>
+            <p>{{ transfer_form.transferto.as_field_group }}</p>
+            <p>{{ transfer_form.requesternotes.as_field_group }}</p>
+        </div>
+        <div class="col-md-6">
+            <legend>Review</legend>
+            <p>{{ transfer_form.reviewedby.as_field_group }}</p>
+            <p>{{ transfer_form.dsareviewed.as_field_group }}</p>
+            <p>{{ transfer_form.reviewnotes.as_field_group }}</p>
+        </div>
+    </div>
+</div>
+
+<legend>Files</legend> 
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Asset Name</th>
+            <th scope="col">File Name</th>
+            <th scope="col">TRE Path</th>
+            <th scope="col">Data Repo Path</th>
+            <th scope="col">Transfer Accepted</th>
+            <th scope="col">Rejection Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transfer_file in transfer_files %}
+            <tr>
+                <td>{{ transfer_file.asset_name|default_if_none:"" }}</td>
+                <td>{{ transfer_file.filename|default_if_none:"" }}</td>
+                <td>{{ transfer_file.trefilepath|default_if_none:"" }}</td>
+                <td>{{ transfer_file.datarepofilepath|default_if_none:"" }}</td>
+                <td>{{ transfer_file.transferaccepted|default_if_none:"" }}</td>
+                <td>{{ transfer_file.rejectionnotes|default_if_none:"" }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

@@ -26,4 +26,5 @@ urlpatterns = [
     ,path('dataownercreate', views.dataownercreate, name = 'dataownercreate')
     ,path('transfers', views.transferrequests, name = 'transferrequests')
     ,path('transfer/<int:requestid>', views.transferrequest, name = 'transferrequest')
+    ,path('transfercreate/<str:projectnumber>', views.transfercreate, name = 'transfercreate')
 ]

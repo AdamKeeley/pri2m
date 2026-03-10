@@ -12,7 +12,7 @@ Pri2m : Transfer Details
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-6" style="text-align: left; align-items: start;">
+        <div class="col-md-6">
             <legend>Request</legend>
             <p>Requested by: <a href="/user/{{transfer_request.requestedby}}">{{transfer_request.requestedby_firstname}} {{transfer_request.requestedby_lastname}}</a></p>
             <p>Method: {{transfer_request.transfermethod__methodlabel|default_if_none:""}}</p>
@@ -20,7 +20,7 @@ Pri2m : Transfer Details
             <p>To: {{transfer_request.transferto|default_if_none:""}}</p>
             <p>Requester Note: {{transfer_request.requesternotes|default_if_none:""}}</p>
         </div>
-        <div class="col-md-6" style="text-align: left; align-items: start;">
+        <div class="col-md-6">
             <legend>Review</legend>
             <p>Reviewed By: {{transfer_request.reviewedby_firstname}} {{transfer_request.reviewedby_lastname}}</p>
             <p>DSA: <a href="/dsa/{{transfer_request.dsareviewed}}">{{transfer_request.dsa_reviewed|default_if_none:""}}</a></p>
@@ -30,7 +30,6 @@ Pri2m : Transfer Details
 </div>
 
 <legend>Files ({{ transfer_files|length }})</legend> 
-<!-- <p>Displaying: {{ transfer_files|length }}</p> -->
 <table class="table table-hover">
     <thead>
         <tr>
