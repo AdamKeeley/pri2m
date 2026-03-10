@@ -10,7 +10,7 @@ Pri2m: All Transfers
 {% if searchterms|length %}
 <h3>({{ searchterms }})</h3>
 {% endif %}
-<h4>Displaying: {{ transfers|length }}</h4>
+<h4>Displaying: {{ transfers.start_index }} - {{ transfers.end_index }} of {{ transfers.paginator.count }}</h4>
 
 <form action="/transfers" method="get">
     <div class="input-group">
@@ -19,30 +19,68 @@ Pri2m: All Transfers
     <button class="btn btn-primary" type="submit" id="button-search">Search</button>
 </form>
 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col"></th>
-            <th scope="col">Project Number</th>
-            <th scope="col">Request Type</th>
-            <th scope="col">Requested By</th>
-            <th scope="col">Reviewed By</th>
-            <th scope="col">Reviewed Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for transfer in transfers %}
+<div class="container-fluid">
+    <table class="table table-hover">
+        <thead>
             <tr>
-                <td><a href='transfer/{{ transfer.requestid }}'>Details</a></td>
-                <td>{{ transfer.projectnumber|default_if_none:"" }}</td>
-                <td>{{ transfer.requesttype__requesttypelabel|default_if_none:"" }}</td>
-                <td>{{ transfer.requestedby|default_if_none:"" }}</td>
-                <td>{{ transfer.reviewedby|default_if_none:"" }}</td>
-                <td>{{ transfer.reviewdate|default_if_none:"" | date:"Y-m-d" }}</td>
+                <th scope="col"></th>
+                <th scope="col">Project Number</th>
+                <th scope="col">Request Type</th>
+                <th scope="col">Requested By</th>
+                <th scope="col">Reviewed By</th>
+                <th scope="col">Reviewed Date</th>
             </tr>
+        </thead>
+        <tbody>
+            {% for transfer in transfers %}
+                <tr>
+                    <td><a href='transfer/{{ transfer.requestid }}'>Details</a></td>
+                    <td>{{ transfer.projectnumber|default_if_none:"" }}</td>
+                    <td>{{ transfer.requesttype__requesttypelabel|default_if_none:"" }}</td>
+                    <td>{{ transfer.requestedby|default_if_none:"" }}</td>
+                    <td>{{ transfer.reviewedby|default_if_none:"" }}</td>
+                    <td>{{ transfer.reviewdate|default_if_none:"" | date:"Y-m-d" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination" style="display: flex; flex-direction: column; align-items: center;">
+        <ul class="pagination pagination-sm">
+        {% if transfers.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ transfers.previous_page_number }}{% if query %}&{{ query }}{% endif %}">&laquo;</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#">&laquo;</a>
+            </li>
+        {% endif %}
+
+        {% for num in transfers.paginator.page_range %}
+            {% if transfers.number == num %}
+                <li class="page-item active">
+                    <a class="page-link" href="?page={{ num }}{% if query %}&{{ query }}{% endif %}">{{ num }}</a>
+                </li>
+            {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if query %}&{{ query }}{% endif %}">{{ num }}</a>
+                </li>
+            {% endif %}
         {% endfor %}
-    </tbody>
-</table>
+
+        {% if transfers.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ transfers.next_page_number }}{% if query %}&{{ query }}{% endif %}">&raquo;</a>
+            </li>
+        {% else %}
+            <li class="page-item disabled">
+                <a class="page-link" href="#">&raquo;</a>
+            </li>
+        {% endif %}
+        </ul>
+    </div>
+</div>
 
 {% endblock %}
 

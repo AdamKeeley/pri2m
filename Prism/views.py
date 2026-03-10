@@ -1598,12 +1598,27 @@ def transferrequests(request):
             reviewedby_name = f"{df.at[reviewedby_index[0],'firstname']} {df.at[reviewedby_index[0],'lastname']}"
             transfer.update(reviewedby=reviewedby_name)
 
+    paginator = Paginator(transfers, 25)  # Show 5 posts per page
+    page_number = request.GET.get('page')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+    
+    get_copy = request.GET.copy()
+    if 'page' in get_copy:
+        get_copy.pop('page')
+
     filter_string = ", ".join(filter_list)
     transfer_search_form = TransferSearchForm()
 
-    return render(request, 'Prism/transfers.html', {'transfers': transfers
-                                                   ,'transfer_search_form': transfer_search_form
-                                                   ,'searchterms': filter_string})
+    return render(request, 'Prism/transfers.html', {'transfers': page_obj
+                                                    ,'transfer_search_form': transfer_search_form
+                                                    ,'searchterms': filter_string
+                                                    ,'query': get_copy.urlencode()
+                                                    })
 
 def transferrequest(request, requestid):
     requestedby_firstname = Tbluser.objects.filter(
