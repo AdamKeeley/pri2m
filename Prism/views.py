@@ -5,7 +5,7 @@ from django.db.models import Max, Count, OuterRef, Subquery
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
     , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
     , Tlkuserstatus, Tblusernotes, Tblprojectkristal, tlkGrantStage, Tlklocation, Tblkristalnotes, Tbldsas, Tbldsanotes \
-    , Tbldsasprojects, Tbldsadataowners, Tlktransferrequesttypes, Tbltransferrequests
+    , Tbldsasprojects, Tbldsadataowners, Tlktransferrequesttypes, Tbltransferrequest, Tbltransferfile, Tbltransferfileasset
 from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
     , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm \
     , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm, DsaSearchForm, DataOwnerCreateForm, TransferSearchForm
@@ -1542,40 +1542,43 @@ def transferrequests(request):
     query = request.GET
 
     advanced_filter_query = {}
-    user_filter_query = {}
     filter_list = []
 
     if query is not None and query != '':
         for key in query:
             value = query.get(key)
             if value != '':
-                if key == 'project':
-                    advanced_filter_query['project__iexact'] = value
+                if key == 'projectnumber':
+                    advanced_filter_query['projectnumber__iexact'] = value
                     filter_list.append(f"Project is '{value}'")
                 if key == 'requesttype':
                     advanced_filter_query['requesttype__exact'] = value
                     filter_list.append(f"Request Type is '{Tlktransferrequesttypes.objects.get(requesttypeid=value)}'")
                 if key == 'requestedby':
-                    user_filter_query['requestedby__iexact'] = value
+                    advanced_filter_query['requestedby__iexact'] = value
                     filter_list.append(f"Requested By '{Tbluser.objects.get(usernumber=value, validto__isnull=True)}'")
                 if key == 'reviewedby':
-                    user_filter_query['reviewedby__iexact'] = value
+                    advanced_filter_query['reviewedby__iexact'] = value
                     filter_list.append(f"Reviewed By '{Tbluser.objects.get(usernumber=value, validto__isnull=True)}'")
                 if key == 'reviewdate':
                     advanced_filter_query['reviewdate__date__iexact'] = value
                     filter_list.append(f"Review Date is '{value}'")
                 
-    transfers = Tbltransferrequests.objects.filter(
+    transfers = Tbltransferrequest.objects.filter(
             Q(**advanced_filter_query, _connector=Q.AND)
-            , Q(**user_filter_query, _connector=Q.OR)
         ).values(
             "requestid"
-            , "project"
+            , "projectnumber"
             , "requesttype"
             , "requesttype__requesttypelabel"
             , "requestedby"
             , "reviewedby"
             , "reviewdate"
+            , "transfermethod"
+            , "transfermethod__methodlabel"
+            , "transferfrom"
+            , "transferto"
+            , "dsareviewed"
         ).order_by("-requestid")
 
     users = Tbluser.objects.filter(
@@ -1600,3 +1603,80 @@ def transferrequests(request):
     return render(request, 'Prism/transfers.html', {'transfers': transfers
                                                    ,'transfer_search_form': transfer_search_form
                                                    ,'searchterms': filter_string})
+
+def transferrequest(request, requestid):
+    
+    # Using OuterRef & Subquery to perform a lookup against Tblproject on Tbluserproject's projectnumber and add it to the model with annotate 
+    requestedby_firstname = Tbluser.objects.filter(
+        validto__isnull=True
+        ,usernumber=OuterRef("requestedby")
+    ).values("firstname")
+
+    requestedby_lastname = Tbluser.objects.filter(
+        validto__isnull=True
+        ,usernumber=OuterRef("requestedby")
+    ).values("lastname")
+
+    reviewedby_firstname = Tbluser.objects.filter(
+        validto__isnull=True
+        ,usernumber=OuterRef("reviewedby")
+    ).values("firstname")
+
+    reviewedby_lastname = Tbluser.objects.filter(
+        validto__isnull=True
+        ,usernumber=OuterRef("reviewedby")
+    ).values("lastname")
+
+    dsa_reviewed = Tbldsas.objects.filter(
+        validto__isnull=True
+        ,documentid=OuterRef("dsareviewed")
+    ).values("dsaname")
+
+    transfer_request = Tbltransferrequest.objects.filter(
+                        requestid=requestid
+                        ).values("requestid"
+                                , "projectnumber"
+                                , "requesttype"
+                                , "requesttype__requesttypelabel"
+                                , "requestedby"
+                                , "requesternotes"
+                                , "reviewedby"
+                                , "reviewdate"
+                                , "reviewnotes"
+                                , "transfermethod"
+                                , "transfermethod__methodlabel"
+                                , "transferfrom"
+                                , "transferto"
+                                , "dsareviewed"
+                        ).annotate(requestedby_firstname = Subquery(requestedby_firstname)
+                                , requestedby_lastname = Subquery(requestedby_lastname)
+                                , reviewedby_firstname = Subquery(reviewedby_firstname)
+                                , reviewedby_lastname = Subquery(reviewedby_lastname)
+                                , dsa_reviewed = Subquery(dsa_reviewed)
+                        ).order_by('-requestid'
+                        ).get()
+    
+    asset_name = Tbltransferfileasset.objects.filter(
+        validto__isnull=True
+        ,assetid=OuterRef("assetid")
+    ).values("assetname")
+
+    transfer_files = Tbltransferfile.objects.filter(
+                        validto__isnull=True
+                        ,requestid=requestid
+                        ).values(
+                        ).annotate(asset_name = Subquery(asset_name)
+                        ).order_by("asset_name", "filename")
+    
+    # transfer_file_assets = Tbltransferfileasset.objects.filter(
+    #                         validto__isnull=True
+    #                         ,requestid=requestid
+    #                         ).values(
+    #                         ).order_by("filename")
+
+    context = {'transfer_request': transfer_request
+                ,'transfer_files': transfer_files
+                # , 'transfer_file_assets': transfer_file_assets
+            }
+
+    return render(request, 'Prism/transfer.html', context)

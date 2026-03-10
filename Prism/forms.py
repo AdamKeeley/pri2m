@@ -3,7 +3,7 @@ from django.db.models import ForeignKey
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
     , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tbluserproject \
     , Tblusernotes, tlkGrantStage, Tlklocation, Tblkristal, Tblprojectkristal, Tblkristalnotes, Tbldsas, Tbldsadataowners \
-    , Tbldsanotes, Tbldsasprojects, Tbltransferrequests, Tlktransferrequesttypes
+    , Tbldsanotes, Tbldsasprojects, Tbltransferrequest, Tlktransferrequesttypes, Tlkfiletransfermethods
 from django.utils import timezone
 #from django.core.exceptions import ValidationError
 
@@ -449,11 +449,31 @@ class DataOwnerCreateForm(forms.Form):
         model = Tbldsadataowners
 
 class TransferSearchForm(forms.Form):
-    project = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), to_field_name="projectnumber", required=False)
+    projectnumber = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), to_field_name="projectnumber", required=False)
     requesttype = forms.ModelChoiceField(label="Request Type", queryset=Tlktransferrequesttypes.objects.filter(validto__isnull=True).order_by("requesttypelabel"), required=False)
     requestedby = forms.ModelChoiceField(label="Requested By", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
     reviewedby = forms.ModelChoiceField(label="Reviewed By", queryset=Tbluser.objects.filter(validto__isnull=True, priviledged=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
     reviewdate = forms.DateTimeField(label="Review Date", widget = DateInput(), required=False)
         
     class Meta:
-        model = Tbltransferrequests
+        model = Tbltransferrequest
+
+class TransferForm(forms.Form):
+    requestid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    projectnumber = forms.ModelChoiceField(label="Project Number", queryset=Tblproject.objects.filter(validto__isnull=True).order_by("projectnumber"), to_field_name="projectnumber", required=False)
+    requesttype = forms.ModelChoiceField(label="Request Type", queryset=Tlktransferrequesttypes.objects.filter(validto__isnull=True).order_by("requesttypelabel"), required=False)
+    requestedby = forms.ModelChoiceField(label="Requested By", queryset=Tbluser.objects.filter(validto__isnull=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
+    requesternotes = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "New note..."}), label="Requester Note", max_length=500)
+    reviewedby = forms.ModelChoiceField(label="Reviewed By", queryset=Tbluser.objects.filter(validto__isnull=True, priviledged=True).order_by("firstname", "lastname"), to_field_name="usernumber", required=False)
+    reviewdate = forms.DateTimeField(label="Review Date", widget = DateInput(), required=False)
+    reviewnotes = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "New note..."}), label="Reviewer Note", max_length=500)
+    transfermethod = forms.ModelChoiceField(label="Transfer Method", queryset=Tlkfiletransfermethods.objects.filter(validto__isnull=True).order_by("methodlabel"))
+    transferfrom = forms.CharField(label="Transfer From", max_length=250, required=False)
+    transferto = forms.CharField(label="Transfer To", max_length=250, required=False)
+    dsareviewed = forms.ModelChoiceField(label="DSA Reviewed", queryset=Tbldsas.objects.filter(validto__isnull=True, documentid__in=Tbldsasprojects.objects.filter(validto__isnull=True, project__iexact=projectnumber)).order_by("dsaname"), to_field_name="documentid")
+    validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
+    validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+
+    class Meta:
+        model = Tbltransferrequest

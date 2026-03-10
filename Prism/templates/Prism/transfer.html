@@ -1,0 +1,59 @@
+{% extends "Prism/layout.html" %}
+
+{% block title %}
+Pri2m : Transfer Details
+{% endblock %}
+
+{% block content %}
+
+<h1>Transfer - #{{ transfer_request.requestid }} (<a href="/project/{{transfer_request.projectnumber}}">{{transfer_request.projectnumber}}</a> {{transfer_request.requesttype__requesttypelabel}})</h1>
+
+<h2>Review Date: {{transfer_request.reviewdate | date:"Y-m-d"}}</h2>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-6" style="text-align: left; align-items: start;">
+            <legend>Request</legend>
+            <p>Requested by: <a href="/user/{{transfer_request.requestedby}}">{{transfer_request.requestedby_firstname}} {{transfer_request.requestedby_lastname}}</a></p>
+            <p>Method: {{transfer_request.transfermethod__methodlabel|default_if_none:""}}</p>
+            <p>From: {{transfer_request.transferfrom|default_if_none:""}}</p>
+            <p>To: {{transfer_request.transferto|default_if_none:""}}</p>
+            <p>Requester Note: {{transfer_request.requesternotes|default_if_none:""}}</p>
+        </div>
+        <div class="col-md-6" style="text-align: left; align-items: start;">
+            <legend>Review</legend>
+            <p>Reviewed By: {{transfer_request.reviewedby_firstname}} {{transfer_request.reviewedby_lastname}}</p>
+            <p>DSA: <a href="/dsa/{{transfer_request.dsareviewed}}">{{transfer_request.dsa_reviewed|default_if_none:""}}</a></p>
+            <p>Reveiwer Note: {{transfer_request.reviewnotes|default_if_none:""}}</p>
+        </div>
+    </div>
+</div>
+
+<legend>Files ({{ transfer_files|length }})</legend> 
+<!-- <p>Displaying: {{ transfer_files|length }}</p> -->
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Asset Name</th>
+            <th scope="col">File Name</th>
+            <th scope="col">TRE Path</th>
+            <th scope="col">Data Repo Path</th>
+            <th scope="col">Transfer Accepted</th>
+            <th scope="col">Rejection Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for transfer_file in transfer_files %}
+            <tr>
+                <td>{{ transfer_file.asset_name|default_if_none:"" }}</td>
+                <td>{{ transfer_file.filename|default_if_none:"" }}</td>
+                <td>{{ transfer_file.trefilepath|default_if_none:"" }}</td>
+                <td>{{ transfer_file.datarepofilepath|default_if_none:"" }}</td>
+                <td>{{ transfer_file.transferaccepted|default_if_none:"" }}</td>
+                <td>{{ transfer_file.rejectionnotes|default_if_none:"" }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

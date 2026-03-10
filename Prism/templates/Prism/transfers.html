@@ -33,8 +33,8 @@ Pri2m: All Transfers
     <tbody>
         {% for transfer in transfers %}
             <tr>
-                <td><a href='transfers/{{ transfer.requestid }}'>Details</a></td>
-                <td>{{ transfer.project|default_if_none:"" }}</td>
+                <td><a href='transfer/{{ transfer.requestid }}'>Details</a></td>
+                <td>{{ transfer.projectnumber|default_if_none:"" }}</td>
                 <td>{{ transfer.requesttype__requesttypelabel|default_if_none:"" }}</td>
                 <td>{{ transfer.requestedby|default_if_none:"" }}</td>
                 <td>{{ transfer.reviewedby|default_if_none:"" }}</td>

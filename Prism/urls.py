@@ -25,4 +25,5 @@ urlpatterns = [
     ,path('remove/projectdsa/<int:dpid>', views.projectdsa_remove, name = 'projectdsa_remove')
     ,path('dataownercreate', views.dataownercreate, name = 'dataownercreate')
     ,path('transfers', views.transferrequests, name = 'transferrequests')
+    ,path('transfer/<int:requestid>', views.transferrequest, name = 'transferrequest')
 ]
