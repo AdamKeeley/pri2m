@@ -68,7 +68,9 @@ Pri2m : Transfer - New
     <table class="table table-hover">
         <thead>
             <tr>
-                <th scope="col">Asset Name</th>
+                <th scope="col">Asset Name<br>
+                    <button type="button" class="copy-column" data-field="assetid">copy 1st row</button>
+                </th>
                 <th scope="col">File Name</th>
                 <th scope="col">TRE Path<br>
                     <button type="button" class="copy-column" data-field="trefilepath">copy 1st row</button>
@@ -88,7 +90,7 @@ Pri2m : Transfer - New
         <tbody>
             {% for form in formset %}
                 <tr>
-                <td>{{ form.asset_id|default_if_none:"" }}</td>
+                <td>{{ form.assetid }}</td>
                 <td>{{ form.filename|default_if_none:"" }}</td>
                 <td>{{ form.trefilepath|default_if_none:"" }}</td>
                 <td>{{ form.datarepofilepath|default_if_none:"" }}</td>
@@ -154,16 +156,54 @@ Pri2m : Transfer - New
 
     document.getElementById("pick").addEventListener("click", pickDirectoryAndSend);
 
-    document.querySelectorAll(".copy-column").forEach(btn => {
-        btn.addEventListener("click", () => {
-            const field = btn.dataset.field;
-            const inputs = document.querySelectorAll(`input[name$='-${field}']`);
-            
-            const value = inputs[0].value; // top row is source
+    
+    function setControlValue(el, value) {
+        // For <input>, <textarea>, and <select>
+        if ('value' in el) {
+        el.value = value;
+        // Fire both 'input' and 'change' to cover most scenarios
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+    }
 
-            inputs.forEach(input => input.value = value);
+    
+    function copyColumn(fieldName, sourceIndex = 0) {
+        // Match inputs/textareas/selects with names ending in -<fieldName>
+        const selector = [
+        `input[name$='-${fieldName}']`,
+        `textarea[name$='-${fieldName}']`,
+        `select[name$='-${fieldName}']` 
+        ].join(',');
+
+        const controls = Array.from(document.querySelectorAll(selector));
+        if (controls.length === 0) return;
+
+        const source = controls[sourceIndex];
+        const value = source ? source.value : '';
+
+        controls.forEach(ctrl => setControlValue(ctrl, value));
+    }
+
+
+    document.querySelectorAll('.copy-column').forEach(btn => {
+        btn.addEventListener('click', () => {
+        const field = btn.dataset.field;
+        copyColumn(field, 0);
         });
     });
+
+
+    // document.querySelectorAll(".copy-column").forEach(btn => {
+    //     btn.addEventListener("click", () => {
+    //         const field = btn.dataset.field;
+    //         const inputs = document.querySelectorAll(`input[name$='-${field}']`);
+            
+    //         const value = inputs[0].value; // top row is source
+
+    //         inputs.forEach(input => input.value = value);
+    //     });
+    // });
 
     document.getElementById("check-all").addEventListener("change", function() {
         const check = this.checked;

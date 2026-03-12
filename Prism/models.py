@@ -484,7 +484,7 @@ class Tbltransferfileasset(models.Model):
     createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
 
     def __str__(self):
-        return self.assetname
+        return self.assetname or ""
 
     class Meta:
         managed = False

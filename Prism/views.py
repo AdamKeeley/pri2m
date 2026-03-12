@@ -1734,6 +1734,10 @@ def transfercreate(request, projectnumber):
                 initial.append({"filename": p})
             formset = FileFormSet(initial=initial)
 
+            asset_choices = Tbltransferfileasset.objects.filter(validto__isnull=True, assetid__in=Tbltransferfile.objects.filter(validto__isnull=True, requestid__in=Tbltransferrequest.objects.filter(validto__isnull=True, projectnumber__iexact=projectnumber)).values("assetid")).order_by("assetname")
+            for form in formset:
+                form.fields['assetid'].queryset = asset_choices
+
             context.update({'transfer_form':transfer_form_new
                 ,"formset": formset})
 

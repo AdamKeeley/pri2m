@@ -3,7 +3,8 @@ from django.db.models import ForeignKey
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
     , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tbluserproject \
     , Tblusernotes, tlkGrantStage, Tlklocation, Tblkristal, Tblprojectkristal, Tblkristalnotes, Tbldsas, Tbldsadataowners \
-    , Tbldsanotes, Tbldsasprojects, Tbltransferrequest, Tlktransferrequesttypes, Tlkfiletransfermethods, Tbltransferfileasset
+    , Tbldsanotes, Tbldsasprojects, Tbltransferrequest, Tlktransferrequesttypes, Tlkfiletransfermethods, Tbltransferfileasset \
+    , Tbltransferfile
 from django.utils import timezone
 #from django.core.exceptions import ValidationError
 
@@ -485,9 +486,23 @@ class TransferfileForm(forms.Form):
     trefilepath = forms.CharField(label="TRE Filepath", max_length=200)
     datarepofilepath = forms.CharField(label="Data Repo Filepath", max_length=200)
     transferaccepted = forms.BooleanField(label="Accepted", required=False)
-    # rejectionnotes = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "Rejection note..."}), label="Rejection Note", max_length=500, required=False)
-    rejectionnotes = forms.CharField(label="Filename", max_length=500, required=False)
-    assetid = forms.ModelChoiceField(label="Asset", queryset=Tbltransferfileasset.objects.filter(validto__isnull=True).order_by("assetname"))
+    rejectionnotes = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "Rejection note..."}), label="Rejection Note", max_length=500, required=False)
+    # rejectionnotes = forms.CharField(label="Filename", max_length=500, required=False)
+    assetid = forms.ModelChoiceField(label="Asset", queryset=Tbltransferfileasset.objects.filter(validto__isnull=True).order_by("assetname"), required=False)
     validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
     validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+
+    class Meta:
+        model = Tbltransferfile
+
+class TransferfileassetForm(forms.Form):
+    assetid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    assetname = forms.CharField(label="Asset Name", max_length=500, required=False)
+    # dataowner = forms.CharField(label="Data Owner", max_length=100, required=False)
+    validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
+    validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+
+    class Meta:
+        model = Tbltransferfileasset
