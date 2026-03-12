@@ -1,15 +1,15 @@
 from django.shortcuts import render
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.apps import apps
 from django.db.models import Max, Count, OuterRef, Subquery
 from .models import Tblproject, Tbluser, Tblprojectnotes, Tblprojectdocument, Tlkdocuments, Tblprojectplatforminfo \
     , Tblprojectdatallocation, Tbluserproject, Tblkristal, Tblprojectkristal, Tlkstage, Tlkfaculty, Tlkclassification \
     , Tlkuserstatus, Tblusernotes, Tblprojectkristal, tlkGrantStage, Tlklocation, Tblkristalnotes, Tbldsas, Tbldsanotes \
     , Tbldsasprojects, Tbldsadataowners, Tlktransferrequesttypes, Tbltransferrequest, Tbltransferfile, Tbltransferfileasset
-from .forms import ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
+from .forms import  ProjectSearchForm, ProjectForm, ProjectNotesForm, ProjectDocumentsForm, ProjectPlatformInfoForm \
     , ProjectDatAllocationForm, UserSearchForm, UserForm, UserProjectForm, UserNotesForm, KristalForm, ProjectKristalForm \
     , GrantSearchForm, GrantNotesForm, DsaForm, DsaNotesForm, ProjectDsaForm, DsaSearchForm, DataOwnerCreateForm, TransferSearchForm \
-    , TransferForm
+    , TransferForm, TransferfileForm
 import pandas as pd
 from django.utils import timezone
 from django.db.models import Q
@@ -17,7 +17,8 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from collections import namedtuple
 from django.contrib.auth.decorators import login_required, permission_required 
-
+import json
+from django.forms import formset_factory
 
 def index(request):
     return render(request, 'Prism/index.html')
@@ -1704,12 +1705,42 @@ def transfercreate(request, projectnumber):
 
     # Limit the options in drop downs to just those relevant to the selected project number
     if projectnumber != 'new':
-        transfer_form.fields['dsareviewed'].queryset = Tbldsas.objects.filter(validto__isnull=True, documentid__in=Tbldsasprojects.objects.filter(validto__isnull=True, project__iexact=projectnumber).values("documentid")).order_by("dsaname")
-        transfer_form.fields['requestedby'].queryset = Tbluser.objects.filter(validto__isnull=True, usernumber__in=Tbluserproject.objects.filter(validto__isnull=True, projectnumber__iexact=projectnumber).values("usernumber")).order_by("firstname", "lastname")
+        dsareviewed_choices = Tbldsas.objects.filter(validto__isnull=True, documentid__in=Tbldsasprojects.objects.filter(validto__isnull=True, project__iexact=projectnumber).values("documentid")).order_by("dsaname")
+        requestedby_choices =Tbluser.objects.filter(validto__isnull=True, usernumber__in=Tbluserproject.objects.filter(validto__isnull=True, projectnumber__iexact=projectnumber).values("usernumber")).order_by("firstname", "lastname")
+        transfer_form.fields['dsareviewed'].queryset = dsareviewed_choices
+        transfer_form.fields['requestedby'].queryset = requestedby_choices
 
     context = {'projectnumber': projectnumber
         , 'project_numbers': project_numbers
         , 'transfer_form':transfer_form}
+
+    if request.method == 'POST':
+        if 'files' in request.POST:
+            # Retain inputted transfer details
+            transfer_form_new = TransferForm(request.POST)
+            transfer_form_new.fields['dsareviewed'].queryset = dsareviewed_choices
+            transfer_form_new.fields['requestedby'].queryset = requestedby_choices
+
+            # Expect JSON: {"paths":["sub/a.txt", "b.jpg", ...]}
+            try:
+                files = json.loads(request.POST.get("files", "[]"))
+                assert isinstance(files['paths'], list)
+            except Exception:
+                return HttpResponseBadRequest("Invalid JSON")
+
+            FileFormSet = formset_factory(TransferfileForm, extra=0)
+            initial = []
+            for p in files['paths']:
+                initial.append({"filename": p})
+            formset = FileFormSet(initial=initial)
+
+            context.update({'transfer_form':transfer_form_new
+                ,"formset": formset})
+
+            # Render to a page that shows the formset (no file content uploaded!)
+            return render(request, "Prism/transfer_new.html", context)
+        
+        return render(request, "Prism/transfer_new.html", context)
 
     if request.method == 'GET':
         return render(request, 'Prism/transfer_new.html', context)

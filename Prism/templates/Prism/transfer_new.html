@@ -8,65 +8,167 @@ Pri2m : Transfer - New
 
 <h1>Transfer - Create</h1>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-6">
-            <legend>Request</legend>
-            <p>
-                <label for="project-select">Project Number</label>
-                <select id="project-select" class="select"> 
-                    <option></option>
-                    {% for project_number in project_numbers %} 
-                    <option value="{% url 'transfercreate' project_number.projectnumber %}" 
-                            {% if project_number.projectnumber == projectnumber %}selected{% endif %}> 
-                        {{ project_number.projectnumber }} 
-                    </option> 
-                    {% endfor %} 
-                </select> 
-                <script> 
-                    document.getElementById("project-select").addEventListener("change", function () { window.location.href = this.value; }); 
-                </script>
-            </p>
-            <p>{{ transfer_form.reviewdate.as_field_group }}</p>
-            <p>{{ transfer_form.requestedby.as_field_group }}</p>
-            <p>{{ transfer_form.transfermethod.as_field_group }}</p>
-            <p>{{ transfer_form.transferfrom.as_field_group }}</p>
-            <p>{{ transfer_form.transferto.as_field_group }}</p>
-            <p>{{ transfer_form.requesternotes.as_field_group }}</p>
-        </div>
-        <div class="col-md-6">
-            <legend>Review</legend>
-            <p>{{ transfer_form.reviewedby.as_field_group }}</p>
-            <p>{{ transfer_form.dsareviewed.as_field_group }}</p>
-            <p>{{ transfer_form.reviewnotes.as_field_group }}</p>
+{% if transfer_form.non_field_errors %}
+<ul>
+    {% for error in transfer_form.non_field_errors %}
+        <li class="form-error">{{error}}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form id="transfer" method="POST" action="submit">
+    {% csrf_token %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <legend>Request</legend>
+                <p>
+                    <label for="project-select">Project Number</label>
+                    <select id="project-select" class="select"> 
+                        <option></option>
+                        {% for project_number in project_numbers %} 
+                        <option value="{% url 'transfercreate' project_number.projectnumber %}" 
+                                {% if project_number.projectnumber == projectnumber %}selected{% endif %}> 
+                            {{ project_number.projectnumber }} 
+                        </option> 
+                        {% endfor %} 
+                    </select> 
+                    <script> 
+                        document.getElementById("project-select").addEventListener("change", function () { window.location.href = this.value; }); 
+                    </script>
+                </p>
+                <p>{{ transfer_form.requesttype.as_field_group }}</p>
+                <p>{{ transfer_form.reviewdate.as_field_group }}</p>
+                <p>{{ transfer_form.requestedby.as_field_group }}</p>
+                <p>{{ transfer_form.transfermethod.as_field_group }}</p>
+                <p>{{ transfer_form.transferfrom.as_field_group }}</p>
+                <p>{{ transfer_form.transferto.as_field_group }}</p>
+                <p>{{ transfer_form.requesternotes.as_field_group }}</p>
+            </div>
+            <div class="col-md-6">
+                <legend>Review</legend>
+                <p>{{ transfer_form.reviewedby.as_field_group }}</p>
+                <p>{{ transfer_form.dsareviewed.as_field_group }}</p>
+                <p>{{ transfer_form.reviewnotes.as_field_group }}</p>
+            </div>
         </div>
     </div>
-</div>
+</form>
 
 <legend>Files</legend> 
-<table class="table table-hover">
-    <thead>
-        <tr>
-            <th scope="col">Asset Name</th>
-            <th scope="col">File Name</th>
-            <th scope="col">TRE Path</th>
-            <th scope="col">Data Repo Path</th>
-            <th scope="col">Transfer Accepted</th>
-            <th scope="col">Rejection Notes</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for transfer_file in transfer_files %}
+
+<button class="btn btn-primary" id="pick" {% if projectnumber == "new" %}disabled="True"{% endif %}>Choose a directory</button>
+<pre id="out"></pre>
+
+<form method="post">
+    {% csrf_token %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    {{ formset.management_form }}
+
+    <table class="table table-hover">
+        <thead>
             <tr>
-                <td>{{ transfer_file.asset_name|default_if_none:"" }}</td>
-                <td>{{ transfer_file.filename|default_if_none:"" }}</td>
-                <td>{{ transfer_file.trefilepath|default_if_none:"" }}</td>
-                <td>{{ transfer_file.datarepofilepath|default_if_none:"" }}</td>
-                <td>{{ transfer_file.transferaccepted|default_if_none:"" }}</td>
-                <td>{{ transfer_file.rejectionnotes|default_if_none:"" }}</td>
+                <th scope="col">Asset Name</th>
+                <th scope="col">File Name</th>
+                <th scope="col">TRE Path<br>
+                    <button type="button" class="copy-column" data-field="trefilepath">copy 1st row</button>
+                </th>
+                <th scope="col">Data Repo Path<br>
+                    <button type="button" class="copy-column" data-field="datarepofilepath">copy 1st row</button>
+                </th>
+                <th scope="col">Transfer Accepted<br>
+                    <label for="check-all">(all)</label>
+                    <input type="checkbox" id="check-all">
+                </th>
+                <th scope="col">Rejection Notes<br>
+                    <button type="button" class="copy-column" data-field="rejectionnotes">copy 1st row</button>
+                </th>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            {% for form in formset %}
+                <tr>
+                <td>{{ form.asset_id|default_if_none:"" }}</td>
+                <td>{{ form.filename|default_if_none:"" }}</td>
+                <td>{{ form.trefilepath|default_if_none:"" }}</td>
+                <td>{{ form.datarepofilepath|default_if_none:"" }}</td>
+                <td>{{ form.transferaccepted|default_if_none:"" }}</td>
+                <td>{{ form.rejectionnotes|default_if_none:"" }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</form>
+
+<script>
+    async function* walkDirectory(dirHandle, path="") {
+        for await (const [name, handle] of dirHandle.entries()) {
+            const relPath = path ? `${path}/${name}` : name;
+            if (handle.kind === "file") {
+                yield relPath; // we don’t open/read the file
+            } else if (handle.kind === "directory") {
+                yield* walkDirectory(handle, relPath);
+            }
+        }
+    }
+
+    async function pickDirectoryAndSend() {
+        const form = document.getElementById("transfer");
+        const formData = new FormData(form);
+
+        if (!window.showDirectoryPicker) {
+            alert("Your browser doesn't support folder selection this way. Try Chrome/Edge, or use the fallback form.");
+            return;
+        }
+        const dirHandle = await window.showDirectoryPicker({ mode: "read" });
+
+        const paths = [];
+        for await (const p of walkDirectory(dirHandle)) {
+            paths.push(p);
+        }
+
+        document.getElementById("out").textContent = paths.join("\n");
+
+        formData.append("files", JSON.stringify({paths}));
+
+        // Send ONLY names/paths to Django as JSON
+        const csrftoken = document.querySelector('meta[name="csrf-token"]').content;
+
+        const resp = await fetch("{% url 'transfercreate' projectnumber %}", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrftoken
+            },
+            body: formData
+        });
+
+        if (!resp.ok) {
+            const text = await resp.text();
+            alert("Server error: " + text);
+        } else {
+            // optionally redirect or render returned HTML with filenames
+            const html = await resp.text();
+            document.open(); document.write(html); document.close();
+        }
+    }
+
+    document.getElementById("pick").addEventListener("click", pickDirectoryAndSend);
+
+    document.querySelectorAll(".copy-column").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const field = btn.dataset.field;
+            const inputs = document.querySelectorAll(`input[name$='-${field}']`);
+            
+            const value = inputs[0].value; // top row is source
+
+            inputs.forEach(input => input.value = value);
+        });
+    });
+
+    document.getElementById("check-all").addEventListener("change", function() {
+        const check = this.checked;
+        document.querySelectorAll("input[type=checkbox][name$='-transferaccepted']").forEach(cb => {cb.checked = check;});
+    });
+</script>
 
 {% endblock %}

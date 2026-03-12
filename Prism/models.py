@@ -483,6 +483,9 @@ class Tbltransferfileasset(models.Model):
     validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
     createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
 
+    def __str__(self):
+        return self.assetname
+
     class Meta:
         managed = False
         db_table = 'tblTransferFileAsset'

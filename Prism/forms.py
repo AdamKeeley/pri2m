@@ -3,7 +3,7 @@ from django.db.models import ForeignKey
 from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser, Tblprojectnotes, Tblprojectdocument \
     , Tlkdocuments, Tblprojectplatforminfo, Tlkplatforminfo, Tblprojectdatallocation, Tlkuserstatus, Tbluserproject \
     , Tblusernotes, tlkGrantStage, Tlklocation, Tblkristal, Tblprojectkristal, Tblkristalnotes, Tbldsas, Tbldsadataowners \
-    , Tbldsanotes, Tbldsasprojects, Tbltransferrequest, Tlktransferrequesttypes, Tlkfiletransfermethods
+    , Tbldsanotes, Tbldsasprojects, Tbltransferrequest, Tlktransferrequesttypes, Tlkfiletransfermethods, Tbltransferfileasset
 from django.utils import timezone
 #from django.core.exceptions import ValidationError
 
@@ -477,3 +477,17 @@ class TransferForm(forms.Form):
 
     class Meta:
         model = Tbltransferrequest
+
+class TransferfileForm(forms.Form):
+    fileid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    requestid = forms.IntegerField(widget = forms.HiddenInput(), required=False)
+    filename = forms.CharField(label="Filename", max_length=300)
+    trefilepath = forms.CharField(label="TRE Filepath", max_length=200)
+    datarepofilepath = forms.CharField(label="Data Repo Filepath", max_length=200)
+    transferaccepted = forms.BooleanField(label="Accepted", required=False)
+    # rejectionnotes = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "Rejection note..."}), label="Rejection Note", max_length=500, required=False)
+    rejectionnotes = forms.CharField(label="Filename", max_length=500, required=False)
+    assetid = forms.ModelChoiceField(label="Asset", queryset=Tbltransferfileasset.objects.filter(validto__isnull=True).order_by("assetname"))
+    validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
+    validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
+    createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
