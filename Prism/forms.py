@@ -488,10 +488,27 @@ class TransferfileForm(forms.Form):
     transferaccepted = forms.BooleanField(label="Accepted", required=False)
     rejectionnotes = forms.CharField(widget=forms.Textarea(attrs={"rows":1, "placeholder": "Rejection note..."}), label="Rejection Note", max_length=500, required=False)
     # rejectionnotes = forms.CharField(label="Filename", max_length=500, required=False)
-    assetid = forms.ModelChoiceField(label="Asset", queryset=Tbltransferfileasset.objects.filter(validto__isnull=True).order_by("assetname"), required=False)
+    assetid = forms.ModelChoiceField(widget=forms.Select(attrs={'style': 'width:250px'}), label="Asset", queryset=Tbltransferfileasset.objects.filter(validto__isnull=True).order_by("assetname"), required=False)
+    new_asset = forms.CharField(label="Or create a new one", required=False)
     validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
     validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
+
+    def clean(self):
+            cleaned = super().clean()
+
+            asset = cleaned.get("assetid")
+            add_asset = cleaned.get("new_asset", "").strip()
+            if add_asset:
+                asset, created = Tbltransferfileasset.objects.get_or_create(assetname=add_asset, validfrom=timezone.now())
+            cleaned["assetid"] = asset
+
+            rejectionnotes = cleaned.get("rejectionnotes").strip()
+            transferaccepted = cleaned.get("transferaccepted")
+            if rejectionnotes is None and transferaccepted is False:
+                self.add_error(None, "Must provide rejection reason for files not accepted")
+
+            return cleaned
 
     class Meta:
         model = Tbltransferfile

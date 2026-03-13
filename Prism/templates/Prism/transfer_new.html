@@ -57,10 +57,9 @@ Pri2m : Transfer - New
 
 <legend>Files</legend> 
 
-<button class="btn btn-primary" id="pick" {% if projectnumber == "new" %}disabled="True"{% endif %}>Choose a directory</button>
 <pre id="out"></pre>
 
-<form method="post">
+<form id="files" method="POST" action="submit">
     {% csrf_token %}
     <meta name="csrf-token" content="{{ csrf_token }}">
     {{ formset.management_form }}
@@ -68,34 +67,40 @@ Pri2m : Transfer - New
     <table class="table table-hover">
         <thead>
             <tr>
-                <th scope="col">Asset Name<br>
-                    <button type="button" class="copy-column" data-field="assetid">↓</button>
+                <th scope="col">File Name<br>
+                    <button type="button" onclick="pickDirectoryAndSend()" id="pick" {% if projectnumber == "new" %}disabled="True"{% endif %}>Choose a directory</button>
                 </th>
-                <th scope="col">File Name</th>
+                <th scope="col">Existing Asset<br>
+                    <button type="button" class="copy-column" data-field="assetid" {% if projectnumber == "new" %}disabled="True"{% endif %}>↓</button>
+                </th>
+                <th scope="col">Create Asset<br>
+                    <button type="button" class="copy-column" data-field="new_asset" {% if projectnumber == "new" %}disabled="True"{% endif %}>↓</button>
+                </th>
                 <th scope="col">TRE Path<br>
-                    <button type="button" class="copy-column" data-field="trefilepath">↓</button>
+                    <button type="button" class="copy-column" data-field="trefilepath" {% if projectnumber == "new" %}disabled="True"{% endif %}>↓</button>
                 </th>
                 <th scope="col">Data Repo Path<br>
-                    <button type="button" class="copy-column" data-field="datarepofilepath">↓</button>
+                    <button type="button" class="copy-column" data-field="datarepofilepath" {% if projectnumber == "new" %}disabled="True"{% endif %}>↓</button>
                 </th>
-                <th scope="col">Transfer Accepted<br>
+                <th scope="col">Accept Transfer<br>
                     <label for="check-all"></label>
-                    <input type="checkbox" id="check-all">
+                    <input type="checkbox" id="check-all" {% if projectnumber == "new" %}disabled="True"{% endif %}>
                 </th>
                 <th scope="col">Rejection Notes<br>
-                    <button type="button" class="copy-column" data-field="rejectionnotes">↓</button>
+                    <button type="button" class="copy-column" data-field="rejectionnotes" {% if projectnumber == "new" %}disabled="True"{% endif %}>↓</button>
                 </th>
             </tr>
         </thead>
         <tbody>
             {% for form in formset %}
                 <tr>
-                <td>{{ form.assetid }}</td>
-                <td>{{ form.filename|default_if_none:"" }}</td>
-                <td>{{ form.trefilepath|default_if_none:"" }}</td>
-                <td>{{ form.datarepofilepath|default_if_none:"" }}</td>
-                <td>{{ form.transferaccepted|default_if_none:"" }}</td>
-                <td>{{ form.rejectionnotes|default_if_none:"" }}</td>
+                    <td>{{ form.filename|default_if_none:"" }}</td>
+                    <td>{{ form.assetid }}</td>
+                    <td>{{ form.new_asset }}</td>
+                    <td>{{ form.trefilepath|default_if_none:"" }}</td>
+                    <td>{{ form.datarepofilepath|default_if_none:"" }}</td>
+                    <td>{{ form.transferaccepted|default_if_none:"" }}</td>
+                    <td>{{ form.rejectionnotes|default_if_none:"" }}</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -154,7 +159,7 @@ Pri2m : Transfer - New
         }
     }
 
-    document.getElementById("pick").addEventListener("click", pickDirectoryAndSend);
+    // document.getElementById("pick").addEventListener("click", pickDirectoryAndSend);
     
     function setControlValue(el, value) {
         if ('value' in el) {
