@@ -69,21 +69,21 @@ Pri2m : Transfer - New
         <thead>
             <tr>
                 <th scope="col">Asset Name<br>
-                    <button type="button" class="copy-column" data-field="assetid">copy 1st row</button>
+                    <button type="button" class="copy-column" data-field="assetid">↓</button>
                 </th>
                 <th scope="col">File Name</th>
                 <th scope="col">TRE Path<br>
-                    <button type="button" class="copy-column" data-field="trefilepath">copy 1st row</button>
+                    <button type="button" class="copy-column" data-field="trefilepath">↓</button>
                 </th>
                 <th scope="col">Data Repo Path<br>
-                    <button type="button" class="copy-column" data-field="datarepofilepath">copy 1st row</button>
+                    <button type="button" class="copy-column" data-field="datarepofilepath">↓</button>
                 </th>
                 <th scope="col">Transfer Accepted<br>
-                    <label for="check-all">(all)</label>
+                    <label for="check-all"></label>
                     <input type="checkbox" id="check-all">
                 </th>
                 <th scope="col">Rejection Notes<br>
-                    <button type="button" class="copy-column" data-field="rejectionnotes">copy 1st row</button>
+                    <button type="button" class="copy-column" data-field="rejectionnotes">↓</button>
                 </th>
             </tr>
         </thead>
@@ -155,21 +155,16 @@ Pri2m : Transfer - New
     }
 
     document.getElementById("pick").addEventListener("click", pickDirectoryAndSend);
-
     
     function setControlValue(el, value) {
-        // For <input>, <textarea>, and <select>
         if ('value' in el) {
         el.value = value;
-        // Fire both 'input' and 'change' to cover most scenarios
         el.dispatchEvent(new Event('input', { bubbles: true }));
         el.dispatchEvent(new Event('change', { bubbles: true }));
         }
     }
-
     
     function copyColumn(fieldName, sourceIndex = 0) {
-        // Match inputs/textareas/selects with names ending in -<fieldName>
         const selector = [
         `input[name$='-${fieldName}']`,
         `textarea[name$='-${fieldName}']`,
@@ -185,25 +180,12 @@ Pri2m : Transfer - New
         controls.forEach(ctrl => setControlValue(ctrl, value));
     }
 
-
     document.querySelectorAll('.copy-column').forEach(btn => {
         btn.addEventListener('click', () => {
         const field = btn.dataset.field;
         copyColumn(field, 0);
         });
     });
-
-
-    // document.querySelectorAll(".copy-column").forEach(btn => {
-    //     btn.addEventListener("click", () => {
-    //         const field = btn.dataset.field;
-    //         const inputs = document.querySelectorAll(`input[name$='-${field}']`);
-            
-    //         const value = inputs[0].value; // top row is source
-
-    //         inputs.forEach(input => input.value = value);
-    //     });
-    // });
 
     document.getElementById("check-all").addEventListener("change", function() {
         const check = this.checked;
