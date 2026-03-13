@@ -6,7 +6,6 @@ from .models import Tlkstage, Tblproject, Tlkclassification, Tlkfaculty, Tbluser
     , Tbldsanotes, Tbldsasprojects, Tbltransferrequest, Tlktransferrequesttypes, Tlkfiletransfermethods, Tbltransferfileasset \
     , Tbltransferfile
 from django.utils import timezone
-#from django.core.exceptions import ValidationError
 
 class DateInput(forms.DateInput):
     input_type = "date"
@@ -471,7 +470,7 @@ class TransferForm(forms.Form):
     transfermethod = forms.ModelChoiceField(label="Transfer Method", queryset=Tlkfiletransfermethods.objects.filter(validto__isnull=True).order_by("methodlabel"))
     transferfrom = forms.CharField(label="Transfer From", max_length=250)
     transferto = forms.CharField(label="Transfer To", max_length=250)
-    dsareviewed = forms.ModelChoiceField(label="DSA Reviewed", queryset=Tbldsas.objects.filter(validto__isnull=True).order_by("dsaname"), to_field_name="documentid")
+    dsareviewed = forms.ModelChoiceField(widget=forms.Select(attrs={'style': 'width:250px'}), label="DSA Reviewed", queryset=Tbldsas.objects.filter(validto__isnull=True).order_by("dsaname"), to_field_name="documentid")
     validfrom=  forms.DateTimeField(widget = forms.HiddenInput(), required=False) 
     validto= forms.DateTimeField(widget = forms.HiddenInput(), required=False)
     createdby= forms.CharField(widget = forms.HiddenInput(), required=False, max_length=50)
@@ -500,12 +499,12 @@ class TransferfileForm(forms.Form):
             asset = cleaned.get("assetid")
             add_asset = cleaned.get("new_asset", "").strip()
             if add_asset:
-                asset, created = Tbltransferfileasset.objects.get_or_create(assetname=add_asset, validfrom=timezone.now())
+                asset, created = Tbltransferfileasset.objects.get_or_create(assetname=add_asset)
             cleaned["assetid"] = asset
 
             rejectionnotes = cleaned.get("rejectionnotes").strip()
             transferaccepted = cleaned.get("transferaccepted")
-            if rejectionnotes is None and transferaccepted is False:
+            if (rejectionnotes is None or rejectionnotes == "") and transferaccepted is False:
                 self.add_error(None, "Must provide rejection reason for files not accepted")
 
             return cleaned

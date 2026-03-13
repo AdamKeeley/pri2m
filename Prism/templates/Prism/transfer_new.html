@@ -16,15 +16,36 @@ Pri2m : Transfer - New
 </ul>
 {% endif %}
 
-<form id="transfer" method="POST" action="submit">
+{% for form in formset %}
+    <div class="formset-row">
+        {{ form.non_field_errors }}
+    </div>
+{% endfor %}
+
+
+{% if formset.non_field_errors %}
+<ul>
+    {% for form in formset %}
+        {% for error in form.non_field_errors %}
+            <li class="form-error">{{error}}</li>
+        {% endfor %}
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form id="transfer" method="POST" action="">
+    <p><input class="btn btn-primary" type="submit" value="Submit"></p>
+
     {% csrf_token %}
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-6">
                 <legend>Request</legend>
                 <p>
                     <label for="project-select">Project Number</label>
-                    <select id="project-select" class="select"> 
+                    <select id="project-select" class="select" name="project-select"> 
                         <option></option>
                         {% for project_number in project_numbers %} 
                         <option value="{% url 'transfercreate' project_number.projectnumber %}" 
@@ -50,18 +71,16 @@ Pri2m : Transfer - New
                 <p>{{ transfer_form.reviewedby.as_field_group }}</p>
                 <p>{{ transfer_form.dsareviewed.as_field_group }}</p>
                 <p>{{ transfer_form.reviewnotes.as_field_group }}</p>
+                
+                <p>{{ transfer_form.projectnumber.as_hidden }}</p>
             </div>
         </div>
     </div>
-</form>
 
-<legend>Files</legend> 
+    <legend>Files</legend> 
 
-<pre id="out"></pre>
+    <pre id="out"></pre>
 
-<form id="files" method="POST" action="submit">
-    {% csrf_token %}
-    <meta name="csrf-token" content="{{ csrf_token }}">
     {{ formset.management_form }}
 
     <table class="table table-hover">
@@ -94,13 +113,13 @@ Pri2m : Transfer - New
         <tbody>
             {% for form in formset %}
                 <tr>
-                    <td>{{ form.filename|default_if_none:"" }}</td>
-                    <td>{{ form.assetid }}</td>
-                    <td>{{ form.new_asset }}</td>
-                    <td>{{ form.trefilepath|default_if_none:"" }}</td>
-                    <td>{{ form.datarepofilepath|default_if_none:"" }}</td>
-                    <td>{{ form.transferaccepted|default_if_none:"" }}</td>
-                    <td>{{ form.rejectionnotes|default_if_none:"" }}</td>
+                    <td>{{ form.filename.errors }}{{ form.filename|default_if_none:"" }}</td>
+                    <td>{{ form.assetid.errors }}{{ form.assetid }}</td>
+                    <td>{{ form.new_asset.errors }}{{ form.new_asset }}</td>
+                    <td>{{ form.trefilepath.errors }}{{ form.trefilepath|default_if_none:"" }}</td>
+                    <td>{{ form.datarepofilepath.errors }}{{ form.datarepofilepath|default_if_none:"" }}</td>
+                    <td>{{ form.transferaccepted.errors }}{{ form.transferaccepted|default_if_none:"" }}</td>
+                    <td>{{ form.rejectionnotes.errors }}{{ form.rejectionnotes|default_if_none:"" }}</td>
                 </tr>
             {% endfor %}
         </tbody>
@@ -158,8 +177,6 @@ Pri2m : Transfer - New
             document.open(); document.write(html); document.close();
         }
     }
-
-    // document.getElementById("pick").addEventListener("click", pickDirectoryAndSend);
     
     function setControlValue(el, value) {
         if ('value' in el) {

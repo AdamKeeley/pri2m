@@ -1697,6 +1697,7 @@ def transfercreate(request, projectnumber):
     ).order_by("projectnumber")
     
     transfer_form = TransferForm()
+    transfer_form.initial['projectnumber'] = projectnumber
 
     # If projectnumber not yet selected, disable form fields
     if projectnumber == 'new':
@@ -1715,12 +1716,12 @@ def transfercreate(request, projectnumber):
         , 'transfer_form':transfer_form}
 
     if request.method == 'POST':
+        # Retain inputted transfer details
+        transfer_form_new = TransferForm(request.POST)
+        transfer_form_new.fields['dsareviewed'].queryset = dsareviewed_choices
+        transfer_form_new.fields['requestedby'].queryset = requestedby_choices
+        
         if 'files' in request.POST:
-            # Retain inputted transfer details
-            transfer_form_new = TransferForm(request.POST)
-            transfer_form_new.fields['dsareviewed'].queryset = dsareviewed_choices
-            transfer_form_new.fields['requestedby'].queryset = requestedby_choices
-
             # Expect JSON: {"paths":["sub/a.txt", "b.jpg", ...]}
             try:
                 files = json.loads(request.POST.get("files", "[]"))
@@ -1744,7 +1745,50 @@ def transfercreate(request, projectnumber):
             # Render to a page that shows the formset (no file content uploaded!)
             return render(request, "Prism/transfer_new.html", context)
         
-        return render(request, "Prism/transfer_new.html", context)
+        else:
+            FileFormSet = formset_factory(TransferfileForm, extra=0)
+            transfer_files_formset_new = FileFormSet(request.POST)
+
+            if transfer_form_new.is_valid() and transfer_files_formset_new.is_valid():
+                parent_transfer = Tbltransferrequest.objects.create(
+                    projectnumber = transfer_form_new.cleaned_data['projectnumber']
+                    ,requesttype = transfer_form_new.cleaned_data['requesttype']
+                    ,requestedby = transfer_form_new.cleaned_data['requestedby'].usernumber
+                    ,requesternotes = transfer_form_new.cleaned_data['requesternotes']
+                    ,reviewedby = transfer_form_new.cleaned_data['reviewedby'].usernumber
+                    ,reviewdate = transfer_form_new.cleaned_data['reviewdate']
+                    ,reviewnotes = transfer_form_new.cleaned_data['reviewnotes']
+                    ,transfermethod = transfer_form_new.cleaned_data['transfermethod']
+                    ,transferfrom = transfer_form_new.cleaned_data['transferfrom']
+                    ,transferto = transfer_form_new.cleaned_data['transferto']
+                    ,dsareviewed = transfer_form_new.cleaned_data['dsareviewed'].documentid
+                    ,validfrom = timezone.now()
+                    ,validto = None
+                    ,createdby = request.user
+                    )
+
+                for transfer_files_form in transfer_files_formset_new:
+                    Tbltransferfile.objects.create(
+                        requestid = parent_transfer
+                        ,filename = transfer_files_form.cleaned_data['filename']
+                        ,trefilepath = transfer_files_form.cleaned_data['trefilepath']
+                        ,datarepofilepath = transfer_files_form.cleaned_data['datarepofilepath']
+                        ,transferaccepted = transfer_files_form.cleaned_data['transferaccepted']
+                        ,rejectionnotes = transfer_files_form.cleaned_data['rejectionnotes']
+                        ,assetid = transfer_files_form.cleaned_data['assetid']
+                        ,validfrom = timezone.now()
+                        ,validto = None
+                        ,createdby = request.user
+                    )
+
+                messages.success(request, 'Transfer added to Prism successfully.')
+                return HttpResponseRedirect(f"/transfer/{parent_transfer.pk}")
+            
+            else:
+                context.update({'projectnumber': projectnumber
+                            ,'transfer_form':transfer_form_new
+                            ,"formset": transfer_files_formset_new})
+                return render(request, "Prism/transfer_new.html", context)
 
     if request.method == 'GET':
         return render(request, 'Prism/transfer_new.html', context)
