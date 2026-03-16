@@ -1539,7 +1539,9 @@ def dataownercreate(request):
     if request.method == 'GET':
         data_owner_form = DataOwnerCreateForm()
         return render(request, 'Prism/data_owner_new.html', {'data_owner_form':data_owner_form})   
-    
+
+@login_required
+@permission_required(["Prism.view_tbltransferrequest", "Prism.view_tbluser"], raise_exception=True)
 def transferrequests(request):
     query = request.GET
 
@@ -1621,6 +1623,9 @@ def transferrequests(request):
                                                     ,'query': get_copy.urlencode()
                                                     })
 
+@login_required
+@permission_required(["Prism.view_tbluser", "Prism.view_tbldsas"
+                      , "Prism.view_tbltransferrequest", "Prism.view_tbltransferfile", "Prism.view_tbltransferfileasset"], raise_exception=True)
 def transferrequest(request, requestid):
     requestedby_firstname = Tbluser.objects.filter(
         validto__isnull=True
@@ -1688,6 +1693,10 @@ def transferrequest(request, requestid):
 
     return render(request, 'Prism/transfer.html', context)
 
+@login_required
+@permission_required(["Prism.view_tbluser", "Prism.view_tbldsas", "Prism.view_tblproject"
+                      , "Prism.view_tbltransferrequest", "Prism.view_tbltransferfile", "Prism.view_tbltransferfileasset"
+                      , "Prism.add_tbltransferrequest", "Prism.add_tbltransferfile", "Prism.add_tbltransferfileasset"], raise_exception=True)
 def transfercreate(request, projectnumber):
     project_numbers = Tblproject.objects.filter(
         validto__isnull=True
