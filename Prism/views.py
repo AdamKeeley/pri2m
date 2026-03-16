@@ -1672,8 +1672,7 @@ def transferrequest(request, requestid):
                         ).get()
     
     asset_name = Tbltransferfileasset.objects.filter(
-        validto__isnull=True
-        ,assetid=OuterRef("assetid")
+        assetid=OuterRef("assetid")
     ).values("assetname")
 
     transfer_files = Tbltransferfile.objects.filter(
@@ -1735,7 +1734,7 @@ def transfercreate(request, projectnumber):
                 initial.append({"filename": p})
             formset = FileFormSet(initial=initial)
 
-            asset_choices = Tbltransferfileasset.objects.filter(validto__isnull=True, assetid__in=Tbltransferfile.objects.filter(validto__isnull=True, requestid__in=Tbltransferrequest.objects.filter(validto__isnull=True, projectnumber__iexact=projectnumber)).values("assetid")).order_by("assetname")
+            asset_choices = Tbltransferfileasset.objects.filter(assetid__in=Tbltransferfile.objects.filter(validto__isnull=True, requestid__in=Tbltransferrequest.objects.filter(validto__isnull=True, projectnumber__iexact=projectnumber)).values("assetid")).order_by("assetname")
             for form in formset:
                 form.fields['assetid'].queryset = asset_choices
 

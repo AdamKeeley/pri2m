@@ -478,10 +478,10 @@ class Tbltransferfile(models.Model):
 class Tbltransferfileasset(models.Model):
     assetid = models.AutoField(db_column='AssetID', primary_key=True)  # Field name made lowercase.
     assetname = models.CharField(db_column='AssetName', max_length=500, blank=True, null=True)  # Field name made lowercase.
-    dataowner = models.CharField(db_column='DataOwner', max_length=100, blank=True, null=True)  # Field name made lowercase.
-    validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
-    validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
-    createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
+    # dataowner = models.CharField(db_column='DataOwner', max_length=100, blank=True, null=True)  # Field name made lowercase.
+    # validfrom = models.DateTimeField(db_column='ValidFrom', blank=True, null=True)  # Field name made lowercase.
+    # validto = models.DateTimeField(db_column='ValidTo', blank=True, null=True)  # Field name made lowercase.
+    # createdby = models.CharField(db_column='CreatedBy', max_length=50, blank=True, null=True)  # Field name made lowercase.
 
     def __str__(self):
         return self.assetname or ""
@@ -494,7 +494,7 @@ class Tbltransferfileasset(models.Model):
 class Tbltransferrequest(models.Model):
     requestid = models.AutoField(db_column='RequestID', primary_key=True)  # Field name made lowercase.
     projectnumber = models.CharField(db_column='ProjectNumber', max_length=5, blank=True, null=True)  # Field name made lowercase.
-    vrenumber = models.CharField(db_column='VreNumber', max_length=15, blank=True, null=True)  # Field name made lowercase.
+    # vrenumber = models.CharField(db_column='VreNumber', max_length=15, blank=True, null=True)  # Field name made lowercase.
     requesttype = models.ForeignKey('Tlktransferrequesttypes', models.PROTECT, db_column='RequestType')  # Field name made lowercase.
     requestedby = models.IntegerField(db_column='RequestedBy', blank=True, null=True)  # Field name made lowercase.
     requesternotes = models.TextField(db_column='RequesterNotes', blank=True, null=True)  # Field name made lowercase.
