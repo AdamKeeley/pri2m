@@ -4,7 +4,7 @@
 CREATE TABLE [dbo].[tblTransferRequest](
 	[RequestID] [int] IDENTITY(1,1) NOT NULL,
 	[ProjectNumber] [varchar](5) NULL,
-	[VreNumber] [varchar](15) NULL,
+	--[VreNumber] [varchar](15) NULL,
 	[RequestType] [int] NOT NULL,
 	[RequestedBy] [int] NULL,
 	[RequesterNotes] [varchar](max) NULL,
@@ -59,10 +59,10 @@ GO
 CREATE TABLE [dbo].[tblTransferFileAsset](
 	[AssetID] [int] IDENTITY(1,1) NOT NULL,
 	[AssetName] [varchar](500) NULL,
-	[DataOwner] [varchar](100) NULL,
-	[ValidFrom] [datetime] NULL,
-	[ValidTo] [datetime] NULL,
-	[CreatedBy] [varchar](50) NULL,
+	--[DataOwner] [varchar](100) NULL,
+	--[ValidFrom] [datetime] NULL,
+	--[ValidTo] [datetime] NULL,
+	--[CreatedBy] [varchar](50) NULL,
  CONSTRAINT [PK_TransferFileAsset] PRIMARY KEY CLUSTERED 
 (
 	[AssetID] ASC
@@ -70,11 +70,11 @@ CREATE TABLE [dbo].[tblTransferFileAsset](
 ) ON [PRIMARY]
 GO
 
-ALTER TABLE [dbo].[tblTransferFileAsset] ADD  DEFAULT (getdate()) FOR [ValidFrom]
-GO
+--ALTER TABLE [dbo].[tblTransferFileAsset] ADD  DEFAULT (getdate()) FOR [ValidFrom]
+--GO
 
-ALTER TABLE [dbo].[tblTransferFileAsset] ADD  DEFAULT (suser_sname()) FOR [CreatedBy]
-GO
+--ALTER TABLE [dbo].[tblTransferFileAsset] ADD  DEFAULT (suser_sname()) FOR [CreatedBy]
+--GO
 
 
 /****************************************
