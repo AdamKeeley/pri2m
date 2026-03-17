@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Prism',
-    'bootstrap5',
+    # 'bootstrap5',
+    'django_bootstrap5',
     'django_entra_auth',
 ]
 
@@ -200,8 +201,8 @@ ENTRA_AUTH = {
     # For Entra ID, use 'login.microsoftonline.com/<your-tenant-id>'
     "SERVER": "login.microsoftonline.com/bdeaeda8-c81d-45ce-863e-5232a535b7cb",
     "CLIENT_ID": "1e2f40dc-097b-455d-96d5-bc4b93b3727f",
-    # 'CLIENT_SECRET': client_secret['value'],
-    'CLIENT_SECRET': retrieved_secret.value,
+    'CLIENT_SECRET': client_secret['value'],
+    # 'CLIENT_SECRET': retrieved_secret.value,
     "RELYING_PARTY_ID": "1e2f40dc-097b-455d-96d5-bc4b93b3727f", # Often same as CLIENT_ID for Entra ID
     # OIDC Audience ("aud" claim). For Entra ID, LIENT_ID
     "AUDIENCE": "1e2f40dc-097b-455d-96d5-bc4b93b3727f",
