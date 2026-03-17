@@ -59,6 +59,7 @@ Pri2m : {{ user.username|default_if_none:"User" }}
                                             <p>{{ user_form.enddate.as_field_group }}</p>
                                             <p>{{ user_form.phone.as_field_group }}</p>
                                             <p>{{ user_form.organisation.as_field_group }}</p>
+                                            <p>{{ user_form.priviledged.as_hidden }}</p>
                                         </fieldset>
                                     </div>
                                 </div>

@@ -231,7 +231,7 @@ class UserForm(forms.Form):
     organisation = forms.CharField(label="Organisation", max_length=255)
     startdate = forms.DateTimeField(label="Start Date", widget = DateInput(), required=False)
     enddate = forms.DateTimeField(label="End Date", widget = DateInput(), required=False)
-    # priviledged = forms.BooleanField(label="SEED Agreement", required=False)
+    priviledged = forms.BooleanField(widget = forms.HiddenInput(), label="Priviledged", required=False)
     # seedagreement = forms.BooleanField(label="SEED Agreement", required=False)
     # ircagreement = forms.BooleanField(label="IRC Agreement", required=False)
     laseragreement = forms.DateTimeField(label="LASER Agreement", widget = DateInput(), required=False)

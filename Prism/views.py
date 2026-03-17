@@ -831,6 +831,7 @@ def user(request, usernumber):
                     ,dataprotection = user_form.cleaned_data['dataprotection']
                     ,informationsecurity = user_form.cleaned_data['informationsecurity']
                     ,safe = user_form.cleaned_data['safe']
+                    ,priviledged = user_form.cleaned_data['priviledged']
                     ,validfrom = timezone.now()
                     ,validto = None
                     ,createdby = request.user
