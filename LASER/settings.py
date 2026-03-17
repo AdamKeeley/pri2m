@@ -132,8 +132,7 @@ DATABASES = {
         "HOST": "adam-playground.database.windows.net",
         "CONN_MAX_AGE": 30 * 60,  # max of 30 min, since AT is valid for 60 min
         "OPTIONS": {
-            # "driver": "ODBC Driver 18 for SQL Server",
-            "driver": "FreeTDS",
+            "driver": "ODBC Driver 18 for SQL Server",
             },
         "TIME_ZONE": "UTC",
     }
