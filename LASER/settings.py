@@ -15,6 +15,7 @@ import time
 from azure.core.credentials import AccessToken
 from azure.core.exceptions import ClientAuthenticationError
 from azure.identity import DefaultAzureCredential
+from azure.keyvault.secrets import SecretClient
 from .config import client_secret
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -183,6 +184,15 @@ AUTHENTICATION_BACKENDS = (
     'django_entra_auth.backend.AdfsAuthCodeBackend',
 )
 
+keyVaultName = "pri2m-test"
+KVUri = f"https://{keyVaultName}.vault.azure.net"
+
+credential = DefaultAzureCredential()
+client = SecretClient(vault_url=KVUri, credential=credential)
+
+secretName = "pri2m-dev-client-secret"
+retrieved_secret = client.get_secret(secretName)
+
 # Basic configuration for Entra ID
 # checkout the documentation for more settings
 ENTRA_AUTH = {
@@ -190,7 +200,8 @@ ENTRA_AUTH = {
     # For Entra ID, use 'login.microsoftonline.com/<your-tenant-id>'
     "SERVER": "login.microsoftonline.com/bdeaeda8-c81d-45ce-863e-5232a535b7cb",
     "CLIENT_ID": "1e2f40dc-097b-455d-96d5-bc4b93b3727f",
-    'CLIENT_SECRET': client_secret['value'],
+    # 'CLIENT_SECRET': client_secret['value'],
+    'CLIENT_SECRET': retrieved_secret.value,
     "RELYING_PARTY_ID": "1e2f40dc-097b-455d-96d5-bc4b93b3727f", # Often same as CLIENT_ID for Entra ID
     # OIDC Audience ("aud" claim). For Entra ID, LIENT_ID
     "AUDIENCE": "1e2f40dc-097b-455d-96d5-bc4b93b3727f",
