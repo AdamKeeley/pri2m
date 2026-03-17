@@ -194,6 +194,9 @@ client = SecretClient(vault_url=KVUri, credential=credential)
 secretName = "pri2m-dev-client-secret"
 retrieved_secret = client.get_secret(secretName)
 
+# https://tnware.github.io/django-entra-auth/faq.html#the-redirect-uri-starts-with-http-while-my-site-is-https-only
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # Basic configuration for Entra ID
 # checkout the documentation for more settings
 ENTRA_AUTH = {
