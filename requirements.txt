@@ -8,7 +8,6 @@ cffi==2.0.0
 charset-normalizer==3.4.4
 cryptography==46.0.4
 Django==5.2.8
-django-azure-auth==2.5.0
 django-bootstrap5==26.2
 django-entra-auth==1.16.0
 idna==3.11
@@ -30,3 +29,4 @@ sqlparse==0.5.3
 typing_extensions==4.15.0
 tzdata==2025.2
 urllib3==2.6.3
+whitenoise==6.12.0
