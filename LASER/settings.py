@@ -164,7 +164,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-GB'
 
-TIME_ZONE = 'GB'
+TIME_ZONE = 'Europe/London'
 
 USE_I18N = True
 
@@ -174,7 +174,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'Prism/static/'
 STATIC_ROOT = path.join(BASE_DIR, 'Prism/static/')
 
 # Default primary key field type
