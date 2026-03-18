@@ -16,7 +16,6 @@ from azure.core.credentials import AccessToken
 from azure.core.exceptions import ClientAuthenticationError
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
-# from .config import client_secret
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,7 +30,7 @@ SECRET_KEY = 'django-insecure-@$3wv3kr3-*fnraqq-5y5^vbr2q#$74r=99^lkl2@$b8+78yq(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['pri2m-test.azurewebsites.net']
+ALLOWED_HOSTS = ['localhost', 'pri2m-test.azurewebsites.net']
 
 
 # Application definition
@@ -44,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'Prism',
-    # 'bootstrap5',
     'django_bootstrap5',
     'django_entra_auth',
 ]
@@ -204,7 +202,6 @@ ENTRA_AUTH = {
     # For Entra ID, use 'login.microsoftonline.com/<your-tenant-id>'
     "SERVER": "login.microsoftonline.com/bdeaeda8-c81d-45ce-863e-5232a535b7cb",
     "CLIENT_ID": "1e2f40dc-097b-455d-96d5-bc4b93b3727f",
-    # 'CLIENT_SECRET': client_secret['value'],
     'CLIENT_SECRET': retrieved_secret.value,
     "RELYING_PARTY_ID": "1e2f40dc-097b-455d-96d5-bc4b93b3727f", # Often same as CLIENT_ID for Entra ID
     # OIDC Audience ("aud" claim). For Entra ID, LIENT_ID
